@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Launch Scraper",
+      "runtimeExecutable": "node",
+      "program": "${workspaceFolder}/scripts/scrape_leaders.mjs",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "stopOnEntry": true
+    },
+    {
+      "type": "pwa-node",
+      "request": "attach",
+      "name": "Attach to Scraper (inspect)",
+      "port": 9229,
+      "restart": false,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
