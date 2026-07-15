@@ -67,15 +67,22 @@ export function MatchList({
         return (
           <div
             key={match.id}
-            className="relative flex items-stretch gap-4 p-4 pr-24 border rounded-lg bg-white shadow-sm hover:bg-slate-50"
+            className={"relative flex items-stretch gap-4 p-4 pr-24 border rounded-lg shadow-sm hover:bg-slate-50"}
           >
-            <div className="shrink-0">
+            <div className="shrink-0 flex flex-col items-center gap-2">
               <LeaderThumbnail
                 src={opponentLeader?.imageUrl ?? '/leader-images/placeholder.png'}
                 alt={opponentLeader?.name ?? match.opponentLeaderId}
                 isCard
-                className="w-24 h-24 rounded-xl object-cover bg-slate-100"
+                className="w-20 h-full object-cover rounded-xl bg-white self-stretch"
               />
+              <button
+                onClick={() => handleDeleteMatch(match.id)}
+                disabled={loading === match.id}
+                className="rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading === match.id ? 'Deleting...' : 'Delete'}
+              </button>
             </div>
 
             <div className="flex-1 flex flex-col justify-between">
@@ -85,15 +92,6 @@ export function MatchList({
                     <h4 className="text-lg font-semibold text-slate-900">Round</h4>
                     <p className="text-sm text-slate-500">{opponentLeader ? opponentLeader.name : match.opponentLeaderId}</p>
                   </div>
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded ${
-                      match.won
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-rose-100 text-rose-800'
-                    }`}
-                  >
-                    {match.won ? 'Won' : 'Lost'}
-                  </span>
                 </div>
               </div>
 
@@ -114,14 +112,11 @@ export function MatchList({
                 </div>
               </div>
             </div>
+ <div className="absolute top-0 right-0 h-full w-[10%] rounded-r-lg overflow-hidden"> <div
 
-            <button
-              onClick={() => handleDeleteMatch(match.id)}
-              disabled={loading === match.id}
-              className="absolute right-4 top-4 rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading === match.id ? 'Deleting...' : 'Delete'}
-            </button>
+                className={`w-full ${match.won  ? 'bg-green-200' :  'bg-red-200'}`}
+                style={{ height:`100%` }}
+              /></div>
           </div>
         );
       })}

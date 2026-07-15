@@ -88,15 +88,15 @@ export default async function TournamentDetailPage({ params }: Props) {
 
       <div className="space-y-8 w-full">
         <div className="w-full">
-          <MatchForm tournamentId={id} />
-        </div>
-
-        <div className="w-full">
           <h2 className="text-2xl font-bold mb-4">Rounds ({tournament.matches.length})</h2>
           <MatchList
             tournaments_matches={tournament.matches}
             tournamentId={id}
           />
+        </div>
+
+        <div className="w-full">
+          <MatchForm tournamentId={id} />
         </div>
       </div>
     </main>
