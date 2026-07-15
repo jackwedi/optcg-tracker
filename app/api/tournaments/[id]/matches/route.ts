@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addMatch } from "@/lib/db";
+import { getLeaderById } from "@/lib/leaders";
 
 interface Params {
   id: string;
@@ -11,16 +12,31 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const { opponentDeck, won, wonCoinFlip } = await request.json();
+    const { opponentLeaderId, won, wonCoinFlip, startingPosition } = await request.json();
 
-    if (!opponentDeck) {
+    if (!opponentLeaderId) {
       return NextResponse.json(
-        { error: "Missing required field: opponentDeck" },
+        { error: "Missing required field: opponentLeaderId" },
         { status: 400 },
       );
     }
 
-    const match = addMatch(id, opponentDeck, won, wonCoinFlip);
+    const opponentLeader = getLeaderById(opponentLeaderId);
+    if (!opponentLeader) {
+      return NextResponse.json(
+        { error: "Invalid opponentLeaderId" },
+        { status: 400 },
+      );
+    }
+
+    const normalizedPosition = startingPosition === "2nd" ? "2nd" : "1st";
+    const match = addMatch(
+      id,
+      won,
+      wonCoinFlip,
+      normalizedPosition,
+      opponentLeaderId,
+    );
 
     if (!match) {
       return NextResponse.json(

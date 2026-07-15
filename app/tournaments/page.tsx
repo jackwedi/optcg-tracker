@@ -40,7 +40,7 @@ export default function TournamentsPage() {
             <div className="space-y-2 text-sm text-gray-600">
               <p>📅 {formatDate(tournament.date)}</p>
               <p className="font-medium text-blue-600">
-                {tournament.matches.length} matches
+                {tournament.matches.length} rounds
               </p>
             </div>
           </Link>

@@ -47,6 +47,12 @@ export default function RootLayout({
                 >
                   Tournaments
                 </Link>
+                <Link
+                  href="/leaders"
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Leaders
+                </Link>
               </div>
             </div>
           </div>

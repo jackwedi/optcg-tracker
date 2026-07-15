@@ -15,14 +15,14 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-1">
-          <div className="bg-white p-6 rounded-lg shadow">
+      <div className="space-y-8">
+        <div className="w-full">
+          <div className="bg-white p-6 rounded-lg shadow w-full">
             <TournamentForm />
           </div>
         </div>
 
-        <div className="md:col-span-2">
+        <div className="w-full">
           <h2 className="text-2xl font-bold mb-4">Tournaments</h2>
           <TournamentList tournaments={tournaments} />
         </div>

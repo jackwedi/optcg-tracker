@@ -1,8 +1,10 @@
 "use client";
 
 import { Match } from "@/models/tournament";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { Leader } from '@/models/leader';
+import LeaderThumbnail from '@/components/LeaderThumbnail';
 
 interface MatchListProps {
   tournaments_matches: Match[];
@@ -14,7 +16,19 @@ export function MatchList({
   tournamentId,
 }: MatchListProps) {
   const [loading, setLoading] = useState<string | null>(null);
+  const [leaders, setLeaders] = useState<Leader[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    let mounted = true;
+    fetch('/api/leaders')
+      .then((res) => res.json())
+      .then((data: Leader[]) => {
+        if (mounted) setLeaders(data);
+      })
+      .catch(() => {});
+    return () => { mounted = false; };
+  }, []);
 
   const handleDeleteMatch = async (matchId: string) => {
     if (!confirm("Are you sure you want to delete this match?")) return;
@@ -29,7 +43,7 @@ export function MatchList({
       if (!response.ok) throw new Error("Failed to delete match");
 
       router.refresh();
-    } catch (error) {
+    } catch {
       alert("Failed to delete match");
     } finally {
       setLoading(null);
@@ -39,47 +53,78 @@ export function MatchList({
   if (tournaments_matches.length === 0) {
     return (
       <div className="text-center py-8 bg-gray-50 rounded-md">
-        <p className="text-gray-500">No matches recorded yet.</p>
+        <p className="text-gray-500">No rounds recorded yet.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
-      {tournaments_matches.map((match) => (
-        <div
-          key={match.id}
-          className="flex items-start justify-between p-4 border border-gray-200 rounded-md hover:bg-gray-50"
-        >
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h4 className="font-semibold text-lg">Match</h4>
-              <span
-                className={`px-2 py-1 text-xs font-semibold rounded ${
-                  match.won
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {match.won ? "Won" : "Lost"}
-              </span>
-            </div>
-            <p className="text-sm text-gray-600 mt-1">
-              Deck: <span className="font-medium">{match.opponentDeck}</span>
-            </p>
-            <p className="text-sm text-gray-600">
-              Coin Flip: {match.wonCoinFlip ? "✓ Won" : "✗ Lost"}
-            </p>
-          </div>
-          <button
-            onClick={() => handleDeleteMatch(match.id)}
-            disabled={loading === match.id}
-            className="ml-4 px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded disabled:bg-gray-200"
+    <div className="space-y-3">
+      {tournaments_matches.map((match) => {
+        const opponentLeader = leaders.find((leader) =>
+        (match.opponentLeaderId && leader.id === match.opponentLeaderId)) ?? null;
+
+        return (
+          <div
+            key={match.id}
+            className="relative flex items-stretch gap-4 p-4 pr-24 border rounded-lg bg-white shadow-sm hover:bg-slate-50"
           >
-            {loading === match.id ? "Deleting..." : "Delete"}
-          </button>
-        </div>
-      ))}
+            <div className="shrink-0">
+              <LeaderThumbnail
+                src={opponentLeader?.imageUrl ?? '/leader-images/placeholder.png'}
+                alt={opponentLeader?.name ?? match.opponentLeaderId}
+                isCard
+                className="w-24 h-24 rounded-xl object-cover bg-slate-100"
+              />
+            </div>
+
+            <div className="flex-1 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-3">
+                  <div>
+                    <h4 className="text-lg font-semibold text-slate-900">Round</h4>
+                    <p className="text-sm text-slate-500">{opponentLeader ? opponentLeader.name : match.opponentLeaderId}</p>
+                  </div>
+                  <span
+                    className={`px-2 py-1 text-xs font-semibold rounded ${
+                      match.won
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-rose-100 text-rose-800'
+                    }`}
+                  >
+                    {match.won ? 'Won' : 'Lost'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                <div className="rounded-2xl bg-slate-50 p-3">
+                  <div className="text-xs text-slate-500">Deck</div>
+                  <div className="mt-1 text-sm font-medium text-slate-900">{match.opponentLeaderId} </div>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-3">
+                  <div className="text-xs text-slate-500">Coin Flip</div>
+                  <div className="mt-1 text-sm font-medium text-slate-900">
+                    {match.wonCoinFlip ? 'Won' : 'Lost'}
+                  </div>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-3">
+                  <div className="text-xs text-slate-500">Start</div>
+                  <div className="mt-1 text-sm font-medium text-slate-900">{match.startingPosition}</div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleDeleteMatch(match.id)}
+              disabled={loading === match.id}
+              className="absolute right-4 top-4 rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading === match.id ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }

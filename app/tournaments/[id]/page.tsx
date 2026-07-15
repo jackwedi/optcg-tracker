@@ -1,4 +1,6 @@
 import { getTournamentById, getTournamentStats } from "@/lib/db";
+import { getLeaderById } from '@/lib/leaders';
+import LeaderThumbnail from '@/components/LeaderThumbnail';
 import Link from "next/link";
 import { MatchForm } from "@/components/MatchForm";
 import { MatchList } from "@/components/MatchList";
@@ -30,6 +32,8 @@ export default async function TournamentDetailPage({ params }: Props) {
     notFound();
   }
 
+  const playedLeader = tournament.playedLeaderId ? getLeaderById(tournament.playedLeaderId) : undefined;
+
   const stats = getTournamentStats(id);
 
   return (
@@ -45,6 +49,16 @@ export default async function TournamentDetailPage({ params }: Props) {
       </div>
 
       <div className="mb-8">
+        {playedLeader ? (
+          <div className="mb-6 w-full h-96 relative overflow-hidden rounded-md">
+            <LeaderThumbnail
+              src={playedLeader.imageUrl}
+              alt={playedLeader.name}
+              className="w-full h-full object-top object-scale-down"
+            />
+          </div>
+        ) : null}
+
         <h1 className="text-4xl font-bold mb-2">{tournament.name}</h1>
         <p className="text-gray-600">{formatDateServer(tournament.date)}</p>
       </div>
@@ -52,7 +66,7 @@ export default async function TournamentDetailPage({ params }: Props) {
       {stats && (
         <div className="grid gap-4 md:grid-cols-4 mb-8">
           <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-gray-600 text-sm">Total Matches</p>
+            <p className="text-gray-600 text-sm">Total Rounds</p>
             <p className="text-3xl font-bold">{stats.totalMatches}</p>
           </div>
           <div className="bg-green-50 p-4 rounded-lg">
@@ -72,15 +86,13 @@ export default async function TournamentDetailPage({ params }: Props) {
         </div>
       )}
 
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-1">
+      <div className="space-y-8 w-full">
+        <div className="w-full">
           <MatchForm tournamentId={id} />
         </div>
 
-        <div className="md:col-span-2">
-          <h2 className="text-2xl font-bold mb-4">
-            Matches ({tournament.matches.length})
-          </h2>
+        <div className="w-full">
+          <h2 className="text-2xl font-bold mb-4">Rounds ({tournament.matches.length})</h2>
           <MatchList
             tournaments_matches={tournament.matches}
             tournamentId={id}

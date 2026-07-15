@@ -22,13 +22,14 @@ export function getTournamentById(id: string): Tournament | undefined {
   return getStorage().find((t) => t.id === id);
 }
 
-export function createTournament(name: string, date: string): Tournament {
+export function createTournament(name: string, date: string, playedLeaderId?: string): Tournament {
   const storage = getStorage();
   const tournament: Tournament = {
     id: Date.now().toString(),
     name,
     date,
     createdAt: new Date().toISOString(),
+    playedLeaderId,
     matches: [],
   };
   storage.push(tournament);
@@ -61,9 +62,10 @@ export function deleteTournament(id: string): boolean {
 
 export function addMatch(
   tournamentId: string,
-  opponentDeck: string,
   won: boolean,
   wonCoinFlip: boolean,
+  startingPosition: "1st" | "2nd",
+  opponentLeaderId: string,
 ): Match | undefined {
   const storage = getStorage();
   const tournament = storage.find((t) => t.id === tournamentId);
@@ -72,9 +74,10 @@ export function addMatch(
   const match: Match = {
     id: Date.now().toString(),
     tournamentId,
-    opponentDeck,
+    opponentLeaderId,
     won,
     wonCoinFlip,
+    startingPosition,
     createdAt: new Date().toISOString(),
   };
 

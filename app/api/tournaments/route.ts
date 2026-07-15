@@ -15,7 +15,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, date } = await request.json();
+    const { name, date, playedLeaderId } = await request.json();
 
     if (!name || !date) {
       return NextResponse.json(
@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const tournament = createTournament(name, date);
+    const tournament = createTournament(name, date, playedLeaderId);
     return NextResponse.json(tournament, { status: 201 });
-  } catch {
+  } catch (err) {
     return NextResponse.json(
       { error: "Failed to create tournament" },
       { status: 500 },

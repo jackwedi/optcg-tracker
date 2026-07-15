@@ -4,3 +4,5 @@ export { MatchForm } from "./MatchForm";
 export { MatchList } from "./MatchList";
 export { LeaderForm } from "./LeaderForm";
 export { LeaderList } from "./LeaderList";
+export { LeaderCard } from "./LeaderCard";
+export { LeaderSearch } from "./LeaderSearch";
