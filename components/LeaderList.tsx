@@ -12,10 +12,9 @@ interface Leader {
 
 export function LeaderList() {
   const [leaders, setLeaders] = useState<Leader[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchLeaders = async () => {
-    setLoading(true);
     try {
       const res = await fetch("/api/leaders");
       const data = await res.json();
@@ -28,7 +27,24 @@ export function LeaderList() {
   };
 
   useEffect(() => {
-    fetchLeaders();
+    let mounted = true;
+
+    fetch("/api/leaders")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!mounted) return;
+        setLeaders(data || []);
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   useEffect(() => {

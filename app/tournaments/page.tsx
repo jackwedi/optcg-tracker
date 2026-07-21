@@ -14,8 +14,8 @@ function formatDate(dateString: string): string {
   }
 }
 
-export default function TournamentsPage() {
-  const tournaments = getTournaments();
+export default async function TournamentsPage() {
+  const tournaments = await getTournaments();
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -40,7 +40,7 @@ export default function TournamentsPage() {
             <div className="space-y-2 text-sm text-gray-600">
               <p>📅 {formatDate(tournament.date)}</p>
               <p className="font-medium text-blue-600">
-                {tournament.matches.length} rounds
+                {tournament.rounds.length} rounds
               </p>
             </div>
           </Link>

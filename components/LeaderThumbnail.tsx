@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React from "react";
 
 interface Props {
   src: string;
@@ -11,27 +11,21 @@ interface Props {
 
 export default function LeaderThumbnail({
   src,
-  alt = '',
-  className = '',
+  alt = "",
+  className = "",
   isCard = false,
 }: Props) {
-  const [current, setCurrent] = useState(src.startsWith('/') ? src : `/${src}`);
-
-  useEffect(() => {
-    setCurrent(src.startsWith('/') ? src : `/${src}`);
-  }, [src]);
+  const isRemote = /^https?:\/\//i.test(src);
+  const normalizedSrc = isRemote || src.startsWith("/") ? src : `/${src}`;
 
   const imageNode = (
-    // img onError is handled inside client component so server components don't receive event handlers
-    // and we can safely update the src when it fails
-    // eslint-disable-next-line jsx-a11y/img-redundant-alt
     <img
-      src={current}
+      src={normalizedSrc}
       alt={alt}
       className={className}
       onError={(e) => {
-        (e.currentTarget as HTMLImageElement).src = '/leader-images/placeholder.png';
-        setCurrent('/leader-images/placeholder.png');
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = "/placeholder.png";
       }}
     />
   );

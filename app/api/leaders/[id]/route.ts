@@ -7,25 +7,25 @@ interface Params {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<Params> },
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { id } = await params;
-    const leader = getLeaderById(id);
+    const leader = await getLeaderById(id);
     if (!leader)
       return NextResponse.json({ error: "Leader not found" }, { status: 404 });
     return NextResponse.json(leader);
   } catch {
     return NextResponse.json(
       { error: "Failed to fetch leader" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<Params> },
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { id } = await params;
@@ -34,36 +34,36 @@ export async function PUT(
     if (!name || !colors || !imageUrl) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
-    const leader = updateLeader(id, name, colors, imageUrl, altImageUrl);
+    const leader = await updateLeader(id, name, colors, imageUrl, altImageUrl);
     if (!leader)
       return NextResponse.json({ error: "Leader not found" }, { status: 404 });
     return NextResponse.json(leader);
   } catch {
     return NextResponse.json(
       { error: "Failed to update leader" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<Params> },
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { id } = await params;
-    const deleted = deleteLeader(id);
+    const deleted = await deleteLeader(id);
     if (!deleted)
       return NextResponse.json({ error: "Leader not found" }, { status: 404 });
     return NextResponse.json({ message: "Leader deleted" });
   } catch {
     return NextResponse.json(
       { error: "Failed to delete leader" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

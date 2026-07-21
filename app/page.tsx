@@ -1,8 +1,8 @@
 import { getTournaments } from "@/lib/db";
 import { TournamentForm, TournamentList } from "@/components";
 
-export default function Home() {
-  const tournaments = getTournaments();
+export default async function Home() {
+  const tournaments = await getTournaments();
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -11,7 +11,7 @@ export default function Home() {
           One Piece TCG Tournament Tracker
         </h1>
         <p className="text-gray-600">
-          Track your tournament matches and deck performance
+          Track your tournament rounds and deck performance
         </p>
       </div>
 

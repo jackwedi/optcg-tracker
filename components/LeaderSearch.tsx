@@ -138,7 +138,7 @@ export function LeaderSearch({ leaders, selectedLeaderId, onSelectLeader }: Prop
       </div>
 
       {filtered.length === 0 && (
-        <p className="mt-6 text-gray-500">No leaders match the selected filters.</p>
+        <p className="mt-6 text-gray-500">No leaders fit the selected filters.</p>
       )}
     </div>
   );

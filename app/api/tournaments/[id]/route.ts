@@ -11,16 +11,16 @@ interface Params {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<Params> },
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { id } = await params;
-    const tournament = getTournamentById(id);
+    const tournament = await getTournamentById(id);
 
     if (!tournament) {
       return NextResponse.json(
         { error: "Tournament not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -28,14 +28,14 @@ export async function GET(
   } catch {
     return NextResponse.json(
       { error: "Failed to fetch tournament" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<Params> },
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { id } = await params;
@@ -44,16 +44,16 @@ export async function PUT(
     if (!name || !date) {
       return NextResponse.json(
         { error: "Missing required fields: name, date" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
-    const tournament = updateTournament(id, name, date);
+    const tournament = await updateTournament(id, name, date);
 
     if (!tournament) {
       return NextResponse.json(
         { error: "Tournament not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -61,23 +61,23 @@ export async function PUT(
   } catch {
     return NextResponse.json(
       { error: "Failed to update tournament" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<Params> },
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { id } = await params;
-    const deleted = deleteTournament(id);
+    const deleted = await deleteTournament(id);
 
     if (!deleted) {
       return NextResponse.json(
         { error: "Tournament not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -85,7 +85,7 @@ export async function DELETE(
   } catch {
     return NextResponse.json(
       { error: "Failed to delete tournament" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

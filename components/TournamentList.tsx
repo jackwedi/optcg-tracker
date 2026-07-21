@@ -39,7 +39,7 @@ export function TournamentList({ tournaments }: TournamentListProps) {
             📅 {formatDate(tournament.date)}
           </p>
           <p className="text-sm font-medium text-blue-600">
-            {tournament.matches.length} matches
+            {tournament.rounds.length} rounds
           </p>
         </div>
       ))}

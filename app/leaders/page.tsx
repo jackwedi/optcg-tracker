@@ -1,8 +1,8 @@
 import { getLeaders } from '@/lib/leaders';
 import { LeaderSearch } from '@/components/LeaderSearch';
 
-export default function LeadersPage() {
-  const leaders = getLeaders();
+export default async function LeadersPage() {
+  const leaders = await getLeaders();
 
   return (
     <main className="container mx-auto px-4 py-8">

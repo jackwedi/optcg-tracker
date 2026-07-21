@@ -2,8 +2,8 @@ import { getTournamentById, getTournamentStats } from "@/lib/db";
 import { getLeaderById } from '@/lib/leaders';
 import LeaderThumbnail from '@/components/LeaderThumbnail';
 import Link from "next/link";
-import { MatchForm } from "@/components/MatchForm";
-import { MatchList } from "@/components/MatchList";
+import { RoundForm } from "@/components/RoundForm";
+import { RoundList } from "@/components/RoundList";
 import { DeleteTournamentButton } from "@/components/DeleteTournamentButton";
 import { notFound } from "next/navigation";
 
@@ -26,15 +26,17 @@ interface Props {
 
 export default async function TournamentDetailPage({ params }: Props) {
   const { id } = await params;
-  const tournament = getTournamentById(id);
+  const tournament = await getTournamentById(id);
 
   if (!tournament) {
     notFound();
   }
 
-  const playedLeader = tournament.playedLeaderId ? getLeaderById(tournament.playedLeaderId) : undefined;
+  const playedLeader = tournament.playedLeaderId
+    ? await getLeaderById(tournament.playedLeaderId)
+    : undefined;
 
-  const stats = getTournamentStats(id);
+  const stats = await getTournamentStats(id);
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -67,7 +69,7 @@ export default async function TournamentDetailPage({ params }: Props) {
         <div className="grid gap-4 md:grid-cols-4 mb-8">
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-gray-600 text-sm">Total Rounds</p>
-            <p className="text-3xl font-bold">{stats.totalMatches}</p>
+            <p className="text-3xl font-bold">{stats.totalRounds}</p>
           </div>
           <div className="bg-green-50 p-4 rounded-lg">
             <p className="text-gray-600 text-sm">Wins</p>
@@ -88,15 +90,12 @@ export default async function TournamentDetailPage({ params }: Props) {
 
       <div className="space-y-8 w-full">
         <div className="w-full">
-          <h2 className="text-2xl font-bold mb-4">Rounds ({tournament.matches.length})</h2>
-          <MatchList
-            tournaments_matches={tournament.matches}
-            tournamentId={id}
-          />
+          <h2 className="text-2xl font-bold mb-4">Rounds ({tournament.rounds.length})</h2>
+          <RoundList rounds={tournament.rounds} tournamentId={id} />
         </div>
 
         <div className="w-full">
-          <MatchForm tournamentId={id} />
+          <RoundForm tournamentId={id} />
         </div>
       </div>
     </main>

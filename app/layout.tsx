@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "One Piece TCG Tournament Tracker",
   description:
-    "Track your One Piece TCG tournament matches, win rates, and deck performance",
+    "Track your One Piece TCG tournament rounds, win rates, and deck performance",
 };
 
 export default function RootLayout({

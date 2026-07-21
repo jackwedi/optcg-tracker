@@ -4,10 +4,10 @@ export interface Tournament {
   date: string;
   createdAt: string;
   playedLeaderId?: string;
-  matches: Match[];
+  rounds: Round[];
 }
 
-export interface Match {
+export interface Round {
   id: string;
   tournamentId: string;
   opponentLeaderId: string;

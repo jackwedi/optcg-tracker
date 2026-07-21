@@ -3,14 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "scrape:leaders": "node scripts/scrape_leaders.mjs",
-    "debug:scrape": "node --inspect-brk scripts/scrape_leaders.mjs",
+    "scrape:leaders": "node --env-file=.env.local scripts/scrape_leaders.mjs",
+    "migrate:local-data": "node --env-file=.env.local scripts/migrate_local_to_supabase.mjs",
+    "debug:scrape": "node --env-file=.env.local --inspect-brk scripts/scrape_leaders.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.3",
+    "@supabase/supabase-js": "^2.110.6",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4"
