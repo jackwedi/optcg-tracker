@@ -6,3 +6,4 @@ export { LeaderForm } from "./LeaderForm";
 export { LeaderList } from "./LeaderList";
 export { LeaderCard } from "./LeaderCard";
 export { LeaderSearch } from "./LeaderSearch";
+export { AuthPanel } from "./AuthPanel";

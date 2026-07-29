@@ -1,5 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
 import type { Round, Tournament } from "@/models/tournament";
+import { getCurrentUserId } from "@/lib/auth";
+import { createClient as createSupabaseServerClient } from "@/utils/supabase/server";
 
 interface TournamentRow {
   id: string;
@@ -28,24 +30,9 @@ function isMissingTableError(error: unknown): boolean {
   );
 }
 
-function getSupabaseClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-  const isJwtLike =
-    typeof serviceKey === "string" &&
-    /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(serviceKey);
-
-  const key = isJwtLike ? serviceKey : publishableKey;
-
-  if (!url || !key) {
-    throw new Error("Missing Supabase environment variables");
-  }
-
-  return createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+async function getSupabaseClient() {
+  const cookieStore = await cookies();
+  return createSupabaseServerClient(cookieStore);
 }
 
 function mapRoundRow(row: RoundRow): Round {
@@ -72,11 +59,17 @@ function mapTournamentRow(row: TournamentRow, rounds: Round[]): Tournament {
 }
 
 export async function getTournaments(): Promise<Tournament[]> {
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
+  const userId = await getCurrentUserId();
+
+  if (!userId) {
+    return [];
+  }
 
   const { data: tournaments, error } = await supabase
     .from("tournaments")
     .select("id,name,date,created_at,played_leader_id")
+    .eq("user_id", userId)
     .order("date", { ascending: false })
     .order("created_at", { ascending: false });
 
@@ -128,12 +121,18 @@ export async function getTournaments(): Promise<Tournament[]> {
 export async function getTournamentById(
   id: string,
 ): Promise<Tournament | undefined> {
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
+  const userId = await getCurrentUserId();
+
+  if (!userId) {
+    return undefined;
+  }
 
   const { data: tournament, error } = await supabase
     .from("tournaments")
     .select("id,name,date,created_at,played_leader_id")
     .eq("id", id)
+    .eq("user_id", userId)
     .maybeSingle();
 
   if (error) {
@@ -173,11 +172,17 @@ export async function createTournament(
   date: string,
   playedLeaderId?: string,
 ): Promise<Tournament> {
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
+  const userId = await getCurrentUserId();
+
+  if (!userId) {
+    throw new Error("Authentication required");
+  }
 
   const id = crypto.randomUUID();
   const insertPayload = {
     id,
+    user_id: userId,
     name,
     date,
     played_leader_id: playedLeaderId ?? null,
@@ -201,12 +206,18 @@ export async function updateTournament(
   name: string,
   date: string,
 ): Promise<Tournament | undefined> {
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
+  const userId = await getCurrentUserId();
+
+  if (!userId) {
+    return undefined;
+  }
 
   const { data, error } = await supabase
     .from("tournaments")
     .update({ name, date })
     .eq("id", id)
+    .eq("user_id", userId)
     .select("id,name,date,created_at,played_leader_id")
     .maybeSingle();
 
@@ -223,7 +234,12 @@ export async function updateTournament(
 }
 
 export async function deleteTournament(id: string): Promise<boolean> {
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
+
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return false;
+  }
 
   const { error: deleteRoundsError } = await supabase
     .from("rounds")
@@ -238,6 +254,7 @@ export async function deleteTournament(id: string): Promise<boolean> {
     .from("tournaments")
     .delete()
     .eq("id", id)
+    .eq("user_id", userId)
     .select("id");
 
   if (error) {
@@ -254,12 +271,18 @@ export async function addRound(
   startingPosition: "1st" | "2nd",
   opponentLeaderId: string,
 ): Promise<Round | undefined> {
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
+
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return undefined;
+  }
 
   const { data: tournament, error: tournamentError } = await supabase
     .from("tournaments")
     .select("id")
     .eq("id", tournamentId)
+    .eq("user_id", userId)
     .maybeSingle();
 
   if (tournamentError) {
@@ -297,7 +320,12 @@ export async function deleteRound(
   tournamentId: string,
   roundId: string,
 ): Promise<boolean> {
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
+
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return false;
+  }
 
   const { data, error } = await supabase
     .from("rounds")
@@ -314,7 +342,18 @@ export async function deleteRound(
 }
 
 export async function getTournamentStats(tournamentId: string) {
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
+
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return {
+      totalRounds: 0,
+      wins: 0,
+      losses: 0,
+      coinFlipWins: 0,
+      winRate: "0",
+    };
+  }
 
   const { data: rounds, error } = await supabase
     .from("rounds")

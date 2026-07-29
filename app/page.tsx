@@ -1,5 +1,5 @@
 import { getTournaments } from "@/lib/db";
-import { TournamentForm, TournamentList } from "@/components";
+import { AuthPanel, TournamentForm, TournamentList } from "@/components";
 
 export default async function Home() {
   const tournaments = await getTournaments();
@@ -16,6 +16,10 @@ export default async function Home() {
       </div>
 
       <div className="space-y-8">
+        <div className="w-full">
+          <AuthPanel />
+        </div>
+
         <div className="w-full">
           <div className="bg-white p-6 rounded-lg shadow w-full">
             <TournamentForm />
