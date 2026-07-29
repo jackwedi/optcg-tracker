@@ -62,7 +62,7 @@ export function LeaderCard({ leader, selected, onSelect }: Props) {
           src={leader.imageUrl}
           alt={leader.name}
           isCard
-          className="w-20 h-full object-cover rounded-xl bg-white self-stretch"
+          className="w-20 h-full object-cover bg-white self-stretch"
         />
 
         <div className="flex-1 flex flex-col justify-center">
@@ -135,7 +135,7 @@ export function LeaderCard({ leader, selected, onSelect }: Props) {
                 <img
                   src={modalSrc}
                   alt={leader.name}
-                  className="max-h-[90vh] max-w-[90vw] object-contain bg-white p-2 rounded"
+                  className="max-h-[90vh] max-w-[90vw] object-contain bg-white p-2"
                   onClick={(e) => e.stopPropagation()}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src =

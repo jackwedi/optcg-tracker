@@ -38,12 +38,6 @@ export function TournamentForm() {
     ),
   ).sort();
 
-  const opGroups = idGroupOptions.filter((g) => g.startsWith("OP"));
-  const ebGroups = idGroupOptions.filter((g) => g.startsWith("EB"));
-  const restGroups = idGroupOptions.filter(
-    (g) => !g.startsWith("OP") && !g.startsWith("EB"),
-  );
-
   const filteredLeaders = leaders.filter((l) => {
     let prefix = l.id.split("-")[0] || "";
     if (prefix.startsWith("ST")) prefix = "ST";
@@ -122,47 +116,19 @@ export function TournamentForm() {
       <div className="pt-4 border-t">
         <label className="block text-sm font-medium">Played Leader</label>
 
-        <div className="mb-2 text-sm font-semibold text-slate-600 mt-3">
-          ID groups
-        </div>
-        <div className="flex flex-wrap gap-2 mb-3">
-          <button
-            type="button"
-            className={`px-3 py-1.5 rounded border text-sm ${idGroupFilter === "All" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"}`}
-            onClick={() => setIdGroupFilter("All")}
+        <div className="mt-3 mb-3">
+          <select
+            value={idGroupFilter}
+            onChange={(e) => setIdGroupFilter(e.target.value)}
+            className="mt-1 block w-full px-4 py-2 border border-gray-200 rounded-md shadow-sm text-base"
           >
-            All
-          </button>
-          {opGroups.map((g) => (
-            <button
-              key={g}
-              type="button"
-              className={`px-3 py-1.5 rounded border text-sm ${idGroupFilter === g ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"}`}
-              onClick={() => setIdGroupFilter(g)}
-            >
-              {g}
-            </button>
-          ))}
-          {ebGroups.map((g) => (
-            <button
-              key={g}
-              type="button"
-              className={`px-3 py-1.5 rounded border text-sm ${idGroupFilter === g ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"}`}
-              onClick={() => setIdGroupFilter(g)}
-            >
-              {g}
-            </button>
-          ))}
-          {restGroups.map((g) => (
-            <button
-              key={g}
-              type="button"
-              className={`px-3 py-1.5 rounded border text-sm ${idGroupFilter === g ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"}`}
-              onClick={() => setIdGroupFilter(g)}
-            >
-              {g}
-            </button>
-          ))}
+            <option value="All">-- Select extension --</option>
+            {idGroupOptions.map((group) => (
+              <option key={group} value={group}>
+                {group}
+              </option>
+            ))}
+          </select>
         </div>
 
         <select
@@ -188,7 +154,7 @@ export function TournamentForm() {
                 <img
                   src={previewSrc}
                   alt={sel.name}
-                  className="w-14 h-14 object-contain rounded-md bg-white border"
+                  className="w-14 h-14 object-contain bg-white border"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src =
                       "/placeholder.png";

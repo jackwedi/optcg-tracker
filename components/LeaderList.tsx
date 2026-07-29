@@ -76,7 +76,7 @@ export function LeaderList() {
           <img
             src={l.imageUrl}
             alt={l.name}
-            className="w-20 h-28 object-cover rounded-sm"
+            className="w-20 h-28 object-cover"
           />
           <div className="flex-1">
             <div className="flex items-center justify-between">

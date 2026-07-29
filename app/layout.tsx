@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import { UserSessionControls } from "@/components/UserSessionControls";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -37,28 +38,31 @@ export default function RootLayout({
               <h1 className="text-2xl font-bold text-gray-900">
                 <Link href="/">🃏 OPTCG Tracker</Link>
               </h1>
-              <div className="space-x-6">
-                <Link href="/" className="text-gray-600 hover:text-gray-900">
-                  Home
-                </Link>
-                <Link
-                  href="/tournaments"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  Tournaments
-                </Link>
-                <Link
-                  href="/leaders"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  Leaders
-                </Link>
+              <div className="flex items-center gap-4 md:gap-6">
+                <div className="space-x-4 md:space-x-6">
+                  <Link href="/" className="text-gray-600 hover:text-gray-900">
+                    Home
+                  </Link>
+                  <Link
+                    href="/tournaments"
+                    className="text-gray-600 hover:text-gray-900"
+                  >
+                    Tournaments
+                  </Link>
+                  <Link
+                    href="/leaders"
+                    className="text-gray-600 hover:text-gray-900"
+                  >
+                    Leaders
+                  </Link>
+                </div>
+                <UserSessionControls />
               </div>
             </div>
           </div>
         </nav>
         <div className="flex-1">{children}</div>
-        <footer className="bg-gray-800 text-gray-300 py-4 mt-12">
+        <footer className="bg-black text-gray-300 py-4 mt-12">
           <div className="container mx-auto px-4 text-center">
             <p>&copy; 2026 One Piece TCG Tournament Tracker</p>
           </div>

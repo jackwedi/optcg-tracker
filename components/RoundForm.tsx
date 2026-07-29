@@ -40,15 +40,9 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
       leaders
         .map((l) => (l.id.split("-")[0] || "").trim())
         .filter(Boolean)
-        .map((p) => (p.startsWith("ST") ? "ST" : p))
-    )
+        .map((p) => (p.startsWith("ST") ? "ST" : p)),
+    ),
   ).sort();
-
-  const opGroups = idGroupOptions.filter((g) => g.startsWith("OP"));
-  const ebGroups = idGroupOptions.filter((g) => g.startsWith("EB"));
-  const restGroups = idGroupOptions.filter(
-    (g) => !g.startsWith("OP") && !g.startsWith("EB")
-  );
 
   const filteredLeaders = leaders.filter((l) => {
     let prefix = l.id.split("-")[0] || "";
@@ -110,64 +104,18 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
         </label>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <div className="mb-2 text-sm font-semibold text-slate-600">
-              ID groups
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setIdGroupFilter("All")}
-                className={`px-3 py-1.5 rounded border text-sm ${
-                  idGroupFilter === "All"
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                }`}
-              >
-                All
-              </button>
-              {opGroups.map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  onClick={() => setIdGroupFilter(g)}
-                  className={`px-3 py-1.5 rounded border text-sm ${
-                    idGroupFilter === g
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  {g}
-                </button>
+            <select
+              value={idGroupFilter}
+              onChange={(e) => setIdGroupFilter(e.target.value)}
+              className="mt-1 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="All">Select Extension</option>
+              {idGroupOptions.map((group) => (
+                <option key={group} value={group}>
+                  {group}
+                </option>
               ))}
-              {ebGroups.map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  onClick={() => setIdGroupFilter(g)}
-                  className={`px-3 py-1.5 rounded border text-sm ${
-                    idGroupFilter === g
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  {g}
-                </button>
-              ))}
-              {restGroups.map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  onClick={() => setIdGroupFilter(g)}
-                  className={`px-3 py-1.5 rounded border text-sm ${
-                    idGroupFilter === g
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  {g}
-                </button>
-              ))}
-            </div>
+            </select>
           </div>
 
           <div>
@@ -195,7 +143,9 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-sm font-medium text-slate-700">Round Result</div>
+              <div className="text-sm font-medium text-slate-700">
+                Round Result
+              </div>
               <p className="mt-1 text-xs text-slate-500">
                 Toggle to record win or loss.
               </p>
@@ -233,7 +183,9 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-sm font-medium text-slate-700">Coin Flip</div>
+              <div className="text-sm font-medium text-slate-700">
+                Coin Flip
+              </div>
               <p className="mt-1 text-xs text-slate-500">
                 Toggle to record the coin flip result.
               </p>
@@ -271,7 +223,9 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-sm font-medium text-slate-700">Turn Order</div>
+              <div className="text-sm font-medium text-slate-700">
+                Turn Order
+              </div>
               <p className="mt-1 text-xs text-slate-500">
                 Choose whether you played first or second.
               </p>

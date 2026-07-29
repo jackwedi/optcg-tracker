@@ -1,4 +1,5 @@
 import { getTournaments } from "@/lib/db";
+import { CreateTournamentCard } from "@/components";
 import Link from "next/link";
 
 function formatDate(dateString: string): string {
@@ -55,6 +56,10 @@ export default async function TournamentsPage() {
           </Link>
         </div>
       )}
+
+      <div className="mt-10">
+        <CreateTournamentCard />
+      </div>
     </main>
   );
 }

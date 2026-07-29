@@ -1,8 +1,27 @@
+import { AuthPanel } from "@/components";
 import { getTournaments } from "@/lib/db";
-import { AuthPanel, TournamentForm, TournamentList } from "@/components";
 
 export default async function Home() {
   const tournaments = await getTournaments();
+
+  const totalTournaments = tournaments.length;
+  const totalRounds = tournaments.reduce(
+    (acc, tournament) => acc + tournament.rounds.length,
+    0,
+  );
+  const wins = tournaments.reduce(
+    (acc, tournament) =>
+      acc + tournament.rounds.filter((round) => round.won).length,
+    0,
+  );
+  const losses = totalRounds - wins;
+  const coinFlipWins = tournaments.reduce(
+    (acc, tournament) =>
+      acc + tournament.rounds.filter((round) => round.wonCoinFlip).length,
+    0,
+  );
+  const winRate =
+    totalRounds > 0 ? ((wins / totalRounds) * 100).toFixed(1) : "0.0";
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -20,16 +39,39 @@ export default async function Home() {
           <AuthPanel />
         </div>
 
-        <div className="w-full">
-          <div className="bg-white p-6 rounded-lg shadow w-full">
-            <TournamentForm />
+        <section className="w-full">
+          <h2 className="mb-4 text-2xl font-bold">Dashboard</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-lg bg-blue-50 p-4">
+              <p className="text-sm text-slate-600">Tournaments</p>
+              <p className="text-3xl font-bold text-slate-900">
+                {totalTournaments}
+              </p>
+            </div>
+            <div className="rounded-lg bg-indigo-50 p-4">
+              <p className="text-sm text-slate-600">Total Rounds</p>
+              <p className="text-3xl font-bold text-slate-900">{totalRounds}</p>
+            </div>
+            <div className="rounded-lg bg-emerald-50 p-4">
+              <p className="text-sm text-slate-600">Win Rate</p>
+              <p className="text-3xl font-bold text-emerald-700">{winRate}%</p>
+            </div>
+            <div className="rounded-lg bg-green-50 p-4">
+              <p className="text-sm text-slate-600">Wins</p>
+              <p className="text-3xl font-bold text-green-700">{wins}</p>
+            </div>
+            <div className="rounded-lg bg-rose-50 p-4">
+              <p className="text-sm text-slate-600">Losses</p>
+              <p className="text-3xl font-bold text-rose-700">{losses}</p>
+            </div>
+            <div className="rounded-lg bg-amber-50 p-4">
+              <p className="text-sm text-slate-600">Coin Flip Wins</p>
+              <p className="text-3xl font-bold text-amber-700">
+                {coinFlipWins}
+              </p>
+            </div>
           </div>
-        </div>
-
-        <div className="w-full">
-          <h2 className="text-2xl font-bold mb-4">Tournaments</h2>
-          <TournamentList tournaments={tournaments} />
-        </div>
+        </section>
       </div>
     </main>
   );

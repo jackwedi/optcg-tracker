@@ -7,3 +7,4 @@ export { LeaderList } from "./LeaderList";
 export { LeaderCard } from "./LeaderCard";
 export { LeaderSearch } from "./LeaderSearch";
 export { AuthPanel } from "./AuthPanel";
+export { CreateTournamentCard } from "./CreateTournamentCard";

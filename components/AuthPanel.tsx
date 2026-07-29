@@ -55,91 +55,72 @@ export function AuthPanel() {
     }
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUserEmail(null);
-    setMessage("");
-    router.replace("/login");
-    router.refresh();
-  };
-
   if (loading) {
     return <div className="text-sm text-slate-500">Loading account…</div>;
   }
 
+  if (userEmail) {
+    return null;
+  }
+
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-      {userEmail ? (
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium text-slate-700">
-            {userEmail}
-          </span>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={signOut}
-            className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-slate-700"
+            onClick={() => setMode("sign-in")}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+              mode === "sign-in"
+                ? "bg-black text-white"
+                : "bg-white text-slate-700 hover:bg-slate-100"
+            }`}
           >
-            Sign out
+            Sign in
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("sign-up")}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+              mode === "sign-up"
+                ? "bg-black text-white"
+                : "bg-white text-slate-700 hover:bg-slate-100"
+            }`}
+          >
+            Sign up
           </button>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setMode("sign-in")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-                mode === "sign-in"
-                  ? "bg-sky-700 text-white"
-                  : "bg-white text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              Sign in
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("sign-up")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-                mode === "sign-up"
-                  ? "bg-sky-700 text-white"
-                  : "bg-white text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              Sign up
-            </button>
-          </div>
 
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="Email"
-            required
-            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-          />
+        <input
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="Email"
+          required
+          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+        />
 
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Password"
-            required
-            minLength={6}
-            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-          />
+        <input
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder="Password"
+          required
+          minLength={6}
+          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+        />
 
-          <button
-            type="submit"
-            className="w-full rounded-md bg-sky-700 px-3 py-2 text-sm font-medium text-white transition hover:bg-sky-800"
-          >
-            {mode === "sign-in" ? "Sign in" : "Create account"}
-          </button>
+        <button
+          type="submit"
+          className="w-full rounded-md bg-black px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+        >
+          {mode === "sign-in" ? "Sign in" : "Create account"}
+        </button>
 
-          <p className="text-xs text-slate-500">
-            Email/password is enabled for this deck profile.
-          </p>
-        </form>
-      )}
+        <p className="text-xs text-slate-500">
+          Email/password is enabled for this deck profile.
+        </p>
+      </form>
       {message ? <p className="pt-2 text-sm text-red-600">{message}</p> : null}
     </div>
   );

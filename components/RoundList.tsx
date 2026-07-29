@@ -58,7 +58,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {rounds.map((round) => {
         const opponentLeader =
           leaders.find(
@@ -69,68 +69,72 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
         return (
           <div
             key={round.id}
-            className={
-              "relative flex items-stretch gap-4 p-4 pr-24 border rounded-lg shadow-sm hover:bg-slate-50"
-            }
+            className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
           >
-            <div className="shrink-0 flex flex-col items-center gap-2">
-              <LeaderThumbnail
-                src={opponentLeader?.imageUrl ?? "/placeholder.png"}
-                alt={opponentLeader?.name ?? round.opponentLeaderId}
-                isCard
-                className="w-20 h-full object-cover rounded-xl bg-white self-stretch"
-              />
-              <button
-                onClick={() => handleDeleteRound(round.id)}
-                disabled={loading === round.id}
-                className="rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {loading === round.id ? "Deleting..." : "Delete"}
-              </button>
-            </div>
+            <div className="flex items-start gap-4">
+              <div className="shrink-0">
+                <LeaderThumbnail
+                  src={opponentLeader?.imageUrl ?? "/placeholder.png"}
+                  alt={opponentLeader?.name ?? round.opponentLeaderId}
+                  isCard
+                  className="w-20 h-[112px] object-cover bg-white"
+                />
+              </div>
 
-            <div className="flex-1 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-3">
-                  <div>
-                    <h4 className="text-lg font-semibold text-slate-900">
-                      Round
-                    </h4>
-                    <p className="text-sm text-slate-500">
-                      {opponentLeader
-                        ? opponentLeader.name
-                        : round.opponentLeaderId}
-                    </p>
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="text-lg font-semibold text-slate-900">
+                    {opponentLeader
+                      ? opponentLeader.name
+                      : round.opponentLeaderId}
+                  </h4>
+                  <button
+                    onClick={() => handleDeleteRound(round.id)}
+                    disabled={loading === round.id}
+                    className="shrink-0 rounded-md border border-red-200 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {loading === round.id ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="rounded-lg bg-blue-50 p-4">
+                    <div className="text-xs text-slate-500">Deck</div>
+                    <div className="mt-1 text-sm font-semibold text-slate-900">
+                      {round.opponentLeaderId}
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-amber-50 p-4">
+                    <div className="text-xs text-slate-500">Coin Flip</div>
+                    <div className="mt-1 text-sm font-semibold text-amber-700">
+                      {round.wonCoinFlip ? "Won" : "Lost"}
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-slate-100 p-4">
+                    <div className="text-xs text-slate-500">Start</div>
+                    <div className="mt-1 text-sm font-semibold text-slate-900">
+                      {round.startingPosition}
+                    </div>
+                  </div>
+
+                  <div
+                    className={`rounded-lg p-4 ${
+                      round.won ? "bg-green-50" : "bg-red-50"
+                    }`}
+                  >
+                    <div className="text-xs text-slate-500">Result</div>
+                    <div
+                      className={`mt-1 text-sm font-semibold ${
+                        round.won ? "text-green-700" : "text-red-700"
+                      }`}
+                    >
+                      {round.won ? "Won" : "Lost"}
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                <div className="rounded-2xl bg-slate-50 p-3">
-                  <div className="text-xs text-slate-500">Deck</div>
-                  <div className="mt-1 text-sm font-medium text-slate-900">
-                    {round.opponentLeaderId}
-                  </div>
-                </div>
-                <div className="rounded-2xl bg-slate-50 p-3">
-                  <div className="text-xs text-slate-500">Coin Flip</div>
-                  <div className="mt-1 text-sm font-medium text-slate-900">
-                    {round.wonCoinFlip ? "Won" : "Lost"}
-                  </div>
-                </div>
-                <div className="rounded-2xl bg-slate-50 p-3">
-                  <div className="text-xs text-slate-500">Start</div>
-                  <div className="mt-1 text-sm font-medium text-slate-900">
-                    {round.startingPosition}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute top-0 right-0 h-full w-[10%] rounded-r-lg overflow-hidden">
-              <div
-                className={`w-full ${round.won ? "bg-green-200" : "bg-red-200"}`}
-                style={{ height: "100%" }}
-              />
             </div>
           </div>
         );
