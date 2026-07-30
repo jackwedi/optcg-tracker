@@ -1,7 +1,15 @@
+import { redirect } from "next/navigation";
 import { LeaderForm } from "@/components/LeaderForm";
 import { LeaderList } from "@/components/LeaderList";
+import { isCurrentUserAdmin } from "@/lib/auth";
 
-export default function AdminLeadersPage() {
+export default async function AdminLeadersPage() {
+  const isAdmin = await isCurrentUserAdmin();
+
+  if (!isAdmin) {
+    redirect("/");
+  }
+
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="mb-8">

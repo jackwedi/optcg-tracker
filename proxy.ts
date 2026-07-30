@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { hasAdminRoleFromUnknown } from "@/lib/roles";
 
 const PUBLIC_PATHS = ["/login", "/favicon.ico"];
 
@@ -59,6 +60,10 @@ export async function proxy(request: NextRequest) {
   }
 
   if (user && pathname === "/login") {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (user && pathname.startsWith("/admin") && !hasAdminRoleFromUnknown(user)) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
