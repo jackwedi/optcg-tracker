@@ -520,6 +520,58 @@ export async function deleteRound(
   return Boolean(data && data.length > 0);
 }
 
+export async function updateRound(
+  tournamentId: string,
+  roundId: string,
+  won: boolean,
+  wonCoinFlip: boolean,
+  startingPosition: "1st" | "2nd",
+  opponentLeaderId: string,
+): Promise<Round | undefined> {
+  const supabase = await getSupabaseClient();
+
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return undefined;
+  }
+
+  const { data: tournament, error: tournamentError } = await supabase
+    .from("tournaments")
+    .select("id")
+    .eq("id", tournamentId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (tournamentError) {
+    throw tournamentError;
+  }
+
+  if (!tournament) {
+    return undefined;
+  }
+
+  const { data, error } = await supabase
+    .from("rounds")
+    .update({
+      opponent_leader_id: opponentLeaderId,
+      won,
+      won_coin_flip: wonCoinFlip,
+      starting_position: startingPosition,
+    })
+    .eq("id", roundId)
+    .eq("tournament_id", tournamentId)
+    .select(
+      "id,tournament_id,opponent_leader_id,won,won_coin_flip,starting_position,created_at",
+    )
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ? mapRoundRow(data as RoundRow) : undefined;
+}
+
 export async function getTournamentStats(tournamentId: string) {
   const supabase = await getSupabaseClient();
 
