@@ -9,6 +9,7 @@ export function AuthPanel() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [message, setMessage] = useState("");
 
@@ -34,7 +35,15 @@ export function AuthPanel() {
     const { error } =
       mode === "sign-in"
         ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
+        : await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                display_name: displayName.trim(),
+              },
+            },
+          });
 
     if (error) {
       setMessage(error.message);
@@ -43,6 +52,7 @@ export function AuthPanel() {
 
     setEmail("");
     setPassword("");
+    setDisplayName("");
 
     const {
       data: { user },
@@ -109,6 +119,17 @@ export function AuthPanel() {
           minLength={6}
           className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
         />
+
+        {mode === "sign-up" ? (
+          <input
+            type="text"
+            value={displayName}
+            onChange={(event) => setDisplayName(event.target.value)}
+            placeholder="Pseudo"
+            required
+            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+          />
+        ) : null}
 
         <button
           type="submit"
