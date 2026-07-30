@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addRound } from "@/lib/db";
-import { getLeaderById } from "@/lib/leaders";
+import {
+  BYE_LEADER_ID,
+  ensureByeLeaderExists,
+  getLeaderById,
+} from "@/lib/leaders";
 
 interface Params {
   id: string;
@@ -8,46 +12,64 @@ interface Params {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<Params> }
+  { params }: { params: Promise<Params> },
 ) {
   try {
     const { id } = await params;
-    const { opponentLeaderId, won, wonCoinFlip, startingPosition } =
+    const { opponentLeaderId, won, wonCoinFlip, startingPosition, isBye } =
       await request.json();
 
-    if (!opponentLeaderId) {
+    const byeRound = Boolean(isBye);
+    const normalizedOpponentLeaderId = byeRound
+      ? BYE_LEADER_ID
+      : typeof opponentLeaderId === "string" && opponentLeaderId.length > 0
+        ? opponentLeaderId
+        : undefined;
+
+    if (!byeRound && !normalizedOpponentLeaderId) {
       return NextResponse.json(
         { error: "Missing required field: opponentLeaderId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const opponentLeader = await getLeaderById(opponentLeaderId);
-    if (!opponentLeader) {
-      return NextResponse.json(
-        { error: "Invalid opponentLeaderId" },
-        { status: 400 }
-      );
+    if (byeRound) {
+      await ensureByeLeaderExists();
+    } else if (normalizedOpponentLeaderId) {
+      const opponentLeader = await getLeaderById(normalizedOpponentLeaderId);
+      if (!opponentLeader) {
+        return NextResponse.json(
+          { error: "Invalid opponentLeaderId" },
+          { status: 400 },
+        );
+      }
     }
 
-    const normalizedPosition = startingPosition === "2nd" ? "2nd" : "1st";
+    const normalizedPosition = byeRound
+      ? "1st"
+      : startingPosition === "2nd"
+        ? "2nd"
+        : "1st";
     const round = await addRound(
       id,
-      won,
-      wonCoinFlip,
+      byeRound ? true : Boolean(won),
+      byeRound ? false : Boolean(wonCoinFlip),
       normalizedPosition,
-      opponentLeaderId
+      normalizedOpponentLeaderId,
     );
 
     if (!round) {
-      return NextResponse.json({ error: "Tournament not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Tournament not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json(round, { status: 201 });
   } catch {
     return NextResponse.json(
       { error: "Failed to create round" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

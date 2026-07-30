@@ -1,6 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Leader } from "@/models/leader";
 
+export const BYE_LEADER_ID = "BYE";
+const BYE_LEADER_NAME = "BYE";
+const BYE_LEADER_IMAGE_URL = "/placeholder.png";
+
 interface LeaderRow {
   id: string;
   name: string;
@@ -157,4 +161,25 @@ export async function deleteLeader(id: string): Promise<boolean> {
   }
 
   return Boolean(data && data.length > 0);
+}
+
+export async function ensureByeLeaderExists(): Promise<void> {
+  const supabase = getSupabaseClient();
+
+  const { error } = await supabase.from("leaders").upsert(
+    {
+      id: BYE_LEADER_ID,
+      name: BYE_LEADER_NAME,
+      colors: [],
+      image_url: BYE_LEADER_IMAGE_URL,
+      alt_image_url: null,
+    },
+    {
+      onConflict: "id",
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
 }

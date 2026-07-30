@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import type { Round, Tournament } from "@/models/tournament";
 import { getCurrentUserId } from "@/lib/auth";
+import { BYE_LEADER_ID } from "@/lib/leaders";
 import { createClient as createSupabaseServerClient } from "@/utils/supabase/server";
 
 interface TournamentRow {
@@ -14,7 +15,7 @@ interface TournamentRow {
 interface RoundRow {
   id: string;
   tournament_id: string;
-  opponent_leader_id: string;
+  opponent_leader_id: string | null;
   won: boolean;
   won_coin_flip: boolean;
   starting_position: "1st" | "2nd";
@@ -39,7 +40,7 @@ function mapRoundRow(row: RoundRow): Round {
   return {
     id: row.id,
     tournamentId: row.tournament_id,
-    opponentLeaderId: row.opponent_leader_id,
+    opponentLeaderId: row.opponent_leader_id ?? BYE_LEADER_ID,
     won: row.won,
     wonCoinFlip: row.won_coin_flip,
     startingPosition: row.starting_position,
