@@ -20,13 +20,15 @@ export async function POST(
       await request.json();
 
     const byeRound = Boolean(isBye);
-    const normalizedOpponentLeaderId = byeRound
-      ? BYE_LEADER_ID
-      : typeof opponentLeaderId === "string" && opponentLeaderId.length > 0
-        ? opponentLeaderId
-        : undefined;
-
-    if (!byeRound && !normalizedOpponentLeaderId) {
+    let normalizedOpponentLeaderId: string;
+    if (byeRound) {
+      normalizedOpponentLeaderId = BYE_LEADER_ID;
+    } else if (
+      typeof opponentLeaderId === "string" &&
+      opponentLeaderId.length > 0
+    ) {
+      normalizedOpponentLeaderId = opponentLeaderId;
+    } else {
       return NextResponse.json(
         { error: "Missing required field: opponentLeaderId" },
         { status: 400 },
