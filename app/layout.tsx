@@ -55,6 +55,12 @@ export default function RootLayout({
                   >
                     Leaders
                   </Link>
+                  <Link
+                    href="/crew"
+                    className="text-gray-600 hover:text-gray-900"
+                  >
+                    🏴‍☠️ Crew
+                  </Link>
                 </div>
                 <UserSessionControls />
               </div>
