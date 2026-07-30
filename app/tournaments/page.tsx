@@ -15,6 +15,19 @@ function formatDate(dateString: string): string {
   }
 }
 
+function getTournamentTypeIcon(type: string): string {
+  switch (type) {
+    case "Local":
+      return "🏠";
+    case "Regional":
+      return "🗺️";
+    case "Treasure Cup":
+      return "🏆";
+    default:
+      return "🏷️";
+  }
+}
+
 export default async function TournamentsPage() {
   const tournaments = await getTournaments();
 
@@ -37,7 +50,18 @@ export default async function TournamentsPage() {
             href={`/tournaments/${tournament.id}`}
             className="block p-6 border border-gray-200 rounded-lg hover:shadow-lg transition-shadow"
           >
-            <h3 className="text-xl font-semibold mb-3">{tournament.name}</h3>
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <h3 className="text-xl font-semibold">{tournament.name}</h3>
+              <span
+                className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-lg"
+                title={tournament.tournamentType}
+                aria-label={`Tournament type: ${tournament.tournamentType}`}
+              >
+                <span role="img" aria-hidden="true">
+                  {getTournamentTypeIcon(tournament.tournamentType)}
+                </span>
+              </span>
+            </div>
             <div className="space-y-2 text-sm text-gray-600">
               <p>📅 {formatDate(tournament.date)}</p>
               <p className="font-medium text-blue-600">

@@ -1,5 +1,11 @@
 import { cookies } from "next/headers";
-import type { Round, Tournament } from "@/models/tournament";
+import {
+  DEFAULT_TOURNAMENT_TYPE,
+  TOURNAMENT_TYPES,
+  type Round,
+  type Tournament,
+  type TournamentType,
+} from "@/models/tournament";
 import { getCurrentUserId } from "@/lib/auth";
 import { BYE_LEADER_ID } from "@/lib/leaders";
 import { createClient as createSupabaseServerClient } from "@/utils/supabase/server";
@@ -10,6 +16,7 @@ interface TournamentRow {
   date: string;
   created_at: string;
   played_leader_id: string | null;
+  tournament_type?: string | null;
 }
 
 interface RoundRow {
@@ -30,6 +37,19 @@ function isMissingTableError(error: unknown): boolean {
     (error as { code?: string }).code === "PGRST205"
   );
 }
+
+function isMissingColumnError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "42703"
+  );
+}
+
+const TOURNAMENT_SELECT_WITH_TYPES =
+  "id,name,date,created_at,played_leader_id,tournament_type";
+const TOURNAMENT_SELECT_BASE = "id,name,date,created_at,played_leader_id";
 
 async function getSupabaseClient() {
   const cookieStore = await cookies();
@@ -55,8 +75,21 @@ function mapTournamentRow(row: TournamentRow, rounds: Round[]): Tournament {
     date: row.date,
     createdAt: row.created_at,
     playedLeaderId: row.played_leader_id ?? undefined,
+    tournamentType: sanitizeTournamentType(row.tournament_type),
     rounds,
   };
+}
+
+function sanitizeTournamentType(value: unknown): TournamentType {
+  if (typeof value !== "string") {
+    return DEFAULT_TOURNAMENT_TYPE;
+  }
+
+  if (TOURNAMENT_TYPES.includes(value as TournamentType)) {
+    return value as TournamentType;
+  }
+
+  return DEFAULT_TOURNAMENT_TYPE;
 }
 
 export async function getTournaments(): Promise<Tournament[]> {
@@ -69,12 +102,65 @@ export async function getTournaments(): Promise<Tournament[]> {
 
   const { data: tournaments, error } = await supabase
     .from("tournaments")
-    .select("id,name,date,created_at,played_leader_id")
+    .select(TOURNAMENT_SELECT_WITH_TYPES)
     .eq("user_id", userId)
     .order("date", { ascending: false })
     .order("created_at", { ascending: false });
 
   if (error) {
+    if (isMissingColumnError(error)) {
+      const { data: fallbackTournaments, error: fallbackError } = await supabase
+        .from("tournaments")
+        .select(TOURNAMENT_SELECT_BASE)
+        .eq("user_id", userId)
+        .order("date", { ascending: false })
+        .order("created_at", { ascending: false });
+
+      if (fallbackError) {
+        if (isMissingTableError(fallbackError)) {
+          return [];
+        }
+        throw fallbackError;
+      }
+
+      if (!fallbackTournaments || fallbackTournaments.length === 0) {
+        return [];
+      }
+
+      const tournamentIds = fallbackTournaments.map((t) => t.id);
+      const { data: rounds, error: roundsError } = await supabase
+        .from("rounds")
+        .select(
+          "id,tournament_id,opponent_leader_id,won,won_coin_flip,starting_position,created_at",
+        )
+        .in("tournament_id", tournamentIds)
+        .order("created_at", { ascending: true });
+
+      if (roundsError) {
+        if (isMissingTableError(roundsError)) {
+          return (fallbackTournaments as TournamentRow[]).map((row) =>
+            mapTournamentRow(row, []),
+          );
+        }
+        throw roundsError;
+      }
+
+      const roundsByTournament = new Map<string, Round[]>();
+      for (const row of (rounds ?? []) as RoundRow[]) {
+        const mapped = mapRoundRow(row);
+        const existing = roundsByTournament.get(mapped.tournamentId);
+        if (existing) {
+          existing.push(mapped);
+        } else {
+          roundsByTournament.set(mapped.tournamentId, [mapped]);
+        }
+      }
+
+      return (fallbackTournaments as TournamentRow[]).map((row) =>
+        mapTournamentRow(row, roundsByTournament.get(row.id) ?? []),
+      );
+    }
+
     if (isMissingTableError(error)) {
       return [];
     }
@@ -131,12 +217,52 @@ export async function getTournamentById(
 
   const { data: tournament, error } = await supabase
     .from("tournaments")
-    .select("id,name,date,created_at,played_leader_id")
+    .select(TOURNAMENT_SELECT_WITH_TYPES)
     .eq("id", id)
     .eq("user_id", userId)
     .maybeSingle();
 
   if (error) {
+    if (isMissingColumnError(error)) {
+      const { data: fallbackTournament, error: fallbackError } = await supabase
+        .from("tournaments")
+        .select(TOURNAMENT_SELECT_BASE)
+        .eq("id", id)
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (fallbackError) {
+        if (isMissingTableError(fallbackError)) {
+          return undefined;
+        }
+        throw fallbackError;
+      }
+
+      if (!fallbackTournament) {
+        return undefined;
+      }
+
+      const { data: rounds, error: roundsError } = await supabase
+        .from("rounds")
+        .select(
+          "id,tournament_id,opponent_leader_id,won,won_coin_flip,starting_position,created_at",
+        )
+        .eq("tournament_id", id)
+        .order("created_at", { ascending: true });
+
+      if (roundsError) {
+        if (isMissingTableError(roundsError)) {
+          return mapTournamentRow(fallbackTournament as TournamentRow, []);
+        }
+        throw roundsError;
+      }
+
+      return mapTournamentRow(
+        fallbackTournament as TournamentRow,
+        ((rounds ?? []) as RoundRow[]).map(mapRoundRow),
+      );
+    }
+
     if (isMissingTableError(error)) {
       return undefined;
     }
@@ -172,6 +298,7 @@ export async function createTournament(
   name: string,
   date: string,
   playedLeaderId?: string,
+  tournamentType: TournamentType = DEFAULT_TOURNAMENT_TYPE,
 ): Promise<Tournament> {
   const supabase = await getSupabaseClient();
   const userId = await getCurrentUserId();
@@ -187,15 +314,38 @@ export async function createTournament(
     name,
     date,
     played_leader_id: playedLeaderId ?? null,
+    tournament_type: sanitizeTournamentType(tournamentType),
   };
 
   const { data, error } = await supabase
     .from("tournaments")
     .insert(insertPayload)
-    .select("id,name,date,created_at,played_leader_id")
+    .select(TOURNAMENT_SELECT_WITH_TYPES)
     .single();
 
   if (error) {
+    if (isMissingColumnError(error)) {
+      const fallbackInsertPayload = {
+        id,
+        user_id: userId,
+        name,
+        date,
+        played_leader_id: playedLeaderId ?? null,
+      };
+
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from("tournaments")
+        .insert(fallbackInsertPayload)
+        .select(TOURNAMENT_SELECT_BASE)
+        .single();
+
+      if (fallbackError) {
+        throw fallbackError;
+      }
+
+      return mapTournamentRow(fallbackData as TournamentRow, []);
+    }
+
     throw error;
   }
 
@@ -206,6 +356,7 @@ export async function updateTournament(
   id: string,
   name: string,
   date: string,
+  tournamentType: TournamentType = DEFAULT_TOURNAMENT_TYPE,
 ): Promise<Tournament | undefined> {
   const supabase = await getSupabaseClient();
   const userId = await getCurrentUserId();
@@ -216,13 +367,40 @@ export async function updateTournament(
 
   const { data, error } = await supabase
     .from("tournaments")
-    .update({ name, date })
+    .update({
+      name,
+      date,
+      tournament_type: sanitizeTournamentType(tournamentType),
+    })
     .eq("id", id)
     .eq("user_id", userId)
-    .select("id,name,date,created_at,played_leader_id")
+    .select(TOURNAMENT_SELECT_WITH_TYPES)
     .maybeSingle();
 
   if (error) {
+    if (isMissingColumnError(error)) {
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from("tournaments")
+        .update({ name, date })
+        .eq("id", id)
+        .eq("user_id", userId)
+        .select(TOURNAMENT_SELECT_BASE)
+        .maybeSingle();
+
+      if (fallbackError) {
+        throw fallbackError;
+      }
+
+      if (!fallbackData) {
+        return undefined;
+      }
+
+      const existingFallback = await getTournamentById(id);
+      return (
+        existingFallback ?? mapTournamentRow(fallbackData as TournamentRow, [])
+      );
+    }
+
     throw error;
   }
 

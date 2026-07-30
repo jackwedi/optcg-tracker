@@ -3,6 +3,19 @@ import { Tournament } from "@/models/tournament";
 import { formatDate } from "@/lib/utils";
 import { DeleteTournamentButton } from "@/components/DeleteTournamentButton";
 
+function getTournamentTypeIcon(type: string): string {
+  switch (type) {
+    case "Local":
+      return "🏠";
+    case "Regional":
+      return "🗺️";
+    case "Treasure Cup":
+      return "🏆";
+    default:
+      return "🏷️";
+  }
+}
+
 interface TournamentListProps {
   tournaments: Tournament[];
 }
@@ -26,12 +39,23 @@ export function TournamentList({ tournaments }: TournamentListProps) {
           className="p-4 border border-gray-200 rounded-lg hover:shadow-lg transition-shadow"
         >
           <div className="flex items-start justify-between gap-4">
-            <Link
-              href={`/tournaments/${tournament.id}`}
-              className="flex-1 text-lg font-semibold text-blue-600 hover:underline"
-            >
-              {tournament.name}
-            </Link>
+            <div className="flex min-w-0 flex-1 items-start gap-2">
+              <Link
+                href={`/tournaments/${tournament.id}`}
+                className="flex-1 text-lg font-semibold text-blue-600 hover:underline"
+              >
+                {tournament.name}
+              </Link>
+              <span
+                className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-lg"
+                title={tournament.tournamentType}
+                aria-label={`Tournament type: ${tournament.tournamentType}`}
+              >
+                <span role="img" aria-hidden="true">
+                  {getTournamentTypeIcon(tournament.tournamentType)}
+                </span>
+              </span>
+            </div>
             <DeleteTournamentButton tournamentId={tournament.id} />
           </div>
 

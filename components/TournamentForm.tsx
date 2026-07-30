@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Leader } from "@/models/leader";
+import {
+  DEFAULT_TOURNAMENT_TYPE,
+  TOURNAMENT_TYPES,
+  type TournamentType,
+} from "@/models/tournament";
 
 export function TournamentForm() {
   const [name, setName] = useState("");
@@ -14,6 +19,8 @@ export function TournamentForm() {
   const [playedLeaderId, setPlayedLeaderId] = useState<string | undefined>(
     undefined,
   );
+  const [selectedTournamentType, setSelectedTournamentType] =
+    useState<TournamentType>(DEFAULT_TOURNAMENT_TYPE);
   const router = useRouter();
 
   useEffect(() => {
@@ -56,7 +63,12 @@ export function TournamentForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, date, playedLeaderId }),
+        body: JSON.stringify({
+          name,
+          date,
+          playedLeaderId,
+          tournamentType: selectedTournamentType,
+        }),
       });
 
       if (!response.ok) {
@@ -66,6 +78,7 @@ export function TournamentForm() {
       const tournament = await response.json();
       setName("");
       setDate("");
+      setSelectedTournamentType(DEFAULT_TOURNAMENT_TYPE);
       router.push(`/tournaments/${tournament.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -111,6 +124,29 @@ export function TournamentForm() {
             className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
           />
         </div>
+      </div>
+
+      <div>
+        <label
+          htmlFor="tournamentType"
+          className="block text-sm font-semibold text-slate-700"
+        >
+          Tournament Type
+        </label>
+        <select
+          id="tournamentType"
+          value={selectedTournamentType}
+          onChange={(e) =>
+            setSelectedTournamentType(e.target.value as TournamentType)
+          }
+          className="mt-1 block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          {TOURNAMENT_TYPES.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="pt-4 border-t">

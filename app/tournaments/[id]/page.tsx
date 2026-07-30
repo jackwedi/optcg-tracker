@@ -20,6 +20,19 @@ function formatDateServer(dateString: string): string {
   }
 }
 
+function getTournamentTypeIcon(type: string): string {
+  switch (type) {
+    case "Local":
+      return "🏠";
+    case "Regional":
+      return "🗺️";
+    case "Treasure Cup":
+      return "🏆";
+    default:
+      return "🏷️";
+  }
+}
+
 interface Props {
   params: Promise<{ id: string }>;
 }
@@ -66,7 +79,18 @@ export default async function TournamentDetailPage({ params }: Props) {
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h1 className="text-4xl font-bold mb-2">{tournament.name}</h1>
+          <div className="mb-2 flex items-start justify-between gap-4">
+            <h1 className="text-4xl font-bold">{tournament.name}</h1>
+            <span
+              className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-xl"
+              title={tournament.tournamentType}
+              aria-label={`Tournament type: ${tournament.tournamentType}`}
+            >
+              <span role="img" aria-hidden="true">
+                {getTournamentTypeIcon(tournament.tournamentType)}
+              </span>
+            </span>
+          </div>
           <p className="text-gray-600 mb-6">
             {formatDateServer(tournament.date)}
           </p>
