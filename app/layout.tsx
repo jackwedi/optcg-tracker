@@ -33,13 +33,13 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-gray-50">
         <nav className="bg-white shadow">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900">
+          <div className="container mx-auto px-4 py-3 sm:py-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
                 <Link href="/">🃏 OPTCG Tracker</Link>
               </h1>
-              <div className="flex items-center gap-4 md:gap-6">
-                <div className="space-x-4 md:space-x-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 md:gap-6">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-4 md:gap-x-6">
                   <Link href="/" className="text-gray-600 hover:text-gray-900">
                     Home
                   </Link>

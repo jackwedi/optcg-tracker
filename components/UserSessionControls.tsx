@@ -57,7 +57,7 @@ export function UserSessionControls() {
   }
 
   return (
-    <div className="flex items-center gap-2 md:gap-3">
+    <div className="flex flex-wrap items-center gap-2 md:gap-3">
       <span className="max-w-[160px] truncate rounded-md bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-700 md:max-w-[220px] md:text-sm">
         {displayName ?? userEmail}
       </span>

@@ -63,26 +63,31 @@ export default async function TournamentDetailPage({ params }: Props) {
         <DeleteTournamentButton tournamentId={id} />
       </div>
 
-      <div className="mb-8 grid gap-6 lg:grid-cols-[280px_1fr]">
-        <div className="relative flex items-center overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+      <div className="mb-8 flex items-start gap-4 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid sm:grid-cols-[280px_1fr] sm:items-stretch sm:gap-6 sm:overflow-visible sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+        <div className="shrink-0 sm:flex sm:items-center sm:justify-center sm:overflow-hidden sm:rounded-xl sm:border sm:border-slate-200 sm:bg-white sm:p-3 sm:shadow-sm">
           {playedLeader ? (
             <LeaderThumbnail
               src={playedLeader.imageUrl}
               alt={playedLeader.name}
-              className="h-[340px] w-full object-contain object-center bg-white"
+              className="h-28 w-20 rounded-lg border border-slate-200 object-cover sm:h-[340px] sm:w-full sm:rounded-none sm:border-0 sm:object-contain sm:object-center"
             />
           ) : (
-            <div className="flex h-[340px] items-center justify-center rounded-lg bg-slate-100 text-sm text-slate-500">
-              No leader selected
+            <div className="flex h-28 w-20 items-center justify-center rounded-lg border border-slate-200 bg-slate-100 text-[10px] text-slate-500 sm:h-[340px] sm:w-full sm:rounded-lg sm:border-0 sm:text-sm">
+              No leader
             </div>
           )}
+          <p className="mt-1 max-w-20 truncate text-center text-[10px] font-medium text-slate-600 sm:hidden">
+            {playedLeader ? playedLeader.name : "Not set"}
+          </p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="mb-2 flex items-start justify-between gap-4">
-            <h1 className="text-4xl font-bold">{tournament.name}</h1>
+        <div className="min-w-0 flex-1 sm:rounded-xl sm:border sm:border-slate-200 sm:bg-white sm:p-6 sm:shadow-sm">
+          <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2 sm:gap-4">
+            <h1 className="text-xl font-bold sm:text-4xl">
+              {tournament.name}
+            </h1>
             <span
-              className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-xl"
+              className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-base sm:h-10 sm:w-10 sm:text-xl"
               title={tournament.tournamentType}
               aria-label={`Tournament type: ${tournament.tournamentType}`}
             >
@@ -91,11 +96,11 @@ export default async function TournamentDetailPage({ params }: Props) {
               </span>
             </span>
           </div>
-          <p className="text-gray-600 mb-6">
+          <p className="mb-3 text-xs text-gray-600 sm:mb-6 sm:text-base">
             {formatDateServer(tournament.date)}
           </p>
 
-          <div className="mb-6">
+          <div className="mb-6 hidden sm:block">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
               Played Leader
             </p>
@@ -103,37 +108,58 @@ export default async function TournamentDetailPage({ params }: Props) {
               {playedLeader ? playedLeader.name : "Not set"}
             </p>
             {playedLeader ? (
-              <p className="text-sm text-slate-500">{playedLeader.id}</p>
+              <p className="text-xs text-slate-500">{playedLeader.id}</p>
             ) : null}
           </div>
 
           {stats ? (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-lg bg-blue-50 p-4">
-                <p className="text-gray-600 text-sm">Total Rounds</p>
-                <p className="text-3xl font-bold text-slate-900">
-                  {stats.totalRounds}
-                </p>
+            <>
+              <div className="flex flex-wrap gap-1.5 sm:hidden">
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-blue-700">
+                  <span className="font-bold">{stats.totalRounds}</span>
+                  Rounds
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-medium text-green-700">
+                  <span className="font-bold">{stats.wins}</span>
+                  Wins
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-medium text-red-700">
+                  <span className="font-bold">{stats.losses}</span>
+                  Losses
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700">
+                  <span className="font-bold">{stats.winRate}%</span>
+                  Win Rate
+                </span>
               </div>
-              <div className="rounded-lg bg-green-50 p-4">
-                <p className="text-gray-600 text-sm">Wins</p>
-                <p className="text-3xl font-bold text-green-600">
-                  {stats.wins}
-                </p>
+
+              <div className="hidden sm:grid sm:grid-cols-2 sm:gap-3">
+                <div className="rounded-lg bg-blue-50 p-4">
+                  <p className="text-gray-600 text-sm">Total Rounds</p>
+                  <p className="text-3xl font-bold text-slate-900">
+                    {stats.totalRounds}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-green-50 p-4">
+                  <p className="text-gray-600 text-sm">Wins</p>
+                  <p className="text-3xl font-bold text-green-600">
+                    {stats.wins}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-red-50 p-4">
+                  <p className="text-gray-600 text-sm">Losses</p>
+                  <p className="text-3xl font-bold text-red-600">
+                    {stats.losses}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-amber-50 p-4">
+                  <p className="text-gray-600 text-sm">Win Rate</p>
+                  <p className="text-3xl font-bold text-amber-600">
+                    {stats.winRate}%
+                  </p>
+                </div>
               </div>
-              <div className="rounded-lg bg-red-50 p-4">
-                <p className="text-gray-600 text-sm">Losses</p>
-                <p className="text-3xl font-bold text-red-600">
-                  {stats.losses}
-                </p>
-              </div>
-              <div className="rounded-lg bg-amber-50 p-4">
-                <p className="text-gray-600 text-sm">Win Rate</p>
-                <p className="text-3xl font-bold text-amber-600">
-                  {stats.winRate}%
-                </p>
-              </div>
-            </div>
+            </>
           ) : null}
         </div>
       </div>

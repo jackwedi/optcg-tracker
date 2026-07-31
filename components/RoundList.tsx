@@ -8,6 +8,72 @@ import LeaderThumbnail from "@/components/LeaderThumbnail";
 
 const BYE_LEADER_ID = "BYE";
 
+function PencilIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z" />
+    </svg>
+  );
+}
+
+function TrashIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+    </svg>
+  );
+}
+
+function SpinnerIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={`animate-spin ${className ?? ""}`}
+      aria-hidden="true"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth={4}
+        className="opacity-25"
+      />
+      <path
+        d="M4 12a8 8 0 0 1 8-8"
+        stroke="currentColor"
+        strokeWidth={4}
+        strokeLinecap="round"
+        className="opacity-75"
+      />
+    </svg>
+  );
+}
+
 interface RoundListProps {
   rounds: Round[];
   tournamentId: string;
@@ -190,15 +256,22 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                 />
               </div>
 
-              <div className="flex-1">
-                <div className="flex items-start justify-between gap-3">
-                  <h4 className="text-lg font-semibold text-slate-900">
-                    {isByeRound
-                      ? "BYE"
-                      : opponentLeader
-                        ? opponentLeader.name
-                        : currentOpponentLeaderId}
-                  </h4>
+              <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <h4 className="min-w-0 flex-1 truncate text-lg font-semibold text-slate-900">
+                      {isByeRound
+                        ? "BYE"
+                        : opponentLeader
+                          ? opponentLeader.name
+                          : currentOpponentLeaderId}
+                    </h4>
+                    {!isByeRound ? (
+                      <p className="shrink-0 text-xs font-medium text-slate-500">
+                        {currentOpponentLeaderId}
+                      </p>
+                    ) : null}
+                  </div>
                   <div className="flex shrink-0 gap-2">
                     {isEditing ? (
                       <>
@@ -223,9 +296,11 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       <button
                         type="button"
                         onClick={() => startEditingRound(round)}
-                        className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                        aria-label="Edit round"
+                        title="Edit round"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-slate-100"
                       >
-                        Edit
+                        <PencilIcon className="h-4 w-4" />
                       </button>
                     )}
                     <button
@@ -233,9 +308,15 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       disabled={
                         loading === round.id || savingRoundId === round.id
                       }
-                      className="shrink-0 rounded-md border border-red-200 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      aria-label="Delete round"
+                      title="Delete round"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {loading === round.id ? "Deleting..." : "Delete"}
+                      {loading === round.id ? (
+                        <SpinnerIcon className="h-4 w-4" />
+                      ) : (
+                        <TrashIcon className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -366,18 +447,13 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                   </div>
                 ) : null}
 
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-lg bg-blue-50 p-4">
-                    <div className="text-xs text-slate-500">Deck</div>
-                    <div className="mt-1 text-sm font-semibold text-slate-900">
-                      {currentOpponentLeaderId ?? "BYE"}
+                <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
+                  <div className="rounded-lg bg-amber-50 p-2 sm:p-4">
+                    <div className="text-[10px] text-slate-500 sm:text-xs">
+                      Coin Flip
                     </div>
-                  </div>
-
-                  <div className="rounded-lg bg-amber-50 p-4">
-                    <div className="text-xs text-slate-500">Coin Flip</div>
                     <div
-                      className={`mt-1 text-sm font-semibold ${
+                      className={`mt-1 text-xs font-semibold sm:text-sm ${
                         isByeRound ? "text-slate-500" : "text-amber-700"
                       }`}
                     >
@@ -385,17 +461,21 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                     </div>
                   </div>
 
-                  <div className="rounded-lg bg-slate-100 p-4">
-                    <div className="text-xs text-slate-500">Start</div>
-                    <div className="mt-1 text-sm font-semibold text-slate-900">
+                  <div className="rounded-lg bg-slate-100 p-2 sm:p-4">
+                    <div className="text-[10px] text-slate-500 sm:text-xs">
+                      Start
+                    </div>
+                    <div className="mt-1 text-xs font-semibold text-slate-900 sm:text-sm">
                       {isByeRound ? "N/A" : currentStartingPosition}
                     </div>
                   </div>
 
-                  <div className={`rounded-lg p-4 ${resultCardClass}`}>
-                    <div className="text-xs text-slate-500">Result</div>
+                  <div className={`rounded-lg p-2 sm:p-4 ${resultCardClass}`}>
+                    <div className="text-[10px] text-slate-500 sm:text-xs">
+                      Result
+                    </div>
                     <div
-                      className={`mt-1 text-sm font-semibold ${resultTextClass}`}
+                      className={`mt-1 text-xs font-semibold sm:text-sm ${resultTextClass}`}
                     >
                       {resultText}
                     </div>
