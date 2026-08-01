@@ -1,16 +1,19 @@
+// Matches Tailwind's default -500 swatches (the shade used for solid
+// buttons/accents elsewhere in the app), so leader colors read consistently
+// with the rest of the UI. Black/Gray use the app's slate neutral family.
 const PASTEL_MAP: Record<string, string> = {
-  Red: "#EF4444",
-  Green: "#10B981",
-  Blue: "#3B82F6",
-  Purple: "#7C3AED",
-  Black: "#374151",
-  Yellow: "#FDE047",
-  Gray: "#9CA3AF",
-  Pink: "#EC4899",
-  Brown: "#A16207",
+  Red: "#EF4444", // red-500
+  Green: "#22C55E", // green-500
+  Blue: "#3B82F6", // blue-500
+  Purple: "#A855F7", // purple-500
+  Black: "#0F172A", // slate-900
+  Yellow: "#EAB308", // yellow-500
+  Gray: "#94A3B8", // slate-400
+  Pink: "#EC4899", // pink-500
+  Brown: "#92400E", // amber-800
 };
 
-function colorToHex(name: string): string {
+export function colorToHex(name: string): string {
   const key = String(name ?? "").trim();
   if (!key) return PASTEL_MAP.Gray;
   if (PASTEL_MAP[key]) return PASTEL_MAP[key];

@@ -8,6 +8,7 @@ import {
   TOURNAMENT_TYPES,
   type TournamentType,
 } from "@/models/tournament";
+import { LeaderColorFilter } from "@/components/LeaderColorFilter";
 
 export function TournamentForm() {
   const [name, setName] = useState("");
@@ -16,6 +17,7 @@ export function TournamentForm() {
   const [error, setError] = useState("");
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [idGroupFilter, setIdGroupFilter] = useState("All");
+  const [colorFilter, setColorFilter] = useState<string[]>([]);
   const [playedLeaderId, setPlayedLeaderId] = useState<string | undefined>(
     undefined,
   );
@@ -45,11 +47,23 @@ export function TournamentForm() {
     ),
   ).sort();
 
+  const colorOptions = Array.from(
+    new Set(
+      leaders
+        .flatMap((l) => (Array.isArray(l.colors) ? l.colors.flat() : []))
+        .filter(Boolean),
+    ),
+  ).sort();
+
   const filteredLeaders = leaders.filter((l) => {
     let prefix = l.id.split("-")[0] || "";
     if (prefix.startsWith("ST")) prefix = "ST";
     const matchesId = idGroupFilter === "All" || prefix === idGroupFilter;
-    return matchesId;
+    const leaderColors = Array.isArray(l.colors) ? l.colors.flat() : [];
+    const matchesColor =
+      colorFilter.length === 0 ||
+      colorFilter.every((c) => leaderColors.includes(c));
+    return matchesId && matchesColor;
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -149,34 +163,62 @@ export function TournamentForm() {
         </select>
       </div>
 
-      <div className="pt-4 border-t">
-        <label className="block text-sm font-medium">Played Leader</label>
-
-        <div className="mt-3 mb-3">
-          <select
-            value={idGroupFilter}
-            onChange={(e) => setIdGroupFilter(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-200 rounded-md shadow-sm text-base"
-          >
-            <option value="All">-- Select extension --</option>
-            {idGroupOptions.map((group) => (
-              <option key={group} value={group}>
-                {group}
-              </option>
-            ))}
-          </select>
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div>
+          <div className="text-sm font-semibold text-slate-800">
+            Played Leader
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Pick the leader you&apos;ll be playing for this tournament.
+          </p>
         </div>
 
-        <select
-          value={playedLeaderId ?? ""}
-          onChange={(e) => setPlayedLeaderId(e.target.value || undefined)}
-          className="mt-1 block w-full px-4 py-2 border border-gray-200 rounded-md shadow-sm text-base"
-        >
-          <option value="">-- Select leader --</option>
-          {filteredLeaders.map((l) => (
-            <option key={l.id} value={l.id}>{`${l.name} (${l.id})`}</option>
-          ))}
-        </select>
+        <div className="mt-4">
+          <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+            Color
+          </label>
+          <LeaderColorFilter
+            colors={colorOptions}
+            value={colorFilter}
+            onChange={setColorFilter}
+          />
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              Extension
+            </label>
+            <select
+              value={idGroupFilter}
+              onChange={(e) => setIdGroupFilter(e.target.value)}
+              className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="All">Select Extension</option>
+              {idGroupOptions.map((group) => (
+                <option key={group} value={group}>
+                  {group}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              Played Leader
+            </label>
+            <select
+              value={playedLeaderId ?? ""}
+              onChange={(e) => setPlayedLeaderId(e.target.value || undefined)}
+              className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">-- Select leader --</option>
+              {filteredLeaders.map((l) => (
+                <option key={l.id} value={l.id}>{`${l.name} (${l.id})`}</option>
+              ))}
+            </select>
+          </div>
+        </div>
 
         {playedLeaderId &&
           (() => {
@@ -186,18 +228,18 @@ export function TournamentForm() {
               ? sel.imageUrl
               : `/${sel.imageUrl}`.replace(/^\//, "/");
             return (
-              <div className="mt-3 flex items-center gap-3">
+              <div className="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3">
                 <img
                   src={previewSrc}
                   alt={sel.name}
-                  className="w-14 h-14 object-contain bg-white border"
+                  className="h-14 w-14 border bg-white object-contain"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src =
                       "/placeholder.png";
                   }}
                 />
                 <div>
-                  <div className="font-medium text-lg">{sel.name}</div>
+                  <div className="text-lg font-medium">{sel.name}</div>
                   <div className="text-sm text-gray-500">{sel.id}</div>
                 </div>
               </div>

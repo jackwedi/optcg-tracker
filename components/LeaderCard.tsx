@@ -19,14 +19,14 @@ export function LeaderCard({ leader, selected, onSelect }: Props) {
 
   const pastelMap: Record<string, string> = {
     Red: "#EF4444",
-    Green: "#10B981",
+    Green: "#22C55E",
     Blue: "#3B82F6",
-    Purple: "#7C3AED",
-    Black: "#374151",
-    Yellow: "#FDE047",
-    Gray: "#9CA3AF",
+    Purple: "#A855F7",
+    Black: "#0F172A",
+    Yellow: "#EAB308",
+    Gray: "#94A3B8",
     Pink: "#EC4899",
-    Brown: "#A16207",
+    Brown: "#92400E",
   };
 
   const pastel = (name: string) => {

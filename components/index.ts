@@ -8,6 +8,10 @@ export { LeaderForm } from "./LeaderForm";
 export { LeaderList } from "./LeaderList";
 export { LeaderCard } from "./LeaderCard";
 export { LeaderColorDots } from "./LeaderColorDots";
+export {
+  LeaderColorFilter,
+  MAX_LEADER_COLOR_FILTERS,
+} from "./LeaderColorFilter";
 export { LeaderSearch } from "./LeaderSearch";
 export { AuthPanel } from "./AuthPanel";
 export { CreateTournamentCard } from "./CreateTournamentCard";

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Leader } from "@/models/leader";
+import { LeaderColorFilter } from "@/components/LeaderColorFilter";
 
 const BYE_LEADER_ID = "BYE";
 
@@ -19,6 +20,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
   const [isBye, setIsBye] = useState(false);
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [idGroupFilter, setIdGroupFilter] = useState("All");
+  const [colorFilter, setColorFilter] = useState<string[]>([]);
   const [won, setWon] = useState(false);
   const [wonCoinFlip, setWonCoinFlip] = useState(false);
   const [isFirst, setIsFirst] = useState(true);
@@ -49,11 +51,25 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
     ),
   ).sort();
 
+  const colorOptions = Array.from(
+    new Set(
+      leaders
+        .filter((l) => l.id !== BYE_LEADER_ID)
+        .flatMap((l) => (Array.isArray(l.colors) ? l.colors.flat() : []))
+        .filter(Boolean),
+    ),
+  ).sort();
+
   const filteredLeaders = leaders.filter((l) => {
     if (l.id === BYE_LEADER_ID) return false;
     let prefix = l.id.split("-")[0] || "";
     if (prefix.startsWith("ST")) prefix = "ST";
-    return idGroupFilter === "All" || prefix === idGroupFilter;
+    const matchesId = idGroupFilter === "All" || prefix === idGroupFilter;
+    const leaderColors = Array.isArray(l.colors) ? l.colors.flat() : [];
+    const matchesColor =
+      colorFilter.length === 0 ||
+      colorFilter.every((c) => leaderColors.includes(c));
+    return matchesId && matchesColor;
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -173,45 +189,58 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
             </div>
 
             {!isBye && (
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="mt-4 space-y-4">
                 <div>
                   <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
-                    Extension
+                    Color
                   </label>
-                  <select
-                    value={idGroupFilter}
-                    onChange={(e) => setIdGroupFilter(e.target.value)}
-                    className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="All">Select Extension</option>
-                    {idGroupOptions.map((group) => (
-                      <option key={group} value={group}>
-                        {group}
-                      </option>
-                    ))}
-                  </select>
+                  <LeaderColorFilter
+                    colors={colorOptions}
+                    value={colorFilter}
+                    onChange={setColorFilter}
+                  />
                 </div>
 
-                <div>
-                  <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
-                    Opponent Leader
-                  </label>
-                  <select
-                    value={selectedOpponentLeaderId ?? ""}
-                    onChange={(e) => {
-                      const leaderId = e.target.value || undefined;
-                      setSelectedOpponentLeaderId(leaderId);
-                    }}
-                    required
-                    className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="">-- Select opponent leader --</option>
-                    {filteredLeaders.map((leader) => (
-                      <option key={leader.id} value={leader.id}>
-                        {leader.name} ({leader.id})
-                      </option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                      Extension
+                    </label>
+                    <select
+                      value={idGroupFilter}
+                      onChange={(e) => setIdGroupFilter(e.target.value)}
+                      className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="All">Select Extension</option>
+                      {idGroupOptions.map((group) => (
+                        <option key={group} value={group}>
+                          {group}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                      Opponent Leader
+                    </label>
+                    <select
+                      value={selectedOpponentLeaderId ?? ""}
+                      onChange={(e) => {
+                        const leaderId = e.target.value || undefined;
+                        setSelectedOpponentLeaderId(leaderId);
+                      }}
+                      required
+                      className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">-- Select opponent leader --</option>
+                      {filteredLeaders.map((leader) => (
+                        <option key={leader.id} value={leader.id}>
+                          {leader.name} ({leader.id})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             )}

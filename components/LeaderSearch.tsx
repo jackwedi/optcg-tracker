@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import type { Leader } from "@/models/leader";
 import { LeaderCard } from "./LeaderCard";
+import { LeaderColorFilter } from "./LeaderColorFilter";
 
 interface Props {
   leaders: Leader[];
@@ -15,7 +16,7 @@ export function LeaderSearch({
   selectedLeaderId,
   onSelectLeader,
 }: Props) {
-  const [color, setColor] = useState("All");
+  const [color, setColor] = useState<string[]>([]);
   const [idGroup, setIdGroup] = useState("All");
 
   const colorOptions = useMemo(() => {
@@ -23,7 +24,7 @@ export function LeaderSearch({
     leaders.forEach((l) => {
       if (Array.isArray(l.colors)) l.colors.flat().forEach((c) => set.add(c));
     });
-    return ["All", ...Array.from(set).sort()];
+    return Array.from(set).sort();
   }, [leaders]);
 
   const idGroupOptions = useMemo(() => {
@@ -41,9 +42,9 @@ export function LeaderSearch({
     return leaders.filter((l) => {
       let prefix = l.id.split("-")[0] || "";
       if (prefix.startsWith("ST")) prefix = "ST";
+      const leaderColors = Array.isArray(l.colors) ? l.colors.flat() : [];
       const matchesColor =
-        color === "All" ||
-        (Array.isArray(l.colors) && l.colors.flat().includes(color));
+        color.length === 0 || color.every((c) => leaderColors.includes(c));
       const matchesIdGroup = idGroup === "All" || prefix === idGroup;
       return matchesColor && matchesIdGroup;
     });
@@ -51,21 +52,12 @@ export function LeaderSearch({
 
   return (
     <div>
-      <div className="flex flex-wrap gap-2 mb-4">
-        {colorOptions.map((c) => (
-          <button
-            key={c}
-            type="button"
-            onClick={() => setColor(c)}
-            className={`px-3 py-2 rounded border text-sm font-medium transition ${
-              color === c
-                ? "bg-slate-900 text-white border-slate-900"
-                : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-            }`}
-          >
-            {c}
-          </button>
-        ))}
+      <div className="mb-4">
+        <LeaderColorFilter
+          colors={colorOptions}
+          value={color}
+          onChange={setColor}
+        />
       </div>
 
       <div className="mb-4">
