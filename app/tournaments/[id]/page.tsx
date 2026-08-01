@@ -1,6 +1,7 @@
 import { getTournamentById, getTournamentStats } from "@/lib/db";
 import { getLeaderById } from "@/lib/leaders";
 import LeaderThumbnail from "@/components/LeaderThumbnail";
+import { LeaderColorDots } from "@/components/LeaderColorDots";
 import Link from "next/link";
 import { RoundForm } from "@/components/RoundForm";
 import { RoundList } from "@/components/RoundList";
@@ -76,8 +77,16 @@ export default async function TournamentDetailPage({ params }: Props) {
               No leader
             </div>
           )}
-          <p className="mt-1 max-w-20 truncate text-center text-[10px] font-medium text-slate-600 sm:hidden">
-            {playedLeader ? playedLeader.name : "Not set"}
+          <p className="mt-1 flex max-w-20 items-center justify-center gap-1 text-[10px] font-medium text-slate-600 sm:hidden">
+            {playedLeader ? (
+              <LeaderColorDots
+                colors={playedLeader.colors}
+                dotClassName="h-1.5 w-1.5"
+              />
+            ) : null}
+            <span className="truncate">
+              {playedLeader ? playedLeader.name : "Not set"}
+            </span>
           </p>
         </div>
 
@@ -104,7 +113,10 @@ export default async function TournamentDetailPage({ params }: Props) {
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
               Played Leader
             </p>
-            <p className="mt-1 text-lg font-semibold text-slate-900">
+            <p className="mt-1 flex items-center gap-1.5 text-lg font-semibold text-slate-900">
+              {playedLeader ? (
+                <LeaderColorDots colors={playedLeader.colors} />
+              ) : null}
               {playedLeader ? playedLeader.name : "Not set"}
             </p>
             {playedLeader ? (

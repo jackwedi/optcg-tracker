@@ -5,6 +5,7 @@ export { RoundList } from "./RoundList";
 export { LeaderForm } from "./LeaderForm";
 export { LeaderList } from "./LeaderList";
 export { LeaderCard } from "./LeaderCard";
+export { LeaderColorDots } from "./LeaderColorDots";
 export { LeaderSearch } from "./LeaderSearch";
 export { AuthPanel } from "./AuthPanel";
 export { CreateTournamentCard } from "./CreateTournamentCard";

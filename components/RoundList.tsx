@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Leader } from "@/models/leader";
 import LeaderThumbnail from "@/components/LeaderThumbnail";
+import { LeaderColorDots } from "@/components/LeaderColorDots";
 
 const BYE_LEADER_ID = "BYE";
 
@@ -259,6 +260,9 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
               <div className="min-w-0 flex-1">
                 <div className="flex min-w-0 items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
+                    {!isByeRound && opponentLeader ? (
+                      <LeaderColorDots colors={opponentLeader.colors} />
+                    ) : null}
                     <h4 className="min-w-0 flex-1 truncate text-lg font-semibold text-slate-900">
                       {isByeRound
                         ? "BYE"

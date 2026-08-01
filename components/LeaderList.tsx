@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LeaderColorDots } from "@/components/LeaderColorDots";
 
 interface Leader {
   id: string;
@@ -80,7 +81,10 @@ export function LeaderList() {
           />
           <div className="flex-1">
             <div className="flex items-center justify-between">
-              <h4 className="font-semibold">{l.name}</h4>
+              <h4 className="flex min-w-0 items-center gap-1.5 font-semibold">
+                <LeaderColorDots colors={l.colors} />
+                <span className="truncate">{l.name}</span>
+              </h4>
               <div className="text-sm text-gray-600">
                 {l.colors.join(" / ")}
               </div>
