@@ -9,45 +9,6 @@ import { LeaderColorDots } from "@/components/LeaderColorDots";
 
 const BYE_LEADER_ID = "BYE";
 
-function PencilIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z" />
-    </svg>
-  );
-}
-
-function TrashIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M3 6h18" />
-      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-      <path d="M10 11v6" />
-      <path d="M14 11v6" />
-    </svg>
-  );
-}
-
 function SpinnerIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -304,7 +265,9 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                         title="Edit round"
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-slate-100"
                       >
-                        <PencilIcon className="h-4 w-4" />
+                        <span className="text-xl font-semibold leading-none">
+                          ⋯
+                        </span>
                       </button>
                     )}
                     <button
@@ -319,7 +282,9 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       {loading === round.id ? (
                         <SpinnerIcon className="h-4 w-4" />
                       ) : (
-                        <TrashIcon className="h-4 w-4" />
+                        <span className="rotate-45 text-lg font-semibold leading-none">
+                          +
+                        </span>
                       )}
                     </button>
                   </div>
