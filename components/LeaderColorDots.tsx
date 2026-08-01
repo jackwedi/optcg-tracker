@@ -27,7 +27,7 @@ interface LeaderColorDotsProps {
 export function LeaderColorDots({
   colors,
   className = "",
-  dotClassName = "h-5 w-5",
+  dotClassName = "h-2.5 w-2.5",
 }: LeaderColorDotsProps) {
   const flatColors = Array.isArray(colors)
     ? (colors.flat().filter(Boolean) as string[])

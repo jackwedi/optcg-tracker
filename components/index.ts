@@ -1,5 +1,7 @@
 export { TournamentForm } from "./TournamentForm";
 export { TournamentList } from "./TournamentList";
+export { TournamentTable } from "./TournamentTable";
+export { TournamentTableWithFilter } from "./TournamentTableWithFilter";
 export { RoundForm } from "./RoundForm";
 export { RoundList } from "./RoundList";
 export { LeaderForm } from "./LeaderForm";
