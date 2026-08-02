@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 import { hasAdminRoleFromUnknown } from "@/lib/roles";
 
@@ -16,15 +17,7 @@ export function UserSessionControls() {
   const router = useRouter();
 
   useEffect(() => {
-    let mounted = true;
-
-    const loadUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!mounted) return;
-
+    const applyUser = (user: User | null) => {
       const userDisplayName = user?.user_metadata?.display_name as
         | string
         | undefined;
@@ -35,10 +28,16 @@ export function UserSessionControls() {
       setLoading(false);
     };
 
-    loadUser();
+    supabase.auth.getUser().then(({ data: { user } }) => applyUser(user));
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      applyUser(session?.user ?? null);
+    });
 
     return () => {
-      mounted = false;
+      subscription.unsubscribe();
     };
   }, [supabase]);
 
@@ -46,8 +45,6 @@ export function UserSessionControls() {
     setSigningOut(true);
     await supabase.auth.signOut();
     setSigningOut(false);
-    setUserEmail(null);
-    setDisplayName(null);
     router.replace("/login");
     router.refresh();
   };
