@@ -1,12 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { StatMeter } from "@/components/StatMeter";
 
 interface AdminUser {
   id: string;
   email: string;
   displayName: string;
   role: string;
+}
+
+interface PlayerStats {
+  totalTournaments: number;
+  totalRounds: number;
+  wins: number;
+  winRate: number;
+  coinFlipWins: number;
+  coinFlipWinRate: number;
 }
 
 export function AdminUserPseudoManager() {
@@ -17,6 +27,14 @@ export function AdminUserPseudoManager() {
   const [savingUserId, setSavingUserId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [statsByUserId, setStatsByUserId] = useState<
+    Record<string, PlayerStats>
+  >({});
+  const [statsLoadingUserId, setStatsLoadingUserId] = useState<string | null>(
+    null,
+  );
+  const [statsError, setStatsError] = useState<Record<string, string>>({});
 
   const loadUsers = async (currentQuery = "") => {
     setLoading(true);
@@ -46,7 +64,7 @@ export function AdminUserPseudoManager() {
   };
 
   useEffect(() => {
-    loadUsers();
+    Promise.resolve().then(() => loadUsers());
   }, []);
 
   const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -105,6 +123,44 @@ export function AdminUserPseudoManager() {
       setError("Failed to update pseudo.");
     } finally {
       setSavingUserId(null);
+    }
+  };
+
+  const handleToggleStats = async (userId: string) => {
+    if (expandedUserId === userId) {
+      setExpandedUserId(null);
+      return;
+    }
+
+    setExpandedUserId(userId);
+
+    if (statsByUserId[userId]) {
+      return;
+    }
+
+    setStatsLoadingUserId(userId);
+    setStatsError((current) => {
+      const next = { ...current };
+      delete next[userId];
+      return next;
+    });
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/stats`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch player stats");
+      }
+
+      const data = (await response.json()) as PlayerStats;
+      setStatsByUserId((current) => ({ ...current, [userId]: data }));
+    } catch {
+      setStatsError((current) => ({
+        ...current,
+        [userId]: "Failed to load stats.",
+      }));
+    } finally {
+      setStatsLoadingUserId(null);
     }
   };
 
@@ -171,7 +227,54 @@ export function AdminUserPseudoManager() {
                 >
                   {savingUserId === user.id ? "Saving..." : "Save"}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => handleToggleStats(user.id)}
+                  className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                >
+                  {expandedUserId === user.id ? "Hide stats" : "View stats"}
+                </button>
               </div>
+
+              {expandedUserId === user.id ? (
+                <div className="mt-3 border-t border-slate-200 pt-3">
+                  {statsLoadingUserId === user.id ? (
+                    <p className="text-sm text-slate-500">Loading stats...</p>
+                  ) : statsError[user.id] ? (
+                    <p className="text-sm text-red-600">
+                      {statsError[user.id]}
+                    </p>
+                  ) : statsByUserId[user.id] ? (
+                    <>
+                      <p className="mb-3 text-xs text-slate-500">
+                        {statsByUserId[user.id].totalTournaments} tournament
+                        {statsByUserId[user.id].totalTournaments === 1
+                          ? ""
+                          : "s"}{" "}
+                        · {statsByUserId[user.id].totalRounds} rounds played
+                      </p>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <StatMeter
+                          label="Win Rate"
+                          value={statsByUserId[user.id].winRate}
+                          detail={`${statsByUserId[user.id].wins} / ${statsByUserId[user.id].totalRounds} rounds won`}
+                          trackClassName="bg-emerald-100"
+                          fillClassName="bg-emerald-500"
+                          valueClassName="text-emerald-600"
+                        />
+                        <StatMeter
+                          label="Coin Flip Win Rate"
+                          value={statsByUserId[user.id].coinFlipWinRate}
+                          detail={`${statsByUserId[user.id].coinFlipWins} / ${statsByUserId[user.id].totalRounds} coin flips won`}
+                          trackClassName="bg-amber-100"
+                          fillClassName="bg-amber-500"
+                          valueClassName="text-amber-600"
+                        />
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           ))}
 
