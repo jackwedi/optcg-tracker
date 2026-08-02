@@ -15,16 +15,16 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, colors, imageUrl, altImageUrl } = await request.json();
+    const { id, name, colors, imageUrl, altImageUrl } = await request.json();
 
-    if (!name || !colors || !imageUrl) {
+    if (!id || !name || !colors || !imageUrl) {
       return NextResponse.json(
-        { error: "Missing required fields: name, colors, imageUrl" },
+        { error: "Missing required fields: id, name, colors, imageUrl" },
         { status: 400 }
       );
     }
 
-    const leader = await createLeader(name, colors, imageUrl, altImageUrl);
+    const leader = await createLeader(id, name, colors, imageUrl, altImageUrl);
     return NextResponse.json(leader, { status: 201 });
   } catch {
     return NextResponse.json(

@@ -7,8 +7,9 @@ export { StatMeter } from "./StatMeter";
 export { RoundForm } from "./RoundForm";
 export { RoundList } from "./RoundList";
 export { LeaderForm } from "./LeaderForm";
-export { LeaderList } from "./LeaderList";
 export { LeaderCard } from "./LeaderCard";
+export { AdminLeaderManager } from "./AdminLeaderManager";
+export { CreateLeaderCard } from "./CreateLeaderCard";
 export { LeaderColorDots } from "./LeaderColorDots";
 export {
   LeaderColorFilter,

@@ -9,12 +9,16 @@ interface Props {
   leaders: Leader[];
   selectedLeaderId?: string;
   onSelectLeader?: (leader: Leader) => void;
+  actionLabel?: string;
+  selectedLabel?: string;
 }
 
 export function LeaderSearch({
   leaders,
   selectedLeaderId,
   onSelectLeader,
+  actionLabel,
+  selectedLabel,
 }: Props) {
   const [color, setColor] = useState<string[]>([]);
   const [idGroup, setIdGroup] = useState("All");
@@ -84,6 +88,8 @@ export function LeaderSearch({
             key={leader.id}
             selected={selectedLeaderId === leader.id}
             onSelect={onSelectLeader}
+            actionLabel={actionLabel}
+            selectedLabel={selectedLabel}
           />
         ))}
       </div>

@@ -13,6 +13,18 @@ const PASTEL_MAP: Record<string, string> = {
   Brown: "#92400E", // amber-800
 };
 
+// The 6 official OPTCG colors a leader can be assigned. Gray/Pink/Brown in
+// PASTEL_MAP above are rendering fallbacks only (e.g. Gray for the
+// colorless BYE placeholder), not selectable leader colors.
+export const LEADER_COLOR_OPTIONS = [
+  "Red",
+  "Green",
+  "Blue",
+  "Purple",
+  "Black",
+  "Yellow",
+];
+
 export function colorToHex(name: string): string {
   const key = String(name ?? "").trim();
   if (!key) return PASTEL_MAP.Gray;

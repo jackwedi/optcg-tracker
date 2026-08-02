@@ -36,7 +36,7 @@ export default function RootLayout({
           <div className="container mx-auto px-4 py-3 sm:py-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-                <Link href="/">🃏 OPTCG Tracker</Link>
+                <Link href="/">🃏</Link>
               </h1>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 md:gap-6">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-4 md:gap-x-6">
@@ -49,12 +49,7 @@ export default function RootLayout({
                   >
                     Tournaments
                   </Link>
-                  <Link
-                    href="/leaders"
-                    className="text-gray-600 hover:text-gray-900"
-                  >
-                    Leaders
-                  </Link>
+
                   <Link
                     href="/crew"
                     className="text-gray-600 hover:text-gray-900"

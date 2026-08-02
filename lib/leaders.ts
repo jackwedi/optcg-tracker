@@ -92,6 +92,7 @@ export async function getLeaderById(id: string): Promise<Leader | undefined> {
 }
 
 export async function createLeader(
+  id: string,
   name: string,
   colors: string[],
   imageUrl: string,
@@ -99,7 +100,6 @@ export async function createLeader(
 ): Promise<Leader> {
   const supabase = getSupabaseClient();
 
-  const id = crypto.randomUUID();
   const { data, error } = await supabase
     .from("leaders")
     .insert({

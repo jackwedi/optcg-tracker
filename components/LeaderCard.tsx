@@ -8,9 +8,17 @@ interface Props {
   leader: Leader;
   selected?: boolean;
   onSelect?: (leader: Leader) => void;
+  actionLabel?: string;
+  selectedLabel?: string;
 }
 
-export function LeaderCard({ leader, selected, onSelect }: Props) {
+export function LeaderCard({
+  leader,
+  selected,
+  onSelect,
+  actionLabel = "Select",
+  selectedLabel = "Selected",
+}: Props) {
   const flatColors: string[] = Array.isArray(leader.colors)
     ? (leader.colors.flat().filter(Boolean) as string[])
     : [];
@@ -49,27 +57,43 @@ export function LeaderCard({ leader, selected, onSelect }: Props) {
 
   return (
     <>
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={() => setOpen(true)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") setOpen(true);
-        }}
-        className="relative flex items-stretch gap-4 p-4 pr-[10%] border rounded-lg bg-white shadow-sm cursor-pointer"
-      >
-        <LeaderThumbnail
-          src={leader.imageUrl}
-          alt={leader.name}
-          isCard
-          className="w-20 h-full object-cover bg-white self-stretch"
-        />
+      <div className="relative flex items-stretch gap-4 p-4 pr-[10%] border rounded-lg bg-white shadow-sm">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={`View ${leader.name} image`}
+          className="shrink-0 cursor-zoom-in"
+        >
+          <LeaderThumbnail
+            src={leader.imageUrl}
+            alt={leader.name}
+            isCard
+            className="w-20 h-full object-cover bg-white self-stretch"
+          />
+        </button>
 
-        <div className="flex-1 flex flex-col justify-center">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-lg">{leader.name}</h3>
+        <div className="flex-1 flex flex-col justify-between min-w-0 py-0.5">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-lg truncate">{leader.name}</h3>
+            <p className="text-sm text-gray-500">{leader.id}</p>
           </div>
-          <p className="text-sm text-gray-500">{leader.id}</p>
+          {onSelect && (
+            <div className="mt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => onSelect(leader)}
+                aria-label={selected ? selectedLabel : actionLabel}
+                title={selected ? selectedLabel : actionLabel}
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition ${
+                  selected
+                    ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <span className="text-xl font-semibold leading-none">⋯</span>
+              </button>
+            </div>
+          )}
         </div>
         <div className="absolute top-0 right-0 h-full w-[10%] rounded-r-lg overflow-hidden">
           {colorsToShow.length === 1 ? (
@@ -91,25 +115,6 @@ export function LeaderCard({ leader, selected, onSelect }: Props) {
           )}
         </div>
       </div>
-
-      {onSelect && (
-        <div className="absolute bottom-4 right-4">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect(leader);
-            }}
-            className={`rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-              selected
-                ? "bg-slate-900 text-white"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-          >
-            {selected ? "Selected" : "Select"}
-          </button>
-        </div>
-      )}
 
       {open && (
         <div
