@@ -1,4 +1,10 @@
-import { AuthPanel, CreateOrJoinCrewCard, CrewLeaderboardTable, LeaveCrewButton } from "@/components";
+import {
+  AuthPanel,
+  CreateOrJoinCrewCard,
+  CrewLeaderboardTable,
+  CrewRankProgress,
+  LeaveCrewButton,
+} from "@/components";
 import { getCurrentUserId } from "@/lib/auth";
 import {
   getCrewLeaderboard,
@@ -43,6 +49,7 @@ export default async function CrewPage() {
               {crew.id}
             </span>
           </p>
+          <CrewRankProgress totalWins={leaderboard?.totalWins ?? 0} />
           <CrewLeaderboardTable entries={leaderboard?.entries ?? []} />
         </div>
       </main>

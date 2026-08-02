@@ -24,4 +24,5 @@ export { AuthPanel } from "./AuthPanel";
 export { CreateTournamentCard } from "./CreateTournamentCard";
 export { CreateOrJoinCrewCard } from "./CreateOrJoinCrewCard";
 export { CrewLeaderboardTable } from "./CrewLeaderboardTable";
+export { CrewRankProgress } from "./CrewRankProgress";
 export { LeaveCrewButton } from "./LeaveCrewButton";

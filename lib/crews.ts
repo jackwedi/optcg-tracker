@@ -10,7 +10,23 @@ import {
   type CrewEligibility,
   type CrewLeaderboard,
   type CrewLeaderboardEntry,
+  type CrewMemberRound,
 } from "@/models/crew";
+import {
+  DEFAULT_TOURNAMENT_TYPE,
+  TOURNAMENT_TYPES,
+  type TournamentType,
+} from "@/models/tournament";
+
+function sanitizeTournamentType(value: unknown): TournamentType {
+  if (
+    typeof value === "string" &&
+    TOURNAMENT_TYPES.includes(value as TournamentType)
+  ) {
+    return value as TournamentType;
+  }
+  return DEFAULT_TOURNAMENT_TYPE;
+}
 
 const CREW_ID_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I
 const CREW_ID_LENGTH = 6;
@@ -246,23 +262,26 @@ export async function getCrewLeaderboard(): Promise<CrewLeaderboard | null> {
   if (membersError) throw membersError;
 
   const memberUserIds = (members ?? []).map((m) => m.user_id as string);
-  const joinRank = new Map(memberUserIds.map((id, idx) => [id, idx]));
 
   const { data: tournaments, error: tournamentsError } = await supabaseAdmin
     .from("tournaments")
-    .select("id,user_id")
+    .select("id,user_id,tournament_type")
     .in("user_id", memberUserIds);
   if (tournamentsError) throw tournamentsError;
 
   const tournamentOwner = new Map<string, string>();
+  const tournamentTypeById = new Map<string, TournamentType>();
   for (const t of tournaments ?? []) {
     tournamentOwner.set(t.id as string, t.user_id as string);
+    tournamentTypeById.set(
+      t.id as string,
+      sanitizeTournamentType(t.tournament_type),
+    );
   }
   const tournamentIds = Array.from(tournamentOwner.keys());
 
-  const winsByUser = new Map<string, number>(memberUserIds.map((id) => [id, 0]));
-  const roundsByUser = new Map<string, number>(
-    memberUserIds.map((id) => [id, 0]),
+  const roundsByUser = new Map<string, CrewMemberRound[]>(
+    memberUserIds.map((id) => [id, []]),
   );
 
   if (tournamentIds.length > 0) {
@@ -274,9 +293,13 @@ export async function getCrewLeaderboard(): Promise<CrewLeaderboard | null> {
 
     for (const round of rounds ?? []) {
       const owner = tournamentOwner.get(round.tournament_id as string);
-      if (!owner) continue;
-      roundsByUser.set(owner, (roundsByUser.get(owner) ?? 0) + 1);
-      if (round.won) winsByUser.set(owner, (winsByUser.get(owner) ?? 0) + 1);
+      const tournamentType = tournamentTypeById.get(
+        round.tournament_id as string,
+      );
+      if (!owner || !tournamentType) continue;
+      roundsByUser
+        .get(owner)
+        ?.push({ tournamentType, won: Boolean(round.won) });
     }
   }
 
@@ -294,19 +317,17 @@ export async function getCrewLeaderboard(): Promise<CrewLeaderboard | null> {
   );
   const displayNameByUser = new Map(resolved.map((r) => [r.id, r.displayName]));
 
-  const entries: CrewLeaderboardEntry[] = memberUserIds
-    .map((id) => ({
-      userId: id,
-      displayName: displayNameByUser.get(id) ?? "Unknown Player",
-      wins: winsByUser.get(id) ?? 0,
-      totalRounds: roundsByUser.get(id) ?? 0,
-      isCurrentUser: id === userId,
-    }))
-    .sort(
-      (a, b) =>
-        b.wins - a.wins || joinRank.get(a.userId)! - joinRank.get(b.userId)!,
-    )
-    .map((entry, index) => ({ ...entry, rank: index + 1 }));
+  const entries: CrewLeaderboardEntry[] = memberUserIds.map((id) => ({
+    userId: id,
+    displayName: displayNameByUser.get(id) ?? "Unknown Player",
+    isCurrentUser: id === userId,
+    rounds: roundsByUser.get(id) ?? [],
+  }));
 
-  return { crewId, entries };
+  const totalWins = entries.reduce(
+    (sum, entry) => sum + entry.rounds.filter((r) => r.won).length,
+    0,
+  );
+
+  return { crewId, entries, totalWins };
 }
