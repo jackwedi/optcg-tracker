@@ -1,15 +1,7 @@
-import { redirect } from "next/navigation";
-import { isCurrentUserAdmin } from "@/lib/auth";
 import { getLeaders } from "@/lib/leaders";
 import { AdminLeaderManager } from "@/components/AdminLeaderManager";
 
 export default async function AdminLeadersPage() {
-  const isAdmin = await isCurrentUserAdmin();
-
-  if (!isAdmin) {
-    redirect("/");
-  }
-
   const leaders = await getLeaders();
 
   return (

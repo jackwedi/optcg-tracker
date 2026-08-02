@@ -9,6 +9,7 @@ export { RoundList } from "./RoundList";
 export { LeaderForm } from "./LeaderForm";
 export { LeaderCard } from "./LeaderCard";
 export { AdminLeaderManager } from "./AdminLeaderManager";
+export { AdminNav } from "./AdminNav";
 export { CreateLeaderCard } from "./CreateLeaderCard";
 export { LeaderColorDots } from "./LeaderColorDots";
 export {
