@@ -6,6 +6,7 @@ import Link from "next/link";
 import { RoundForm } from "@/components/RoundForm";
 import { RoundList } from "@/components/RoundList";
 import { DeleteTournamentButton } from "@/components/DeleteTournamentButton";
+import { TournamentTypeEditor } from "@/components/TournamentTypeEditor";
 import { notFound } from "next/navigation";
 
 function formatDateServer(dateString: string): string {
@@ -18,19 +19,6 @@ function formatDateServer(dateString: string): string {
     }).format(date);
   } catch {
     return dateString;
-  }
-}
-
-function getTournamentTypeIcon(type: string): string {
-  switch (type) {
-    case "Local":
-      return "🏠";
-    case "Regional":
-      return "🗺️";
-    case "Treasure Cup":
-      return "🏆";
-    default:
-      return "🏷️";
   }
 }
 
@@ -95,15 +83,12 @@ export default async function TournamentDetailPage({ params }: Props) {
             <h1 className="text-xl font-bold sm:text-4xl">
               {tournament.name}
             </h1>
-            <span
-              className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-base sm:h-10 sm:w-10 sm:text-xl"
-              title={tournament.tournamentType}
-              aria-label={`Tournament type: ${tournament.tournamentType}`}
-            >
-              <span role="img" aria-hidden="true">
-                {getTournamentTypeIcon(tournament.tournamentType)}
-              </span>
-            </span>
+            <TournamentTypeEditor
+              tournamentId={id}
+              name={tournament.name}
+              date={tournament.date}
+              tournamentType={tournament.tournamentType}
+            />
           </div>
           <p className="mb-3 text-xs text-gray-600 sm:mb-6 sm:text-base">
             {formatDateServer(tournament.date)}
