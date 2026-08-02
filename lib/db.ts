@@ -618,3 +618,34 @@ export async function getTournamentStats(tournamentId: string) {
     winRate,
   };
 }
+
+export async function getLifetimeRoundsCount(): Promise<number> {
+  const supabase = await getSupabaseClient();
+  const userId = await getCurrentUserId();
+  if (!userId) return 0;
+
+  const { data: tournaments, error: tournamentsError } = await supabase
+    .from("tournaments")
+    .select("id")
+    .eq("user_id", userId);
+
+  if (tournamentsError) {
+    if (isMissingTableError(tournamentsError)) return 0;
+    throw tournamentsError;
+  }
+
+  const tournamentIds = (tournaments ?? []).map((t) => t.id as string);
+  if (tournamentIds.length === 0) return 0;
+
+  const { count, error: roundsError } = await supabase
+    .from("rounds")
+    .select("id", { count: "exact", head: true })
+    .in("tournament_id", tournamentIds);
+
+  if (roundsError) {
+    if (isMissingTableError(roundsError)) return 0;
+    throw roundsError;
+  }
+
+  return count ?? 0;
+}
