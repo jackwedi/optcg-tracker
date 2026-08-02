@@ -13,13 +13,7 @@ export default async function TournamentsPage() {
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <Link
-          href="/"
-          className="text-blue-600 hover:underline mb-4 inline-block"
-        >
-          ← Back to Home
-        </Link>
-        <h1 className="text-4xl font-bold">All Tournaments</h1>
+        <h1 className="text-4xl font-bold">Tournaments</h1>
       </div>
 
       {tournaments.length > 0 ? (

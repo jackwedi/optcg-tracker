@@ -2,51 +2,17 @@
 
 import { useMemo, useState } from "react";
 import type { Tournament } from "@/models/tournament";
+import { TOURNAMENT_TYPES } from "@/models/tournament";
 import type { Leader } from "@/models/leader";
 import { TournamentTable } from "@/components/TournamentTable";
 import { LeaderColorDots } from "@/components/LeaderColorDots";
+import { StatMeter } from "@/components/StatMeter";
 
 const ALL_LEADERS = "All";
+const ALL_TYPES = "All";
 
-interface StatMeterProps {
-  label: string;
-  value: number;
-  detail: string;
-  trackClassName: string;
-  fillClassName: string;
-  valueClassName: string;
-}
-
-function StatMeter({
-  label,
-  value,
-  detail,
-  trackClassName,
-  fillClassName,
-  valueClassName,
-}: StatMeterProps) {
-  const clamped = Math.min(100, Math.max(0, value));
-
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="flex items-baseline justify-between gap-2">
-        <p className="text-sm font-medium text-slate-600">{label}</p>
-        <p className={`text-2xl font-semibold ${valueClassName}`}>
-          {value.toFixed(1)}%
-        </p>
-      </div>
-      <div
-        className={`mt-3 h-2.5 w-full overflow-hidden rounded-full ${trackClassName}`}
-      >
-        <div
-          className={`h-full rounded-full transition-[width] duration-300 ${fillClassName}`}
-          style={{ width: `${clamped}%` }}
-        />
-      </div>
-      <p className="mt-2 text-xs text-slate-500">{detail}</p>
-    </div>
-  );
-}
+type CoinFlipFilter = "All" | "Won" | "Lost";
+const COIN_FLIP_FILTERS: CoinFlipFilter[] = ["All", "Won", "Lost"];
 
 interface TournamentTableWithFilterProps {
   tournaments: Tournament[];
@@ -58,6 +24,8 @@ export function TournamentTableWithFilter({
   leadersById,
 }: TournamentTableWithFilterProps) {
   const [leaderFilter, setLeaderFilter] = useState(ALL_LEADERS);
+  const [typeFilter, setTypeFilter] = useState(ALL_TYPES);
+  const [coinFlipFilter, setCoinFlipFilter] = useState<CoinFlipFilter>("All");
 
   const usedLeaders = useMemo(() => {
     const seen = new Map<string, Leader>();
@@ -72,9 +40,27 @@ export function TournamentTableWithFilter({
   }, [tournaments, leadersById]);
 
   const filteredTournaments = useMemo(() => {
-    if (leaderFilter === ALL_LEADERS) return tournaments;
-    return tournaments.filter((t) => t.playedLeaderId === leaderFilter);
-  }, [tournaments, leaderFilter]);
+    const base = tournaments.filter((t) => {
+      if (leaderFilter !== ALL_LEADERS && t.playedLeaderId !== leaderFilter) {
+        return false;
+      }
+      if (typeFilter !== ALL_TYPES && t.tournamentType !== typeFilter) {
+        return false;
+      }
+      return true;
+    });
+
+    if (coinFlipFilter === "All") return base;
+
+    return base
+      .map((t) => ({
+        ...t,
+        rounds: t.rounds.filter((r) =>
+          coinFlipFilter === "Won" ? r.wonCoinFlip : !r.wonCoinFlip,
+        ),
+      }))
+      .filter((t) => t.rounds.length > 0);
+  }, [tournaments, leaderFilter, typeFilter, coinFlipFilter]);
 
   const aggregateStats = useMemo(() => {
     let totalRounds = 0;
@@ -116,6 +102,55 @@ export function TournamentTableWithFilter({
           fillClassName="bg-amber-500"
           valueClassName="text-amber-600"
         />
+      </div>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setTypeFilter(ALL_TYPES)}
+          className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+            typeFilter === ALL_TYPES
+              ? "border-slate-900 bg-slate-900 text-white"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+          }`}
+        >
+          All Types
+        </button>
+        {TOURNAMENT_TYPES.map((type) => (
+          <button
+            key={type}
+            type="button"
+            onClick={() => setTypeFilter(type)}
+            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+              typeFilter === type
+                ? "border-slate-900 bg-slate-900 text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            {type}
+          </button>
+        ))}
+      </div>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        {COIN_FLIP_FILTERS.map((filter) => (
+          <button
+            key={filter}
+            type="button"
+            onClick={() => setCoinFlipFilter(filter)}
+            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+              coinFlipFilter === filter
+                ? "border-slate-900 bg-slate-900 text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            {filter === "All"
+              ? "All Coin Flips"
+              : filter === "Won"
+                ? "Won Coin Flip"
+                : "Lost Coin Flip"}
+          </button>
+        ))}
       </div>
 
       {usedLeaders.length > 0 ? (

@@ -2,6 +2,8 @@ export { TournamentForm } from "./TournamentForm";
 export { TournamentList } from "./TournamentList";
 export { TournamentTable } from "./TournamentTable";
 export { TournamentTableWithFilter } from "./TournamentTableWithFilter";
+export { TournamentStatsByType } from "./TournamentStatsByType";
+export { StatMeter } from "./StatMeter";
 export { RoundForm } from "./RoundForm";
 export { RoundList } from "./RoundList";
 export { LeaderForm } from "./LeaderForm";
