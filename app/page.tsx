@@ -1,4 +1,8 @@
-import { AuthPanel, TournamentStatsByType } from "@/components";
+import {
+  AuthPanel,
+  TournamentStatsByType,
+  WinRateProgressionChart,
+} from "@/components";
 import { getTournaments } from "@/lib/db";
 
 export default async function Home() {
@@ -19,9 +23,10 @@ export default async function Home() {
         </div>
 
         {tournaments.length > 0 ? (
-          <section className="w-full">
-            <h2 className="mb-4 text-2xl font-bold">Dashboard</h2>
+          <section className="w-full space-y-6">
+            <h2 className="text-2xl font-bold">Dashboard</h2>
             <TournamentStatsByType tournaments={tournaments} />
+            <WinRateProgressionChart tournaments={tournaments} />
           </section>
         ) : null}
       </div>

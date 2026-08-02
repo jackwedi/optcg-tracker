@@ -3,6 +3,7 @@ export { TournamentList } from "./TournamentList";
 export { TournamentTable } from "./TournamentTable";
 export { TournamentTableWithFilter } from "./TournamentTableWithFilter";
 export { TournamentStatsByType } from "./TournamentStatsByType";
+export { WinRateProgressionChart } from "./WinRateProgressionChart";
 export { StatMeter } from "./StatMeter";
 export { SpinnerIcon } from "./SpinnerIcon";
 export { RoundForm } from "./RoundForm";
