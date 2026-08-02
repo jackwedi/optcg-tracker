@@ -64,12 +64,23 @@ export function ShareTournamentButton({
       };
 
       if (nav.canShare?.({ files: [file] }) && nav.share) {
-        await nav.share({
-          files: [file],
-          title: tournamentName,
-          text: `Check out my ${tournamentName} results!`,
-        });
-        return;
+        try {
+          await nav.share({
+            files: [file],
+            title: tournamentName,
+            text: `Check out my ${tournamentName} results!`,
+          });
+          return;
+        } catch (shareErr) {
+          if (shareErr instanceof Error && shareErr.name === "AbortError") {
+            // User dismissed the native share sheet — not an error.
+            return;
+          }
+          // Some browsers (notably iOS Safari) can throw NotAllowedError
+          // here if the fetch above took long enough to lose the user's
+          // activation window. Fall through to a plain download instead
+          // of surfacing that as a failure.
+        }
       }
 
       const url = URL.createObjectURL(blob);
@@ -81,7 +92,6 @@ export function ShareTournamentButton({
       link.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
-      if (err instanceof Error && err.name === "AbortError") return;
       setError(err instanceof Error ? err.message : "Failed to share");
     } finally {
       setLoading(false);
