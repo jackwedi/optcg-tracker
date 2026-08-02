@@ -6,6 +6,7 @@ import Link from "next/link";
 import { RoundForm } from "@/components/RoundForm";
 import { RoundList } from "@/components/RoundList";
 import { DeleteTournamentButton } from "@/components/DeleteTournamentButton";
+import { ShareTournamentButton } from "@/components/ShareTournamentButton";
 import { TournamentTypeEditor } from "@/components/TournamentTypeEditor";
 import { notFound } from "next/navigation";
 
@@ -83,12 +84,18 @@ export default async function TournamentDetailPage({ params }: Props) {
             <h1 className="text-xl font-bold sm:text-4xl">
               {tournament.name}
             </h1>
-            <TournamentTypeEditor
-              tournamentId={id}
-              name={tournament.name}
-              date={tournament.date}
-              tournamentType={tournament.tournamentType}
-            />
+            <div className="flex items-center gap-2">
+              <ShareTournamentButton
+                tournamentId={id}
+                tournamentName={tournament.name}
+              />
+              <TournamentTypeEditor
+                tournamentId={id}
+                name={tournament.name}
+                date={tournament.date}
+                tournamentType={tournament.tournamentType}
+              />
+            </div>
           </div>
           <p className="mb-3 text-xs text-gray-600 sm:mb-6 sm:text-base">
             {formatDateServer(tournament.date)}

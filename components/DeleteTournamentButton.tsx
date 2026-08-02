@@ -41,7 +41,7 @@ export function DeleteTournamentButton({
       type="button"
       onClick={handleDelete}
       disabled={loading}
-      className="ml-4 rounded-md border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+      className="rounded-md border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
     >
       {loading ? "Deleting..." : "Delete Tournament"}
     </button>
