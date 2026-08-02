@@ -6,6 +6,26 @@ import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 import { hasAdminRoleFromUnknown } from "@/lib/roles";
+import { SpinnerIcon } from "@/components/SpinnerIcon";
+
+function LogoutIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="M16 17l5-5-5-5" />
+      <path d="M21 12H9" />
+    </svg>
+  );
+}
 
 export function UserSessionControls() {
   const [loading, setLoading] = useState(true);
@@ -70,9 +90,15 @@ export function UserSessionControls() {
         type="button"
         onClick={handleSignOut}
         disabled={signingOut}
-        className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 md:text-sm"
+        aria-label="Sign out"
+        title="Sign out"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-900 bg-slate-900 text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {signingOut ? "Signing out..." : "Sign out"}
+        {signingOut ? (
+          <SpinnerIcon className="h-4 w-4" />
+        ) : (
+          <LogoutIcon className="h-4 w-4" />
+        )}
       </button>
     </div>
   );

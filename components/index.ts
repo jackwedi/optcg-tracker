@@ -4,6 +4,7 @@ export { TournamentTable } from "./TournamentTable";
 export { TournamentTableWithFilter } from "./TournamentTableWithFilter";
 export { TournamentStatsByType } from "./TournamentStatsByType";
 export { StatMeter } from "./StatMeter";
+export { SpinnerIcon } from "./SpinnerIcon";
 export { RoundForm } from "./RoundForm";
 export { RoundList } from "./RoundList";
 export { LeaderForm } from "./LeaderForm";

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import { UserSessionControls } from "@/components/UserSessionControls";
+import { MobileTabBar } from "@/components/MobileTabBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,15 +32,15 @@ export default function RootLayout({
       style={{ colorScheme: "light" }}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-gray-50">
+      <body className="min-h-full flex flex-col bg-gray-50 pb-16 sm:pb-0">
         <nav className="bg-white shadow">
           <div className="container mx-auto px-4 py-3 sm:py-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center justify-between gap-3 sm:justify-start">
               <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-                <Link href="/">🃏</Link>
+                <Link href="/">🃏 OPTCG Tracker</Link>
               </h1>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 md:gap-6">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-4 md:gap-x-6">
+              <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 md:gap-6">
+                <div className="hidden items-center gap-x-4 sm:flex md:gap-x-6">
                   <Link
                     href="/tournaments"
                     className="text-gray-600 hover:text-gray-900"
@@ -54,17 +55,20 @@ export default function RootLayout({
                     🏴‍☠️ Crew
                   </Link>
                 </div>
-                <UserSessionControls />
+                <div className="flex justify-end sm:justify-start">
+                  <UserSessionControls />
+                </div>
               </div>
             </div>
           </div>
         </nav>
         <div className="flex-1">{children}</div>
-        <footer className="bg-black text-gray-300 py-4 mt-12">
+        <footer className="hidden bg-black text-gray-300 py-4 mt-12 sm:block">
           <div className="container mx-auto px-4 text-center">
             <p>&copy; 2026 One Piece TCG Tournament Tracker</p>
           </div>
         </footer>
+        <MobileTabBar />
       </body>
     </html>
   );

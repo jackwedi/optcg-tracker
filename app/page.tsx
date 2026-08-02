@@ -7,9 +7,7 @@ export default async function Home() {
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="mb-12">
-        <h1 className="text-4xl font-bold mb-2">
-          One Piece TCG Tournament Tracker
-        </h1>
+        <h1 className="text-4xl font-bold mb-2">One Piece TCG Tracker</h1>
         <p className="text-gray-600">
           Track your tournament rounds and deck performance
         </p>
