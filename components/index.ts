@@ -26,3 +26,7 @@ export { CreateOrJoinCrewCard } from "./CreateOrJoinCrewCard";
 export { CrewLeaderboardTable } from "./CrewLeaderboardTable";
 export { CrewRankProgress } from "./CrewRankProgress";
 export { LeaveCrewButton } from "./LeaveCrewButton";
+export { ExtensionChipsInput } from "./ExtensionChipsInput";
+export { MetaForm } from "./MetaForm";
+export { CreateMetaCard } from "./CreateMetaCard";
+export { MetaManager } from "./MetaManager";
