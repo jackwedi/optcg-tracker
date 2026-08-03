@@ -1,12 +1,14 @@
 import { getTournaments } from "@/lib/db";
 import { getLeaders } from "@/lib/leaders";
+import { getAllMeta } from "@/lib/meta";
 import { CreateTournamentCard, TournamentTableWithFilter } from "@/components";
 import Link from "next/link";
 
 export default async function TournamentsPage() {
-  const [tournaments, leaders] = await Promise.all([
+  const [tournaments, leaders, metas] = await Promise.all([
     getTournaments(),
     getLeaders(),
+    getAllMeta(),
   ]);
   const leadersById = Object.fromEntries(leaders.map((l) => [l.id, l]));
 
@@ -20,6 +22,7 @@ export default async function TournamentsPage() {
         <TournamentTableWithFilter
           tournaments={tournaments}
           leadersById={leadersById}
+          metas={metas}
         />
       ) : (
         <div className="text-center py-12">

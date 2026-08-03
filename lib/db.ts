@@ -8,6 +8,7 @@ import {
 } from "@/models/tournament";
 import { getCurrentUserId } from "@/lib/auth";
 import { BYE_LEADER_ID } from "@/lib/leaders";
+import { findMetaIdForDate } from "@/lib/meta";
 import { createClient as createSupabaseServerClient } from "@/utils/supabase/server";
 
 interface TournamentRow {
@@ -17,6 +18,7 @@ interface TournamentRow {
   created_at: string;
   played_leader_id: string | null;
   tournament_type?: string | null;
+  meta_id?: string | null;
 }
 
 interface RoundRow {
@@ -48,7 +50,7 @@ function isMissingColumnError(error: unknown): boolean {
 }
 
 const TOURNAMENT_SELECT_WITH_TYPES =
-  "id,name,date,created_at,played_leader_id,tournament_type";
+  "id,name,date,created_at,played_leader_id,tournament_type,meta_id";
 const TOURNAMENT_SELECT_BASE = "id,name,date,created_at,played_leader_id";
 
 async function getSupabaseClient() {
@@ -76,6 +78,7 @@ function mapTournamentRow(row: TournamentRow, rounds: Round[]): Tournament {
     createdAt: row.created_at,
     playedLeaderId: row.played_leader_id ?? undefined,
     tournamentType: sanitizeTournamentType(row.tournament_type),
+    metaId: row.meta_id ?? undefined,
     rounds,
   };
 }
@@ -308,6 +311,7 @@ export async function createTournament(
   }
 
   const id = crypto.randomUUID();
+  const metaId = await findMetaIdForDate(date);
   const insertPayload = {
     id,
     user_id: userId,
@@ -315,6 +319,7 @@ export async function createTournament(
     date,
     played_leader_id: playedLeaderId ?? null,
     tournament_type: sanitizeTournamentType(tournamentType),
+    meta_id: metaId,
   };
 
   const { data, error } = await supabase
@@ -365,12 +370,14 @@ export async function updateTournament(
     return undefined;
   }
 
+  const metaId = await findMetaIdForDate(date);
   const { data, error } = await supabase
     .from("tournaments")
     .update({
       name,
       date,
       tournament_type: sanitizeTournamentType(tournamentType),
+      meta_id: metaId,
     })
     .eq("id", id)
     .eq("user_id", userId)

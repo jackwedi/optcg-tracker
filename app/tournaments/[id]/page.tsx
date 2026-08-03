@@ -1,5 +1,6 @@
 import { getTournamentById, getTournamentStats } from "@/lib/db";
 import { getLeaderById } from "@/lib/leaders";
+import { getMetaById } from "@/lib/meta";
 import LeaderThumbnail from "@/components/LeaderThumbnail";
 import { LeaderColorDots } from "@/components/LeaderColorDots";
 import Link from "next/link";
@@ -37,6 +38,10 @@ export default async function TournamentDetailPage({ params }: Props) {
 
   const playedLeader = tournament.playedLeaderId
     ? await getLeaderById(tournament.playedLeaderId)
+    : undefined;
+
+  const meta = tournament.metaId
+    ? await getMetaById(tournament.metaId)
     : undefined;
 
   const stats = await getTournamentStats(id);
@@ -97,9 +102,16 @@ export default async function TournamentDetailPage({ params }: Props) {
               />
             </div>
           </div>
-          <p className="mb-3 text-xs text-gray-600 sm:mb-6 sm:text-base">
-            {formatDateServer(tournament.date)}
-          </p>
+          <div className="mb-3 flex flex-wrap items-center gap-2 sm:mb-6">
+            <p className="text-xs text-gray-600 sm:text-base">
+              {formatDateServer(tournament.date)}
+            </p>
+            {meta ? (
+              <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-600 sm:text-xs">
+                {meta.extensions.join(" / ")}
+              </span>
+            ) : null}
+          </div>
 
           <div className="mb-6 hidden sm:block">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">

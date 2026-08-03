@@ -10,6 +10,7 @@ export interface Tournament {
   createdAt: string;
   playedLeaderId?: string;
   tournamentType: TournamentType;
+  metaId?: string;
   rounds: Round[];
 }
 

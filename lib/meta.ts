@@ -144,6 +144,23 @@ export async function updateMeta(
   return data ? mapMetaRow(data as MetaRow) : undefined;
 }
 
+// Finds which meta window a tournament date falls in: start_date <= date,
+// and either end_date is unset (the current/ongoing meta) or date is
+// still before it. ISO "YYYY-MM-DD" strings compare correctly with plain
+// string operators, so no Date parsing is needed.
+export async function findMetaIdForDate(date: string): Promise<string | null> {
+  const allMeta = await getAllMeta();
+
+  const match = allMeta.find((meta) => {
+    if (!meta.startDate) return false;
+    if (date < meta.startDate) return false;
+    if (meta.endDate && date >= meta.endDate) return false;
+    return true;
+  });
+
+  return match?.id ?? null;
+}
+
 export async function deleteMeta(id: string): Promise<boolean> {
   const supabase = getSupabaseClient();
 

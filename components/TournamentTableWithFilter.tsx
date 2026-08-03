@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { Tournament } from "@/models/tournament";
 import { TOURNAMENT_TYPES } from "@/models/tournament";
 import type { Leader } from "@/models/leader";
+import type { ExtensionMeta } from "@/models/meta";
 import { TournamentTable } from "@/components/TournamentTable";
 import { LeaderColorDots } from "@/components/LeaderColorDots";
 import { StatMeter } from "@/components/StatMeter";
@@ -17,15 +18,18 @@ const COIN_FLIP_FILTERS: CoinFlipFilter[] = ["All", "Won", "Lost"];
 interface TournamentTableWithFilterProps {
   tournaments: Tournament[];
   leadersById: Record<string, Leader>;
+  metas: ExtensionMeta[];
 }
 
 export function TournamentTableWithFilter({
   tournaments,
   leadersById,
+  metas,
 }: TournamentTableWithFilterProps) {
   const [leaderFilter, setLeaderFilter] = useState(ALL_LEADERS);
   const [typeFilter, setTypeFilter] = useState(ALL_TYPES);
   const [coinFlipFilter, setCoinFlipFilter] = useState<CoinFlipFilter>("All");
+  const [metaFilter, setMetaFilter] = useState<string[]>([]);
 
   const usedLeaders = useMemo(() => {
     const seen = new Map<string, Leader>();
@@ -39,12 +43,33 @@ export function TournamentTableWithFilter({
     );
   }, [tournaments, leadersById]);
 
+  const usedMetas = useMemo(() => {
+    const usedIds = new Set(
+      tournaments.map((t) => t.metaId).filter((id): id is string => !!id),
+    );
+    return metas.filter((meta) => usedIds.has(meta.id));
+  }, [tournaments, metas]);
+
+  const toggleMeta = (metaId: string) => {
+    setMetaFilter((current) =>
+      current.includes(metaId)
+        ? current.filter((id) => id !== metaId)
+        : [...current, metaId],
+    );
+  };
+
   const filteredTournaments = useMemo(() => {
     const base = tournaments.filter((t) => {
       if (leaderFilter !== ALL_LEADERS && t.playedLeaderId !== leaderFilter) {
         return false;
       }
       if (typeFilter !== ALL_TYPES && t.tournamentType !== typeFilter) {
+        return false;
+      }
+      if (
+        metaFilter.length > 0 &&
+        (!t.metaId || !metaFilter.includes(t.metaId))
+      ) {
         return false;
       }
       return true;
@@ -60,7 +85,7 @@ export function TournamentTableWithFilter({
         ),
       }))
       .filter((t) => t.rounds.length > 0);
-  }, [tournaments, leaderFilter, typeFilter, coinFlipFilter]);
+  }, [tournaments, leaderFilter, typeFilter, metaFilter, coinFlipFilter]);
 
   const aggregateStats = useMemo(() => {
     let totalRounds = 0;
@@ -131,6 +156,36 @@ export function TournamentTableWithFilter({
           </button>
         ))}
       </div>
+
+      {usedMetas.length > 0 ? (
+        <div className="mb-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setMetaFilter([])}
+            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+              metaFilter.length === 0
+                ? "border-slate-900 bg-slate-900 text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            All Metas
+          </button>
+          {usedMetas.map((meta) => (
+            <button
+              key={meta.id}
+              type="button"
+              onClick={() => toggleMeta(meta.id)}
+              className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                metaFilter.includes(meta.id)
+                  ? "border-slate-900 bg-slate-900 text-white"
+                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              {meta.extensions.join(" / ")}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       <div className="mb-4 flex flex-wrap gap-2">
         {COIN_FLIP_FILTERS.map((filter) => (
