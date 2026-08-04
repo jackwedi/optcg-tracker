@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TOURNAMENT_TYPES, type TournamentType } from "@/models/tournament";
 
-function getTournamentTypeIcon(type: string): string {
+export function getTournamentTypeIcon(type: string): string {
   switch (type) {
     case "Local":
       return "🏠";
