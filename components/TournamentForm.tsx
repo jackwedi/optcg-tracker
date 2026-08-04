@@ -10,9 +10,17 @@ import {
 } from "@/models/tournament";
 import { LeaderColorFilter } from "@/components/LeaderColorFilter";
 
+function getTodayDateString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export function TournamentForm() {
   const [name, setName] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(getTodayDateString);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [leaders, setLeaders] = useState<Leader[]>([]);
@@ -91,7 +99,7 @@ export function TournamentForm() {
 
       const tournament = await response.json();
       setName("");
-      setDate("");
+      setDate(getTodayDateString());
       setSelectedTournamentType(DEFAULT_TOURNAMENT_TYPE);
       router.push(`/tournaments/${tournament.id}`);
     } catch (err) {
