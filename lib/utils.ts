@@ -1,9 +1,13 @@
-// Leader names are "First Last" (or longer); in space-constrained UI we
-// only show the last word, e.g. "Charlotte Katakuri" -> "Katakuri".
-// Names with no spaces (e.g. "Monkey.D.Luffy") pass through unchanged.
+// Leader names are "First Last" (space-separated) or multiple capitalized
+// parts joined without spaces via dots/quotes, e.g. "Marshall.D.Teach" or
+// 'Eustass"Captain"Kid'. In space-constrained UI we only show the last
+// capitalized portion: "Charlotte Katakuri" -> "Katakuri",
+// "Marshall.D.Teach" -> "Teach", 'Eustass"Captain"Kid' -> "Kid". A single
+// capitalized word (e.g. "Kin'emon") passes through unchanged.
 export function getShortLeaderName(name: string): string {
-  const words = name.trim().split(/\s+/);
-  return words[words.length - 1];
+  const trimmed = name.trim();
+  const parts = trimmed.match(/[A-Z][a-zA-Z']*/g);
+  return parts && parts.length > 0 ? parts[parts.length - 1] : trimmed;
 }
 
 // Utility function for consistent date formatting across server and client
