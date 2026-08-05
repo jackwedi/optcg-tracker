@@ -18,7 +18,7 @@ export function CreateTournamentCard() {
       >
         <div className="flex items-center gap-4">
           <span
-            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-600 text-2xl shadow-sm"
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-300 text-2xl shadow-sm"
             aria-hidden="true"
           >
             🏆
