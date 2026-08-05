@@ -4,9 +4,14 @@ import {
   WinRateProgressionChart,
 } from "@/components";
 import { getTournaments } from "@/lib/db";
+import { getLeaders } from "@/lib/leaders";
 
 export default async function Home() {
-  const tournaments = await getTournaments();
+  const [tournaments, leaders] = await Promise.all([
+    getTournaments(),
+    getLeaders(),
+  ]);
+  const leadersById = Object.fromEntries(leaders.map((l) => [l.id, l]));
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -25,7 +30,10 @@ export default async function Home() {
         {tournaments.length > 0 ? (
           <section className="w-full space-y-6">
             <h2 className="text-2xl font-bold">Dashboard</h2>
-            <TournamentStatsByType tournaments={tournaments} />
+            <TournamentStatsByType
+              tournaments={tournaments}
+              leadersById={leadersById}
+            />
             <WinRateProgressionChart tournaments={tournaments} />
           </section>
         ) : null}

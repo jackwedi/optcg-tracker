@@ -3,16 +3,20 @@
 import { useMemo, useState } from "react";
 import type { Tournament } from "@/models/tournament";
 import { TOURNAMENT_TYPES } from "@/models/tournament";
+import type { Leader } from "@/models/leader";
 import { StatMeter } from "@/components/StatMeter";
+import { PlayedLeaderRepartition } from "@/components/PlayedLeaderRepartition";
 
 const ALL_TYPES = "All";
 
 interface TournamentStatsByTypeProps {
   tournaments: Tournament[];
+  leadersById: Record<string, Leader>;
 }
 
 export function TournamentStatsByType({
   tournaments,
+  leadersById,
 }: TournamentStatsByTypeProps) {
   const [typeFilter, setTypeFilter] = useState(ALL_TYPES);
 
@@ -88,6 +92,13 @@ export function TournamentStatsByType({
           trackClassName="bg-amber-100"
           fillClassName="bg-amber-500"
           valueClassName="text-amber-600"
+        />
+      </div>
+
+      <div className="mt-6">
+        <PlayedLeaderRepartition
+          tournaments={filteredTournaments}
+          leadersById={leadersById}
         />
       </div>
     </div>

@@ -5,6 +5,7 @@ export { TournamentTableWithFilter } from "./TournamentTableWithFilter";
 export { TournamentTypeEditor } from "./TournamentTypeEditor";
 export { TournamentStatsByType } from "./TournamentStatsByType";
 export { WinRateProgressionChart } from "./WinRateProgressionChart";
+export { PlayedLeaderRepartition } from "./PlayedLeaderRepartition";
 export { StatMeter } from "./StatMeter";
 export { SpinnerIcon } from "./SpinnerIcon";
 export { RoundForm } from "./RoundForm";
