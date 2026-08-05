@@ -86,9 +86,7 @@ export default async function TournamentDetailPage({ params }: Props) {
 
         <div className="min-w-0 flex-1 sm:rounded-xl sm:border sm:border-slate-200 sm:bg-white sm:p-6 sm:shadow-sm">
           <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2 sm:gap-4">
-            <h1 className="text-xl font-bold sm:text-4xl">
-              {tournament.name}
-            </h1>
+            <h1 className="text-xl font-bold sm:text-4xl">{tournament.name}</h1>
             <div className="flex items-center gap-2">
               <ShareTournamentButton
                 tournamentId={id}
@@ -182,9 +180,6 @@ export default async function TournamentDetailPage({ params }: Props) {
 
       <div className="space-y-8 w-full">
         <div className="w-full">
-          <h2 className="text-2xl font-bold mb-4">
-            Rounds ({tournament.rounds.length})
-          </h2>
           <RoundList rounds={tournament.rounds} tournamentId={id} />
         </div>
 

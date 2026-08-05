@@ -1,7 +1,7 @@
 "use client";
 
 import { Round } from "@/models/tournament";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Leader } from "@/models/leader";
 import LeaderThumbnail from "@/components/LeaderThumbnail";
@@ -144,70 +144,105 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
     );
   }
 
+  // Leader identity isn't editable from the popup — this is only used to
+  // show read-only context for whichever round is currently being edited.
+  const editingOpponentLeader =
+    draft && !draft.isBye
+      ? (leaders.find((leader) => leader.id === draft.opponentLeaderId) ?? null)
+      : null;
+
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
-      <table className="w-full table-fixed border-collapse text-left text-sm sm:table-auto">
-        <thead>
-          <tr className="border-b border-gray-200 bg-gray-50 text-[11px] uppercase tracking-wide text-gray-500 sm:text-xs">
-            <th className="w-6 px-1 py-2 font-semibold sm:w-auto sm:px-4 sm:py-3">
-              #
-            </th>
-            <th className="px-2 py-2 font-semibold sm:px-4 sm:py-3">
-              Opponent
-            </th>
-            <th className="w-14 px-1 py-2 font-semibold sm:w-auto sm:px-4 sm:py-3">
-              Coin Flip
-            </th>
-            <th className="w-11 px-1 py-2 font-semibold sm:w-auto sm:px-4 sm:py-3">
-              Start
-            </th>
-            <th className="w-12 px-1 py-2 font-semibold sm:w-auto sm:px-4 sm:py-3">
-              Result
-            </th>
-            <th className="w-7 px-1 py-2 sm:w-auto sm:px-2 sm:py-3">
-              <span className="sr-only">Edit</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {rounds.map((round, index) => {
-            const isEditing = editingRoundId === round.id && draft !== null;
-            const isByeRound = isEditing
-              ? draft.isBye
-              : round.opponentLeaderId === BYE_LEADER_ID;
-            const currentOpponentLeaderId = isEditing
-              ? draft.opponentLeaderId
-              : round.opponentLeaderId;
-            const currentWon = isEditing ? draft.won : round.won;
-            const currentWonCoinFlip = isEditing
-              ? draft.wonCoinFlip
-              : round.wonCoinFlip;
-            const currentStartingPosition = isEditing
-              ? draft.startingPosition
-              : round.startingPosition;
+    <>
+      <div className="overflow-x-auto rounded-lg border border-gray-200">
+        <table className="w-full table-fixed border-collapse text-left text-sm sm:table-auto">
+          <thead>
+            <tr className="border-b border-gray-200 bg-gray-50 text-[11px] uppercase tracking-wide text-gray-500 sm:text-xs">
+              <th className="w-6 px-1 py-2 font-semibold sm:w-auto sm:px-4 sm:py-3">
+                #
+              </th>
+              <th className="w-28 px-2 py-2 font-semibold sm:w-auto sm:px-4 sm:py-3">
+                Opponent
+              </th>
+              <th className="w-12 px-1 py-2 text-center font-semibold sm:w-auto sm:px-4 sm:py-3">
+                Coin Flip
+              </th>
+              <th className="w-10 px-1 py-2 text-center font-semibold sm:w-auto sm:px-4 sm:py-3">
+                Start
+              </th>
+              <th className="w-10 px-1 py-2 text-center font-semibold sm:w-auto sm:px-4 sm:py-3">
+                Result
+              </th>
+              <th className="w-6 px-1 py-2 sm:w-auto sm:px-2 sm:py-3">
+                <span className="sr-only">Edit</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {rounds.map((round, index) => {
+              const isEditing = editingRoundId === round.id && draft !== null;
+              const isByeRound = isEditing
+                ? draft.isBye
+                : round.opponentLeaderId === BYE_LEADER_ID;
+              const currentOpponentLeaderId = isEditing
+                ? draft.opponentLeaderId
+                : round.opponentLeaderId;
+              const currentWon = isEditing ? draft.won : round.won;
+              const currentWonCoinFlip = isEditing
+                ? draft.wonCoinFlip
+                : round.wonCoinFlip;
+              const currentStartingPosition = isEditing
+                ? draft.startingPosition
+                : round.startingPosition;
 
-            const opponentLeader = isByeRound
-              ? null
-              : (leaders.find(
-                  (leader) => leader.id === currentOpponentLeaderId,
-                ) ?? null);
-            const opponentName = isByeRound
-              ? "BYE"
-              : (opponentLeader?.name ?? currentOpponentLeaderId);
-            const resultText = isByeRound
-              ? "BYE"
-              : currentWon
-                ? "Won"
-                : "Lost";
-            const resultTextClass = isByeRound
-              ? "text-emerald-700"
-              : currentWon
-                ? "text-green-700"
-                : "text-red-700";
+              const opponentLeader = isByeRound
+                ? null
+                : (leaders.find(
+                    (leader) => leader.id === currentOpponentLeaderId,
+                  ) ?? null);
+              const opponentName = isByeRound
+                ? "BYE"
+                : (opponentLeader?.name ?? currentOpponentLeaderId);
+              // Sports form-guide pattern (ESPN, league standings, chess
+              // ratings): a small solid badge carries the win/loss signal at
+              // the data point itself, rather than washing the whole row in
+              // color. Letter + color together (not color alone) so it still
+              // reads for colorblind users.
+              const resultLabel = isByeRound
+                ? "BYE"
+                : currentWon
+                  ? "Won"
+                  : "Lost";
+              const resultBadgeText = isByeRound ? "B" : currentWon ? "W" : "L";
+              const resultBadgeClass = isByeRound
+                ? "bg-slate-400"
+                : currentWon
+                  ? "bg-emerald-500"
+                  : "bg-red-500";
+              const coinFlipLabel = isByeRound
+                ? "N/A"
+                : currentWonCoinFlip
+                  ? "Won"
+                  : "Lost";
+              const coinFlipBadgeIcon = isByeRound
+                ? "–"
+                : currentWonCoinFlip
+                  ? "🪙"
+                  : "×";
+              const coinFlipBadgeClass = isByeRound
+                ? "bg-slate-100 text-slate-400"
+                : currentWonCoinFlip
+                  ? "bg-amber-400 text-white"
+                  : "bg-slate-200 text-slate-500";
+              const startLabel = isByeRound ? "N/A" : currentStartingPosition;
+              const startIcon = isByeRound
+                ? "➖"
+                : currentStartingPosition === "1st"
+                  ? "🥇"
+                  : "🥈";
 
-            return (
-              <Fragment key={round.id}>
+              return (
                 <tr
+                  key={round.id}
                   role="button"
                   tabIndex={0}
                   aria-expanded={isEditing}
@@ -224,7 +259,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       startEditingRound(round);
                     }
                   }}
-                  className="cursor-pointer hover:bg-gray-50"
+                  className="cursor-pointer transition hover:bg-gray-50"
                 >
                   <td className="px-2 py-2 text-gray-500 sm:px-4 sm:py-3">
                     {index + 1}
@@ -259,16 +294,36 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       </div>
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-gray-600 sm:px-4 sm:py-3">
-                    {isByeRound ? "N/A" : currentWonCoinFlip ? "Won" : "Lost"}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-gray-600 sm:px-4 sm:py-3">
-                    {isByeRound ? "N/A" : currentStartingPosition}
+                  <td
+                    className="whitespace-nowrap px-2 py-2 text-center sm:px-4 sm:py-3"
+                    title={coinFlipLabel}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs ${coinFlipBadgeClass}`}
+                    >
+                      {coinFlipBadgeIcon}
+                    </span>
+                    <span className="sr-only">{coinFlipLabel}</span>
                   </td>
                   <td
-                    className={`whitespace-nowrap px-2 py-2 font-medium sm:px-4 sm:py-3 ${resultTextClass}`}
+                    className="whitespace-nowrap px-2 py-2 text-center text-base sm:px-4 sm:py-3"
+                    title={startLabel}
                   >
-                    {resultText}
+                    <span aria-hidden="true">{startIcon}</span>
+                    <span className="sr-only">{startLabel}</span>
+                  </td>
+                  <td
+                    className="whitespace-nowrap px-2 py-2 text-center sm:px-4 sm:py-3"
+                    title={resultLabel}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold text-white ${resultBadgeClass}`}
+                    >
+                      {resultBadgeText}
+                    </span>
+                    <span className="sr-only">{resultLabel}</span>
                   </td>
                   <td className="px-1 py-2 text-gray-400 sm:px-2 sm:py-3">
                     <svg
@@ -278,190 +333,174 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       strokeWidth={2}
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className={`h-4 w-4 shrink-0 transition-transform ${
-                        isEditing ? "rotate-90" : ""
-                      }`}
+                      className="h-4 w-4 shrink-0"
                       aria-hidden="true"
                     >
                       <path d="M9 6l6 6-6 6" />
                     </svg>
                   </td>
                 </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-                {isEditing ? (
-                  <tr>
-                    <td colSpan={6} className="bg-slate-50 px-3 py-4 sm:px-4">
-                      <div className="space-y-3">
-                        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                          <input
-                            type="checkbox"
-                            checked={draft.isBye}
-                            onChange={(event) =>
-                              setDraft({
-                                ...draft,
-                                isBye: event.target.checked,
-                                opponentLeaderId: event.target.checked
-                                  ? BYE_LEADER_ID
-                                  : "",
-                                won: event.target.checked ? true : draft.won,
-                                wonCoinFlip: event.target.checked
-                                  ? false
-                                  : draft.wonCoinFlip,
-                                startingPosition: event.target.checked
-                                  ? "1st"
-                                  : draft.startingPosition,
-                              })
-                            }
-                          />
-                          BYE round
-                        </label>
+      {editingRoundId && draft ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Edit round"
+          onClick={cancelEditingRound}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl sm:p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-slate-900">
+                Edit Round
+              </h3>
+              <button
+                type="button"
+                onClick={cancelEditingRound}
+                aria-label="Close"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100"
+              >
+                ✕
+              </button>
+            </div>
 
-                        {!draft.isBye ? (
-                          <div className="grid gap-3 md:grid-cols-2">
-                            <label className="text-sm text-slate-700">
-                              <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
-                                Opponent Leader
-                              </span>
-                              <select
-                                value={draft.opponentLeaderId}
-                                onChange={(event) =>
-                                  setDraft({
-                                    ...draft,
-                                    opponentLeaderId: event.target.value,
-                                  })
-                                }
-                                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
-                              >
-                                <option value="">Select leader</option>
-                                {leaders
-                                  .filter(
-                                    (leader) => leader.id !== BYE_LEADER_ID,
-                                  )
-                                  .map((leader) => (
-                                    <option key={leader.id} value={leader.id}>
-                                      {leader.name} ({leader.id})
-                                    </option>
-                                  ))}
-                              </select>
-                            </label>
+            <div className="space-y-3">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                <span className="block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                  Opponent
+                </span>
+                <span className="flex items-center gap-1.5 text-sm font-medium text-slate-900">
+                  {draft.isBye ? (
+                    "BYE"
+                  ) : (
+                    <>
+                      {editingOpponentLeader ? (
+                        <LeaderColorDots
+                          colors={editingOpponentLeader.colors}
+                        />
+                      ) : null}
+                      {editingOpponentLeader?.name ?? draft.opponentLeaderId}
+                    </>
+                  )}
+                </span>
+              </div>
 
-                            <label className="text-sm text-slate-700">
-                              <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
-                                Start
-                              </span>
-                              <select
-                                value={draft.startingPosition}
-                                onChange={(event) =>
-                                  setDraft({
-                                    ...draft,
-                                    startingPosition: event.target.value as
-                                      | "1st"
-                                      | "2nd",
-                                  })
-                                }
-                                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
-                              >
-                                <option value="1st">1st</option>
-                                <option value="2nd">2nd</option>
-                              </select>
-                            </label>
-                          </div>
-                        ) : null}
+              {!draft.isBye ? (
+                <label className="block text-sm text-slate-700">
+                  <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                    Start
+                  </span>
+                  <select
+                    value={draft.startingPosition}
+                    onChange={(event) =>
+                      setDraft({
+                        ...draft,
+                        startingPosition: event.target.value as "1st" | "2nd",
+                      })
+                    }
+                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+                  >
+                    <option value="1st">1st</option>
+                    <option value="2nd">2nd</option>
+                  </select>
+                </label>
+              ) : null}
 
-                        <div className="grid gap-3 md:grid-cols-2">
-                          <label className="text-sm text-slate-700">
-                            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
-                              Result
-                            </span>
-                            <select
-                              value={draft.won ? "won" : "lost"}
-                              onChange={(event) =>
-                                setDraft({
-                                  ...draft,
-                                  won: event.target.value === "won",
-                                })
-                              }
-                              disabled={draft.isBye}
-                              className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-100"
-                            >
-                              <option value="won">Won</option>
-                              <option value="lost">Lost</option>
-                            </select>
-                          </label>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="text-sm text-slate-700">
+                  <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                    Result
+                  </span>
+                  <select
+                    value={draft.won ? "won" : "lost"}
+                    onChange={(event) =>
+                      setDraft({
+                        ...draft,
+                        won: event.target.value === "won",
+                      })
+                    }
+                    disabled={draft.isBye}
+                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-100"
+                  >
+                    <option value="won">Won</option>
+                    <option value="lost">Lost</option>
+                  </select>
+                </label>
 
-                          <label className="text-sm text-slate-700">
-                            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
-                              Coin Flip
-                            </span>
-                            <select
-                              value={draft.wonCoinFlip ? "won" : "lost"}
-                              onChange={(event) =>
-                                setDraft({
-                                  ...draft,
-                                  wonCoinFlip: event.target.value === "won",
-                                })
-                              }
-                              disabled={draft.isBye}
-                              className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-100"
-                            >
-                              <option value="won">Won</option>
-                              <option value="lost">Lost</option>
-                            </select>
-                          </label>
-                        </div>
+                <label className="text-sm text-slate-700">
+                  <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                    Coin Flip
+                  </span>
+                  <select
+                    value={draft.wonCoinFlip ? "won" : "lost"}
+                    onChange={(event) =>
+                      setDraft({
+                        ...draft,
+                        wonCoinFlip: event.target.value === "won",
+                      })
+                    }
+                    disabled={draft.isBye}
+                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-100"
+                  >
+                    <option value="won">Won</option>
+                    <option value="lost">Lost</option>
+                  </select>
+                </label>
+              </div>
 
-                        {errorMessage ? (
-                          <p className="text-sm font-medium text-rose-600">
-                            {errorMessage}
-                          </p>
-                        ) : null}
+              {errorMessage ? (
+                <p className="text-sm font-medium text-rose-600">
+                  {errorMessage}
+                </p>
+              ) : null}
 
-                        <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-3">
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteRound(round.id)}
-                            disabled={
-                              loading === round.id ||
-                              savingRoundId === round.id
-                            }
-                            className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {loading === round.id ? (
-                              <SpinnerIcon className="h-4 w-4" />
-                            ) : null}
-                            Delete round
-                          </button>
+              <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-3">
+                <button
+                  type="button"
+                  onClick={() => handleDeleteRound(editingRoundId)}
+                  disabled={
+                    loading === editingRoundId ||
+                    savingRoundId === editingRoundId
+                  }
+                  className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {loading === editingRoundId ? (
+                    <SpinnerIcon className="h-4 w-4" />
+                  ) : null}
+                  Delete round
+                </button>
 
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={cancelEditingRound}
-                              disabled={savingRoundId === round.id}
-                              className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateRound(round.id)}
-                              disabled={savingRoundId === round.id}
-                              className="rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              {savingRoundId === round.id
-                                ? "Saving..."
-                                : "Save"}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                ) : null}
-              </Fragment>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={cancelEditingRound}
+                    disabled={savingRoundId === editingRoundId}
+                    className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleUpdateRound(editingRoundId)}
+                    disabled={savingRoundId === editingRoundId}
+                    className="rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {savingRoundId === editingRoundId ? "Saving..." : "Save"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
