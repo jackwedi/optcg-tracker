@@ -1,8 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import type { Tournament } from "@/models/tournament";
 import type { Leader } from "@/models/leader";
 import { LeaderColorDots } from "@/components/LeaderColorDots";
 
 const NOT_SET_KEY = "__not_set__";
+const LEADERS_PAGE_SIZE = 5;
 
 interface PlayedLeaderRepartitionProps {
   tournaments: Tournament[];
@@ -21,6 +25,7 @@ export function PlayedLeaderRepartition({
   tournaments,
   leadersById,
 }: PlayedLeaderRepartitionProps) {
+  const [visibleCount, setVisibleCount] = useState(LEADERS_PAGE_SIZE);
   const total = tournaments.length;
 
   if (total === 0) {
@@ -46,6 +51,9 @@ export function PlayedLeaderRepartition({
     })
     .sort((a, b) => b.count - a.count);
 
+  const displayedShares = shares.slice(0, visibleCount);
+  const hasMoreShares = shares.length > visibleCount;
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
       <div className="mb-4">
@@ -59,7 +67,7 @@ export function PlayedLeaderRepartition({
       </div>
 
       <div className="space-y-3">
-        {shares.map((share) => (
+        {displayedShares.map((share) => (
           <div key={share.key}>
             <div className="flex items-baseline justify-between gap-2">
               <span className="flex min-w-0 items-center gap-1.5 text-sm font-medium text-slate-700">
@@ -81,6 +89,20 @@ export function PlayedLeaderRepartition({
           </div>
         ))}
       </div>
+
+      {hasMoreShares ? (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={() =>
+              setVisibleCount((count) => count + LEADERS_PAGE_SIZE)
+            }
+            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            Show More Leaders
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

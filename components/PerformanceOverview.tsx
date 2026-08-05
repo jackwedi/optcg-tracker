@@ -8,6 +8,8 @@ import type { ExtensionMeta } from "@/models/meta";
 import { TournamentTable } from "@/components/TournamentTable";
 import { LeaderColorDots } from "@/components/LeaderColorDots";
 import { StatMeter } from "@/components/StatMeter";
+import { WinRateProgressionChart } from "@/components/WinRateProgressionChart";
+import { PlayedLeaderRepartition } from "@/components/PlayedLeaderRepartition";
 
 const ALL_LEADERS = "All";
 const ALL_TYPES = "All";
@@ -16,17 +18,20 @@ const TOURNAMENTS_PAGE_SIZE = 5;
 type CoinFlipFilter = "All" | "Won" | "Lost";
 const COIN_FLIP_FILTERS: CoinFlipFilter[] = ["All", "Won", "Lost"];
 
-interface TournamentTableWithFilterProps {
+interface PerformanceOverviewProps {
   tournaments: Tournament[];
   leadersById: Record<string, Leader>;
   metas: ExtensionMeta[];
 }
 
-export function TournamentTableWithFilter({
+// All filters here (Meta/Type/Coin Flip/Leader) drive every widget on the
+// page — the chart, the leader repartition, the stat meters, and the table —
+// so the whole page always reflects one consistent, filtered view.
+export function PerformanceOverview({
   tournaments,
   leadersById,
   metas,
-}: TournamentTableWithFilterProps) {
+}: PerformanceOverviewProps) {
   const [leaderFilter, setLeaderFilter] = useState(ALL_LEADERS);
   const [typeFilter, setTypeFilter] = useState(ALL_TYPES);
   const [coinFlipFilter, setCoinFlipFilter] = useState<CoinFlipFilter>("All");
@@ -116,32 +121,14 @@ export function TournamentTableWithFilter({
     (coinFlipFilter !== "All" ? 1 : 0) +
     (leaderFilter !== ALL_LEADERS ? 1 : 0);
 
-  // Table only shows the most recent slice; stats above still aggregate the
-  // full filtered set regardless of how many rows are currently revealed.
+  // Table only shows the most recent slice; every other widget still
+  // aggregates the full filtered set regardless of how many rows are
+  // currently revealed.
   const displayedTournaments = filteredTournaments.slice(0, visibleCount);
   const hasMoreTournaments = filteredTournaments.length > visibleCount;
 
   return (
     <div>
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <StatMeter
-          label="Win Rate"
-          value={aggregateStats.winRate}
-          detail={`${aggregateStats.wins} / ${aggregateStats.totalRounds} rounds won`}
-          trackClassName="bg-emerald-100"
-          fillClassName="bg-emerald-500"
-          valueClassName="text-emerald-600"
-        />
-        <StatMeter
-          label="Coin Flip Win Rate"
-          value={aggregateStats.coinFlipWinRate}
-          detail={`${aggregateStats.coinFlipWins} / ${aggregateStats.totalRounds} coin flips won`}
-          trackClassName="bg-amber-100"
-          fillClassName="bg-amber-500"
-          valueClassName="text-amber-600"
-        />
-      </div>
-
       {usedMetas.length > 0 ? (
         <div className="mb-4 flex flex-wrap gap-2">
           <button
@@ -201,7 +188,7 @@ export function TournamentTableWithFilter({
       </button>
 
       {showMoreFilters ? (
-        <div className="space-y-4">
+        <div className="mb-6 space-y-4">
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -284,7 +271,34 @@ export function TournamentTableWithFilter({
         </div>
       ) : null}
 
-      <div className="mt-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <StatMeter
+          label="Win Rate"
+          value={aggregateStats.winRate}
+          detail={`${aggregateStats.wins} / ${aggregateStats.totalRounds} rounds won`}
+          trackClassName="bg-emerald-100"
+          fillClassName="bg-emerald-500"
+          valueClassName="text-emerald-600"
+        />
+        <StatMeter
+          label="Coin Flip Win Rate"
+          value={aggregateStats.coinFlipWinRate}
+          detail={`${aggregateStats.coinFlipWins} / ${aggregateStats.totalRounds} coin flips won`}
+          trackClassName="bg-amber-100"
+          fillClassName="bg-amber-500"
+          valueClassName="text-amber-600"
+        />
+      </div>
+
+      <div className="mb-6 space-y-6">
+        <WinRateProgressionChart tournaments={filteredTournaments} />
+        <PlayedLeaderRepartition
+          tournaments={filteredTournaments}
+          leadersById={leadersById}
+        />
+      </div>
+
+      <div>
         <TournamentTable
           tournaments={displayedTournaments}
           leadersById={leadersById}

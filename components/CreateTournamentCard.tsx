@@ -4,21 +4,36 @@ import { useState } from "react";
 import { TournamentForm } from "@/components/TournamentForm";
 
 export function CreateTournamentCard() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   return (
-    <div className="mb-8 rounded-lg bg-white p-6 shadow">
+    <div className="mb-8 overflow-hidden rounded-2xl border-2 border-blue-100 bg-gradient-to-br from-blue-50 via-white to-white shadow-md">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center justify-between text-left"
+        className="flex w-full items-center justify-between gap-4 p-6 text-left sm:p-8"
         aria-label={
           open ? "Collapse create tournament" : "Expand create tournament"
         }
       >
-        <h2 className="text-2xl font-bold">Create Tournament</h2>
+        <div className="flex items-center gap-4">
+          <span
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-600 text-2xl shadow-sm"
+            aria-hidden="true"
+          >
+            🏆
+          </span>
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">
+              Create Tournament
+            </h2>
+            <p className="mt-0.5 text-sm text-slate-600">
+              Log a new tournament and start tracking your performance.
+            </p>
+          </div>
+        </div>
         <span
-          className={`inline-flex h-8 w-8 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-lg font-semibold text-sky-700 transition-transform ${
+          className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-blue-200 bg-white text-lg font-semibold text-blue-700 transition-transform ${
             open ? "rotate-45" : "rotate-0"
           }`}
         >
@@ -27,7 +42,7 @@ export function CreateTournamentCard() {
       </button>
 
       {open ? (
-        <div className="mt-4 border-t border-slate-200 pt-4">
+        <div className="border-t border-blue-100 bg-white p-6 sm:p-8">
           <TournamentForm />
         </div>
       ) : null}

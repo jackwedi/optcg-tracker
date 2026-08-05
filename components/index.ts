@@ -1,7 +1,7 @@
 export { TournamentForm } from "./TournamentForm";
 export { TournamentList } from "./TournamentList";
 export { TournamentTable } from "./TournamentTable";
-export { TournamentTableWithFilter } from "./TournamentTableWithFilter";
+export { PerformanceOverview } from "./PerformanceOverview";
 export { TournamentTypeEditor } from "./TournamentTypeEditor";
 export { TournamentStatsByType } from "./TournamentStatsByType";
 export { WinRateProgressionChart } from "./WinRateProgressionChart";

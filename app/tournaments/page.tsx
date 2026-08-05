@@ -1,7 +1,7 @@
 import { getTournaments } from "@/lib/db";
 import { getLeaders } from "@/lib/leaders";
 import { getAllMeta } from "@/lib/meta";
-import { CreateTournamentCard, TournamentTableWithFilter } from "@/components";
+import { PerformanceOverview } from "@/components";
 import Link from "next/link";
 
 export default async function TournamentsPage() {
@@ -15,11 +15,11 @@ export default async function TournamentsPage() {
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold">Tournaments</h1>
+        <h1 className="text-4xl font-bold">📊 Performance</h1>
       </div>
 
       {tournaments.length > 0 ? (
-        <TournamentTableWithFilter
+        <PerformanceOverview
           tournaments={tournaments}
           leadersById={leadersById}
           metas={metas}
@@ -32,10 +32,6 @@ export default async function TournamentsPage() {
           </Link>
         </div>
       )}
-
-      <div className="mt-10">
-        <CreateTournamentCard />
-      </div>
     </main>
   );
 }
