@@ -11,6 +11,7 @@ import { StatMeter } from "@/components/StatMeter";
 
 const ALL_LEADERS = "All";
 const ALL_TYPES = "All";
+const TOURNAMENTS_PAGE_SIZE = 5;
 
 type CoinFlipFilter = "All" | "Won" | "Lost";
 const COIN_FLIP_FILTERS: CoinFlipFilter[] = ["All", "Won", "Lost"];
@@ -30,6 +31,8 @@ export function TournamentTableWithFilter({
   const [typeFilter, setTypeFilter] = useState(ALL_TYPES);
   const [coinFlipFilter, setCoinFlipFilter] = useState<CoinFlipFilter>("All");
   const [metaFilter, setMetaFilter] = useState<string[]>([]);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(TOURNAMENTS_PAGE_SIZE);
 
   const usedLeaders = useMemo(() => {
     const seen = new Map<string, Leader>();
@@ -108,6 +111,16 @@ export function TournamentTableWithFilter({
     };
   }, [filteredTournaments]);
 
+  const moreFiltersActiveCount =
+    (typeFilter !== ALL_TYPES ? 1 : 0) +
+    (coinFlipFilter !== "All" ? 1 : 0) +
+    (leaderFilter !== ALL_LEADERS ? 1 : 0);
+
+  // Table only shows the most recent slice; stats above still aggregate the
+  // full filtered set regardless of how many rows are currently revealed.
+  const displayedTournaments = filteredTournaments.slice(0, visibleCount);
+  const hasMoreTournaments = filteredTournaments.length > visibleCount;
+
   return (
     <div>
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -127,34 +140,6 @@ export function TournamentTableWithFilter({
           fillClassName="bg-amber-500"
           valueClassName="text-amber-600"
         />
-      </div>
-
-      <div className="mb-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setTypeFilter(ALL_TYPES)}
-          className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-            typeFilter === ALL_TYPES
-              ? "border-slate-900 bg-slate-900 text-white"
-              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
-        >
-          All Types
-        </button>
-        {TOURNAMENT_TYPES.map((type) => (
-          <button
-            key={type}
-            type="button"
-            onClick={() => setTypeFilter(type)}
-            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-              typeFilter === type
-                ? "border-slate-900 bg-slate-900 text-white"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            {type}
-          </button>
-        ))}
       </div>
 
       {usedMetas.length > 0 ? (
@@ -187,62 +172,137 @@ export function TournamentTableWithFilter({
         </div>
       ) : null}
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {COIN_FLIP_FILTERS.map((filter) => (
-          <button
-            key={filter}
-            type="button"
-            onClick={() => setCoinFlipFilter(filter)}
-            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-              coinFlipFilter === filter
-                ? "border-slate-900 bg-slate-900 text-white"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            {filter === "All"
-              ? "All Coin Flips"
-              : filter === "Won"
-                ? "Won Coin Flip"
-                : "Lost Coin Flip"}
-          </button>
-        ))}
-      </div>
+      <button
+        type="button"
+        onClick={() => setShowMoreFilters((value) => !value)}
+        className="mb-4 flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        aria-expanded={showMoreFilters}
+      >
+        More Filters
+        {moreFiltersActiveCount > 0 ? (
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-900 px-1 text-[11px] font-semibold text-white">
+            {moreFiltersActiveCount}
+          </span>
+        ) : null}
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`h-4 w-4 shrink-0 transition-transform ${
+            showMoreFilters ? "rotate-180" : ""
+          }`}
+          aria-hidden="true"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
 
-      {usedLeaders.length > 0 ? (
-        <div className="mb-4 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setLeaderFilter(ALL_LEADERS)}
-            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-              leaderFilter === ALL_LEADERS
-                ? "border-slate-900 bg-slate-900 text-white"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            All Leaders
-          </button>
-          {usedLeaders.map((leader) => (
+      {showMoreFilters ? (
+        <div className="space-y-4">
+          <div className="flex flex-wrap gap-2">
             <button
-              key={leader.id}
               type="button"
-              onClick={() => setLeaderFilter(leader.id)}
-              className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                leaderFilter === leader.id
+              onClick={() => setTypeFilter(ALL_TYPES)}
+              className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                typeFilter === ALL_TYPES
                   ? "border-slate-900 bg-slate-900 text-white"
                   : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
               }`}
             >
-              <LeaderColorDots colors={leader.colors} />
-              {leader.name}
+              All Types
             </button>
-          ))}
+            {TOURNAMENT_TYPES.map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setTypeFilter(type)}
+                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                  typeFilter === type
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {COIN_FLIP_FILTERS.map((filter) => (
+              <button
+                key={filter}
+                type="button"
+                onClick={() => setCoinFlipFilter(filter)}
+                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                  coinFlipFilter === filter
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                {filter === "All"
+                  ? "All Coin Flips"
+                  : filter === "Won"
+                    ? "Won Coin Flip"
+                    : "Lost Coin Flip"}
+              </button>
+            ))}
+          </div>
+
+          {usedLeaders.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setLeaderFilter(ALL_LEADERS)}
+                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                  leaderFilter === ALL_LEADERS
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                All Leaders
+              </button>
+              {usedLeaders.map((leader) => (
+                <button
+                  key={leader.id}
+                  type="button"
+                  onClick={() => setLeaderFilter(leader.id)}
+                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                    leaderFilter === leader.id
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <LeaderColorDots colors={leader.colors} />
+                  {leader.name}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
-      <TournamentTable
-        tournaments={filteredTournaments}
-        leadersById={leadersById}
-      />
+      <div className="mt-4">
+        <TournamentTable
+          tournaments={displayedTournaments}
+          leadersById={leadersById}
+        />
+        {hasMoreTournaments ? (
+          <div className="mt-4 flex justify-center">
+            <button
+              type="button"
+              onClick={() =>
+                setVisibleCount((count) => count + TOURNAMENTS_PAGE_SIZE)
+              }
+              className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              Show More Tournaments
+            </button>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
