@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 import { getTournamentById, getTournamentStats } from "@/lib/db";
 import { getLeaders, BYE_LEADER_ID } from "@/lib/leaders";
-import type { Round } from "@/models/tournament";
+import { getTournamentTypeIcon, type Round } from "@/models/tournament";
 import type { Leader } from "@/models/leader";
 
 interface Params {
@@ -54,19 +54,6 @@ const COMPACT_ROUND_ROW_PADDING_X = 12;
 const COMPACT_ROUND_VALUE_FONT_SIZE = 18;
 const COMPACT_ROUND_NUMBER_FONT_SIZE = 16;
 const COMPACT_COLUMN_LABEL_FONT_SIZE = 14;
-
-function getTournamentTypeIcon(type: string): string {
-  switch (type) {
-    case "Local":
-      return "🏠";
-    case "Regional":
-      return "🗺️";
-    case "Treasure Cup":
-      return "🏆";
-    default:
-      return "🏷️";
-  }
-}
 
 function Stat({
   label,
@@ -129,7 +116,9 @@ function ColumnHeaderRow({ compact }: { compact: boolean }) {
   const imageWidth = compact ? COMPACT_ROUND_IMAGE_WIDTH : ROUND_IMAGE_WIDTH;
   const gap = compact ? COMPACT_ROUND_IMAGE_GAP : ROUND_IMAGE_GAP;
   const paddingX = compact ? COMPACT_ROUND_ROW_PADDING_X : ROUND_ROW_PADDING_X;
-  const fontSize = compact ? COMPACT_COLUMN_LABEL_FONT_SIZE : COLUMN_LABEL_FONT_SIZE;
+  const fontSize = compact
+    ? COMPACT_COLUMN_LABEL_FONT_SIZE
+    : COLUMN_LABEL_FONT_SIZE;
 
   return (
     <div
@@ -267,10 +256,7 @@ export async function GET(
       ? leadersById[tournament.playedLeaderId]
       : undefined;
 
-    const placeholderUrl = new URL(
-      "/placeholder.png",
-      request.url,
-    ).toString();
+    const placeholderUrl = new URL("/placeholder.png", request.url).toString();
 
     const hasRounds = tournament.rounds.length > 0;
     const useTwoColumns = tournament.rounds.length > TWO_COLUMN_THRESHOLD;
@@ -281,8 +267,7 @@ export async function GET(
       ? COMPACT_ROUND_ROW_HEIGHT
       : ROUND_ROW_HEIGHT;
     const roundsHeight = hasRounds
-      ? itemsPerColumn * rowHeightForCalc +
-        (itemsPerColumn - 1) * ROUND_ROW_GAP
+      ? itemsPerColumn * rowHeightForCalc + (itemsPerColumn - 1) * ROUND_ROW_GAP
       : EMPTY_ROUNDS_HEIGHT;
     const contentHeight =
       OUTER_PADDING * 2 +
@@ -301,193 +286,185 @@ export async function GET(
       : [];
 
     return new ImageResponse(
-      (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          backgroundColor: "#ffffff",
+          fontFamily: "sans-serif",
+          padding: `${OUTER_PADDING}px`,
+        }}
+      >
         <div
           style={{
-            width: "100%",
-            height: "100%",
             display: "flex",
             flexDirection: "column",
-            backgroundColor: "#ffffff",
-            fontFamily: "sans-serif",
-            padding: `${OUTER_PADDING}px`,
+            height: `${HEADER_HEIGHT}px`,
+            borderBottom: "2px solid #e2e8f0",
+            paddingBottom: "24px",
           }}
         >
+          <div style={{ display: "flex", gap: "24px" }}>
+            <img
+              src={playedLeader ? playedLeader.imageUrl : placeholderUrl}
+              alt={playedLeader ? playedLeader.name : "No leader set"}
+              width={112}
+              height={156}
+              style={{ borderRadius: "12px", objectFit: "cover" }}
+            />
+            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "16px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    fontSize: 40,
+                    fontWeight: 700,
+                    color: "#0f172a",
+                  }}
+                >
+                  {tournament.name}
+                </div>
+                <div style={{ display: "flex", fontSize: 32 }}>
+                  {getTournamentTypeIcon(tournament.tournamentType)}
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: 26,
+                  color: "#64748b",
+                  marginTop: "4px",
+                }}
+              >
+                {playedLeader ? playedLeader.name : "No leader set"}
+              </div>
+              <div style={{ display: "flex", gap: "28px", marginTop: "auto" }}>
+                <Stat label="rounds" value={String(stats.totalRounds)} />
+                <Stat label="wins" value={String(stats.wins)} color="#15803d" />
+                <Stat
+                  label="losses"
+                  value={String(stats.losses)}
+                  color="#b91c1c"
+                />
+                <Stat
+                  label="win rate"
+                  value={`${stats.winRate}%`}
+                  color="#b45309"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {!hasRounds ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: `${EMPTY_ROUNDS_HEIGHT}px`,
+              color: "#94a3b8",
+              fontSize: 26,
+            }}
+          >
+            No rounds recorded yet
+          </div>
+        ) : useTwoColumns ? (
+          <div
+            style={{
+              display: "flex",
+              gap: `${COLUMN_GAP}px`,
+              marginTop: `${HEADER_TO_ROUNDS_GAP}px`,
+            }}
+          >
+            {[firstColumnRounds, secondColumnRounds].map(
+              (columnRounds, columnIndex) => (
+                <div
+                  key={columnIndex}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                  }}
+                >
+                  <ColumnHeaderRow compact />
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: `${ROUND_ROW_GAP}px`,
+                    }}
+                  >
+                    {columnRounds.map((round, localIndex) => (
+                      <RoundRow
+                        key={round.id}
+                        round={round}
+                        index={
+                          columnIndex === 0
+                            ? localIndex
+                            : firstColumnCount + localIndex
+                        }
+                        leadersById={leadersById}
+                        placeholderUrl={placeholderUrl}
+                        compact
+                      />
+                    ))}
+                  </div>
+                </div>
+              ),
+            )}
+          </div>
+        ) : (
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              height: `${HEADER_HEIGHT}px`,
-              borderBottom: "2px solid #e2e8f0",
-              paddingBottom: "24px",
+              marginTop: `${HEADER_TO_ROUNDS_GAP}px`,
             }}
           >
-            <div style={{ display: "flex", gap: "24px" }}>
-              <img
-                src={playedLeader ? playedLeader.imageUrl : placeholderUrl}
-                alt={playedLeader ? playedLeader.name : "No leader set"}
-                width={112}
-                height={156}
-                style={{ borderRadius: "12px", objectFit: "cover" }}
-              />
-              <div
-                style={{ display: "flex", flexDirection: "column", flex: 1 }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "16px",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      fontSize: 40,
-                      fontWeight: 700,
-                      color: "#0f172a",
-                    }}
-                  >
-                    {tournament.name}
-                  </div>
-                  <div style={{ display: "flex", fontSize: 32 }}>
-                    {getTournamentTypeIcon(tournament.tournamentType)}
-                  </div>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    fontSize: 26,
-                    color: "#64748b",
-                    marginTop: "4px",
-                  }}
-                >
-                  {playedLeader ? playedLeader.name : "No leader set"}
-                </div>
-                <div style={{ display: "flex", gap: "28px", marginTop: "auto" }}>
-                  <Stat label="rounds" value={String(stats.totalRounds)} />
-                  <Stat
-                    label="wins"
-                    value={String(stats.wins)}
-                    color="#15803d"
-                  />
-                  <Stat
-                    label="losses"
-                    value={String(stats.losses)}
-                    color="#b91c1c"
-                  />
-                  <Stat
-                    label="win rate"
-                    value={`${stats.winRate}%`}
-                    color="#b45309"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {!hasRounds ? (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                height: `${EMPTY_ROUNDS_HEIGHT}px`,
-                color: "#94a3b8",
-                fontSize: 26,
-              }}
-            >
-              No rounds recorded yet
-            </div>
-          ) : useTwoColumns ? (
-            <div
-              style={{
-                display: "flex",
-                gap: `${COLUMN_GAP}px`,
-                marginTop: `${HEADER_TO_ROUNDS_GAP}px`,
-              }}
-            >
-              {[firstColumnRounds, secondColumnRounds].map(
-                (columnRounds, columnIndex) => (
-                  <div
-                    key={columnIndex}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      flex: 1,
-                    }}
-                  >
-                    <ColumnHeaderRow compact />
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: `${ROUND_ROW_GAP}px`,
-                      }}
-                    >
-                      {columnRounds.map((round, localIndex) => (
-                        <RoundRow
-                          key={round.id}
-                          round={round}
-                          index={
-                            columnIndex === 0
-                              ? localIndex
-                              : firstColumnCount + localIndex
-                          }
-                          leadersById={leadersById}
-                          placeholderUrl={placeholderUrl}
-                          compact
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ),
-              )}
-            </div>
-          ) : (
+            <ColumnHeaderRow compact={false} />
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                marginTop: `${HEADER_TO_ROUNDS_GAP}px`,
+                gap: `${ROUND_ROW_GAP}px`,
               }}
             >
-              <ColumnHeaderRow compact={false} />
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: `${ROUND_ROW_GAP}px`,
-                }}
-              >
-                {tournament.rounds.map((round, index) => (
-                  <RoundRow
-                    key={round.id}
-                    round={round}
-                    index={index}
-                    leadersById={leadersById}
-                    placeholderUrl={placeholderUrl}
-                    compact={false}
-                  />
-                ))}
-              </div>
+              {tournament.rounds.map((round, index) => (
+                <RoundRow
+                  key={round.id}
+                  round={round}
+                  index={index}
+                  leadersById={leadersById}
+                  placeholderUrl={placeholderUrl}
+                  compact={false}
+                />
+              ))}
             </div>
-          )}
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: `${FOOTER_HEIGHT}px`,
-              fontSize: 22,
-              color: "#94a3b8",
-            }}
-          >
-            One Piece TCG Tracker
           </div>
+        )}
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: `${FOOTER_HEIGHT}px`,
+            fontSize: 22,
+            color: "#94a3b8",
+          }}
+        >
+          One Piece TCG Tracker
         </div>
-      ),
+      </div>,
       {
         width: CARD_WIDTH,
         height,

@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import type { Leader } from "@/models/leader";
 import {
   DEFAULT_TOURNAMENT_TYPE,
+  getTournamentTypeIcon,
   TOURNAMENT_TYPES,
   type TournamentType,
 } from "@/models/tournament";
 import { LeaderColorFilter } from "@/components/LeaderColorFilter";
 import { LeaderColorDots } from "@/components/LeaderColorDots";
-import { getTournamentTypeIcon } from "@/components/TournamentTypeEditor";
 
 const STEPS = [
   { step: 1, label: "Name & Date" },

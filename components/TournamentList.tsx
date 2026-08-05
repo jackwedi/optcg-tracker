@@ -1,20 +1,7 @@
 import Link from "next/link";
-import { Tournament } from "@/models/tournament";
+import { getTournamentTypeIcon, Tournament } from "@/models/tournament";
 import { formatDate } from "@/lib/utils";
 import { DeleteTournamentButton } from "@/components/DeleteTournamentButton";
-
-function getTournamentTypeIcon(type: string): string {
-  switch (type) {
-    case "Local":
-      return "🏠";
-    case "Regional":
-      return "🗺️";
-    case "Treasure Cup":
-      return "🏆";
-    default:
-      return "🏷️";
-  }
-}
 
 interface TournamentListProps {
   tournaments: Tournament[];

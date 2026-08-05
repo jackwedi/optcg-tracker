@@ -1,21 +1,8 @@
 import Link from "next/link";
-import { Tournament } from "@/models/tournament";
+import { getTournamentTypeIcon, Tournament } from "@/models/tournament";
 import type { Leader } from "@/models/leader";
 import { formatDate } from "@/lib/utils";
 import { LeaderColorDots } from "@/components/LeaderColorDots";
-
-function getTournamentTypeIcon(type: string): string {
-  switch (type) {
-    case "Local":
-      return "🏠";
-    case "Regional":
-      return "🗺️";
-    case "Treasure Cup":
-      return "🏆";
-    default:
-      return "🏷️";
-  }
-}
 
 interface TournamentTableProps {
   tournaments: Tournament[];

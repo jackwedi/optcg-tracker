@@ -2,20 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { TOURNAMENT_TYPES, type TournamentType } from "@/models/tournament";
-
-export function getTournamentTypeIcon(type: string): string {
-  switch (type) {
-    case "Local":
-      return "🏠";
-    case "Regional":
-      return "🗺️";
-    case "Treasure Cup":
-      return "🏆";
-    default:
-      return "🏷️";
-  }
-}
+import {
+  getTournamentTypeIcon,
+  TOURNAMENT_TYPES,
+  type TournamentType,
+} from "@/models/tournament";
 
 interface TournamentTypeEditorProps {
   tournamentId: string;
