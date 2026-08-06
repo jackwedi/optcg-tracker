@@ -8,6 +8,24 @@ import { createClient } from "@/utils/supabase/client";
 import { hasAdminRoleFromUnknown } from "@/lib/roles";
 import { SpinnerIcon } from "@/components/SpinnerIcon";
 
+function UserIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" />
+    </svg>
+  );
+}
+
 function LogoutIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -73,15 +91,21 @@ export function UserSessionControls() {
     return null;
   }
 
+  // One consistent pill/circle language for the actions (Backoffice,
+  // sign-out) so they read as a single group instead of mismatched
+  // floating controls. The identity chip shares that same rounded-full
+  // shape but gets a solid dark fill + icon so it reads as "this is
+  // you," not a third button sitting among the actions.
   return (
-    <div className="flex flex-wrap items-center gap-2 md:gap-3">
-      <span className="max-w-[160px] truncate rounded-md bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-700 md:max-w-[220px] md:text-sm">
-        {displayName ?? userEmail}
+    <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
+      <span className="inline-flex max-w-[160px] items-center gap-1.5 truncate rounded-full bg-slate-500 px-3 py-1.5 text-xs font-medium text-white md:max-w-[220px] md:text-sm">
+        <UserIcon className="h-3.5 w-3.5 shrink-0" />
+        <span className="truncate">{displayName ?? userEmail}</span>
       </span>
       {isAdmin ? (
         <Link
           href="/admin/players"
-          className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 md:text-sm"
+          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100 md:text-sm"
         >
           Backoffice
         </Link>
@@ -92,7 +116,7 @@ export function UserSessionControls() {
         disabled={signingOut}
         aria-label="Sign out"
         title="Sign out"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-900 bg-slate-900 text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 md:h-9 md:w-9"
       >
         {signingOut ? (
           <SpinnerIcon className="h-4 w-4" />

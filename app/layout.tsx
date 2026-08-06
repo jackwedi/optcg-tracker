@@ -37,7 +37,7 @@ export default function RootLayout({
           <div className="container mx-auto px-4 py-3 sm:py-4">
             <div className="flex items-center justify-between gap-3 sm:justify-start">
               <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-                <Link href="/">🃏 OPTCG Tracker</Link>
+                <Link href="/">🃏 Tracker</Link>
               </h1>
               <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 md:gap-6">
                 <div className="hidden items-center gap-x-4 sm:flex md:gap-x-6">
