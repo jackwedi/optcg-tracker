@@ -50,38 +50,59 @@ export default async function TournamentDetailPage({ params }: Props) {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+      {/* Single top bar: back on the left, page actions on the right,
+          all sharing the same pill/circle button styling instead of
+          the back link floating alone as a disconnected row above. */}
+      <div className="mb-5 flex items-center justify-between gap-2">
         <Link
           href="/tournaments"
-          className="text-blue-600 hover:underline inline-block"
+          className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 sm:h-10 sm:px-4 sm:text-base"
         >
-          ← Back to Tournaments
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4 sm:h-5 sm:w-5"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5" />
+            <path d="M12 19l-7-7 7-7" />
+          </svg>
+          <span className="sm:hidden">Back</span>
+          <span className="hidden sm:inline">Back to Tournaments</span>
         </Link>
+        <div className="flex shrink-0 items-center gap-1.5">
+          <ShareTournamentButton
+            tournamentId={id}
+            tournamentName={tournament.name}
+          />
+        </div>
       </div>
 
       <div className="mx-auto mb-5 max-w-2xl">
-        {/* Name + date on the left, actions on the right, all one line. */}
-        <div className="flex min-w-0 items-center justify-between gap-2">
-          <div className="flex min-w-0 items-baseline gap-2">
-            <h1 className="truncate text-base font-bold sm:text-2xl">
-              {tournament.name}
-            </h1>
-            <span className="shrink-0 text-[11px] text-slate-500 sm:text-sm">
-              {formatDateServer(tournament.date)}
+        <div className="flex min-w-0 items-baseline gap-2">
+          <h1 className="truncate text-base font-bold sm:text-2xl">
+            {tournament.name}
+          </h1>
+          <span className="shrink-0 text-[11px] text-slate-500 sm:text-sm">
+            {formatDateServer(tournament.date)}
+          </span>
+        </div>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+          {meta ? (
+            <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 sm:text-xs">
+              {meta.extensions.join(" / ")}
             </span>
-          </div>
-          <div className="flex shrink-0 items-center gap-1.5">
-            <ShareTournamentButton
-              tournamentId={id}
-              tournamentName={tournament.name}
-            />
-            <TournamentTypeEditor
-              tournamentId={id}
-              name={tournament.name}
-              date={tournament.date}
-              tournamentType={tournament.tournamentType}
-            />
-          </div>
+          ) : null}
+          <TournamentTypeEditor
+            tournamentId={id}
+            name={tournament.name}
+            date={tournament.date}
+            tournamentType={tournament.tournamentType}
+          />
         </div>
 
         {/* Played leader (image + color bar, name below, same idea as an
@@ -120,12 +141,7 @@ export default async function TournamentDetailPage({ params }: Props) {
             </span>
           </div>
 
-          <div className="relative flex flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center sm:px-4 sm:py-2.5">
-            {meta ? (
-              <span className="absolute right-2 top-2 inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 sm:right-3 sm:top-3">
-                {meta.extensions.join(" / ")}
-              </span>
-            ) : null}
+          <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center sm:px-4 sm:py-2.5">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:text-xs">
               Record
             </span>
@@ -168,6 +184,11 @@ export default async function TournamentDetailPage({ params }: Props) {
                     );
                   })}
                 </div>
+                <span className="text-[9px] text-slate-400 sm:text-[10px]">
+                  Coin flip{" "}
+                  {Math.round((stats.coinFlipWins / stats.totalRounds) * 100)}%
+                  won
+                </span>
               </>
             ) : (
               <div className="text-xs text-slate-400 sm:text-sm">
