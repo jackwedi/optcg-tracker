@@ -55,110 +55,88 @@ export default async function TournamentDetailPage({ params }: Props) {
         >
           ← Back to Tournaments
         </Link>
-        <DeleteTournamentButton tournamentId={id} />
+        <div className="flex items-center gap-2">
+          <ShareTournamentButton
+            tournamentId={id}
+            tournamentName={tournament.name}
+          />
+          <TournamentTypeEditor
+            tournamentId={id}
+            name={tournament.name}
+            date={tournament.date}
+            tournamentType={tournament.tournamentType}
+          />
+          <DeleteTournamentButton tournamentId={id} />
+        </div>
       </div>
 
-      <div className="mb-8 flex items-start gap-4 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid sm:grid-cols-[280px_1fr] sm:items-stretch sm:gap-6 sm:overflow-visible sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
-        <div className="shrink-0 sm:flex sm:items-center sm:justify-center sm:overflow-hidden sm:rounded-xl sm:border sm:border-slate-200 sm:bg-white sm:p-3 sm:shadow-sm">
+      <div className="mx-auto mb-8 flex max-w-2xl flex-row divide-x divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        {/* 1. Leader image — object-contain, not object-cover: the whole
+            card art stays visible instead of having its edges cropped
+            off to force-fill the column. */}
+        <div className="flex w-16 shrink-0 bg-slate-50 sm:w-24">
           {playedLeader ? (
             <LeaderThumbnail
               src={playedLeader.imageUrl}
               alt={playedLeader.name}
-              className="h-28 w-20 rounded-lg border border-slate-200 object-cover sm:h-[340px] sm:w-full sm:rounded-none sm:border-0 sm:object-contain sm:object-center"
+              className="h-full w-full object-contain"
             />
           ) : (
-            <div className="flex h-28 w-20 items-center justify-center rounded-lg border border-slate-200 bg-slate-100 text-[10px] text-slate-500 sm:h-[340px] sm:w-full sm:rounded-lg sm:border-0 sm:text-sm">
+            <div className="flex h-full w-full items-center justify-center text-[10px] text-slate-500">
               No leader
             </div>
           )}
-          <p className="mt-1 flex max-w-20 items-center justify-center gap-1 text-[10px] font-medium text-slate-600 sm:hidden">
-            {playedLeader ? (
-              <LeaderColorDots
-                colors={playedLeader.colors}
-                dotClassName="h-1.5 w-1.5"
-              />
-            ) : null}
-            <span className="truncate">
-              {playedLeader ? playedLeader.name : "Not set"}
-            </span>
-          </p>
         </div>
 
-        <div className="min-w-0 flex-1 sm:rounded-xl sm:border sm:border-slate-200 sm:bg-white sm:p-6 sm:shadow-sm">
-          <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2 sm:gap-4">
-            <h1 className="text-xl font-bold sm:text-4xl">{tournament.name}</h1>
-            <div className="flex items-center gap-2">
-              <ShareTournamentButton
-                tournamentId={id}
-                tournamentName={tournament.name}
-              />
-              <TournamentTypeEditor
-                tournamentId={id}
-                name={tournament.name}
-                date={tournament.date}
-                tournamentType={tournament.tournamentType}
-              />
-            </div>
-          </div>
-          <div className="mb-3 flex flex-wrap items-center gap-2 sm:mb-6">
-            <p className="text-xs text-gray-600 sm:text-base">
-              {formatDateServer(tournament.date)}
-            </p>
+        {/* 2. All the data — name, played leader, date/meta. Action
+            buttons live in the top bar now, not here, so the title
+            always gets the full column width instead of truncating
+            after a word or two. */}
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-2.5 sm:gap-1.5 sm:p-4">
+          <h1 className="truncate text-base font-bold sm:text-2xl">
+            {tournament.name}
+          </h1>
+          <span className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-slate-700 sm:text-sm">
+            {playedLeader ? (
+              <LeaderColorDots colors={playedLeader.colors} />
+            ) : null}
+            <span className="truncate">
+              {playedLeader ? playedLeader.name : "No leader set"}
+            </span>
+          </span>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500 sm:text-sm">
+            <span>{formatDateServer(tournament.date)}</span>
             {meta ? (
-              <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-600 sm:text-xs">
+              <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-600">
                 {meta.extensions.join(" / ")}
               </span>
             ) : null}
           </div>
+        </div>
 
-          <div className="mb-6 hidden sm:block">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-              Played Leader
-            </p>
-            <p className="mt-1 flex items-center gap-1.5 text-lg font-semibold text-slate-900">
-              {playedLeader ? (
-                <LeaderColorDots colors={playedLeader.colors} />
-              ) : null}
-              {playedLeader ? playedLeader.name : "Not set"}
-            </p>
-            {playedLeader ? (
-              <p className="text-xs text-slate-500">{playedLeader.id}</p>
-            ) : null}
-          </div>
-
-          {stats ? (
-            <div className="mt-3 border-t border-slate-100 pt-4 sm:mt-4">
-              <div className="flex items-baseline justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                  Win Rate
-                </p>
-                <p className="text-2xl font-bold text-amber-600 sm:text-3xl">
-                  {stats.winRate}%
-                </p>
-              </div>
-              <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-amber-100">
-                <div
-                  className="h-full rounded-full bg-amber-500 transition-[width] duration-300"
-                  style={{
-                    width: `${Math.min(100, Math.max(0, Number(stats.winRate)))}%`,
-                  }}
-                />
-              </div>
-              <p className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 sm:text-sm">
-                <span className="inline-flex items-center gap-1">
-                  <span aria-hidden="true">🏆</span>
-                  {stats.wins} won
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <span aria-hidden="true">☠️</span>
-                  {stats.losses} lost
-                </span>
-                <span>
-                  {stats.totalRounds} round{stats.totalRounds === 1 ? "" : "s"}
-                </span>
-              </p>
-            </div>
-          ) : null}
+        {/* 3. Record — its own section, not squeezed under the buttons,
+            with room to be the biggest text on the card. */}
+        <div className="flex shrink-0 flex-col items-center justify-center gap-0.5 border-l border-slate-200 px-3 py-2.5 sm:gap-1 sm:px-6 sm:py-4">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:text-xs">
+            Record
+          </span>
+          {stats && stats.totalRounds > 0 ? (
+            <span className="flex items-baseline gap-1 text-2xl font-extrabold text-slate-900 sm:text-4xl">
+              <span>{stats.wins}</span>
+              <span className="text-[10px] font-semibold text-slate-400 sm:text-xs">
+                W
+              </span>
+              <span className="mx-0.5 text-slate-300">–</span>
+              <span>{stats.losses}</span>
+              <span className="text-[10px] font-semibold text-slate-400 sm:text-xs">
+                L
+              </span>
+            </span>
+          ) : (
+            <span className="text-xs text-slate-400 sm:text-sm">
+              No rounds yet
+            </span>
+          )}
         </div>
       </div>
 
