@@ -39,8 +39,12 @@ export function ShareTournamentButton({
     setError("");
 
     try {
+      // A stuck upstream image/font fetch on the server would otherwise
+      // leave this spinning forever with no feedback — cap it so a hang
+      // surfaces as a clear error instead.
       const response = await fetch(
         `/api/tournaments/${tournamentId}/share-image`,
+        { signal: AbortSignal.timeout(20000) },
       );
 
       if (!response.ok) {
@@ -52,37 +56,12 @@ export function ShareTournamentButton({
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "")}-summary.png`;
-      const file = new File([blob], fileName, { type: "image/png" });
 
-      const nav = navigator as Navigator & {
-        canShare?: (data: { files: File[] }) => boolean;
-        share?: (data: {
-          files: File[];
-          title?: string;
-          text?: string;
-        }) => Promise<void>;
-      };
-
-      if (nav.canShare?.({ files: [file] }) && nav.share) {
-        try {
-          await nav.share({
-            files: [file],
-            title: tournamentName,
-            text: `Check out my ${tournamentName} results!`,
-          });
-          return;
-        } catch (shareErr) {
-          if (shareErr instanceof Error && shareErr.name === "AbortError") {
-            // User dismissed the native share sheet — not an error.
-            return;
-          }
-          // Some browsers (notably iOS Safari) can throw NotAllowedError
-          // here if the fetch above took long enough to lose the user's
-          // activation window. Fall through to a plain download instead
-          // of surfacing that as a failure.
-        }
-      }
-
+      // Always a direct download, deliberately skipping navigator.share():
+      // on desktop Chrome/Edge it either hangs the button until the native
+      // OS share flyout is dismissed, or — as tested — silently no-ops
+      // with no visible panel and no error, which is worse than doing
+      // nothing. A download always visibly happens, on every browser.
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
