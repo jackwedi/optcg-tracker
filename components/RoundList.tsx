@@ -164,7 +164,8 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                 Opponent
               </th>
               <th className="w-12 px-1 py-2 text-center font-semibold sm:w-auto sm:px-4 sm:py-3">
-                Coin Flip
+                <span className="sm:hidden">Coin</span>
+                <span className="hidden sm:inline">Coin Flip</span>
               </th>
               <th className="w-10 px-1 py-2 text-center font-semibold sm:w-auto sm:px-4 sm:py-3">
                 Start
@@ -244,7 +245,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                   : "2";
               const startBadgeClass = isByeRound
                 ? "bg-slate-100 text-slate-400"
-                : "bg-sky-500 text-white";
+                : "bg-slate-400 text-white";
 
               return (
                 <tr
@@ -265,7 +266,13 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       startEditingRound(round);
                     }
                   }}
-                  className="cursor-pointer transition hover:bg-gray-50"
+                  className={`cursor-pointer transition ${
+                    isByeRound
+                      ? "hover:bg-gray-50"
+                      : currentWon
+                        ? "bg-emerald-500/5 hover:bg-emerald-500/10"
+                        : "bg-red-500/5 hover:bg-red-500/10"
+                  }`}
                 >
                   <td className="px-2 py-2 text-gray-500 sm:px-4 sm:py-3">
                     {index + 1}
@@ -278,11 +285,11 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                           opponentLeader?.name ??
                           (isByeRound ? "BYE round" : "Unknown leader")
                         }
-                        className="h-8 w-6 shrink-0 rounded object-cover sm:h-10 sm:w-8"
+                        className="h-10 w-8 shrink-0 rounded object-cover sm:h-12 sm:w-10"
                       />
                       {opponentColors.length > 0 ? (
                         <div
-                          className="flex h-8 w-1 shrink-0 flex-col overflow-hidden rounded-full sm:h-10"
+                          className="flex h-10 w-1 shrink-0 flex-col overflow-hidden rounded-full sm:h-12"
                           aria-hidden="true"
                         >
                           {opponentColors.slice(0, 2).map((color, i) => (
