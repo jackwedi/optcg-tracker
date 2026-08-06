@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 import { getTournamentById, getTournamentStats } from "@/lib/db";
 import { getLeaders, BYE_LEADER_ID } from "@/lib/leaders";
+import { getMetaById } from "@/lib/meta";
 import { getTournamentTypeIcon, type Round } from "@/models/tournament";
 import type { Leader } from "@/models/leader";
 import { getShortLeaderName } from "@/lib/utils";
@@ -9,6 +10,21 @@ import { colorToHex } from "@/components/LeaderColorDots";
 
 interface Params {
   id: string;
+}
+
+// Same numeric M/D/YYYY format as the tournament detail page's
+// formatDateServer, so the shared image reads identically to the page.
+function formatDate(dateString: string): string {
+  try {
+    const date = new Date(dateString + "T00:00:00Z");
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    }).format(date);
+  } catch {
+    return dateString;
+  }
 }
 
 // Flat, plain design (no card/box chrome): column headers (COIN FLIP/START/
@@ -19,7 +35,34 @@ interface Params {
 // dimension doubled) so it looks sharp on high-DPI phone screens.
 const CARD_WIDTH = 1120;
 const OUTER_PADDING = 40;
-const HEADER_HEIGHT = 220;
+// Header mirrors the tournament detail page's current layout exactly:
+// title+date, meta+type pills below it, then leader (image+color bar+name)
+// paired with a Record card (score, mini streak, coin flip rate) — this
+// replaced the page's older fixed-photo + win-rate-meter design a while
+// back, and the shared image had drifted out of sync with it since.
+const HEADER_TITLE_ROW_HEIGHT = 56;
+const HEADER_BADGE_ROW_HEIGHT = 40;
+const HEADER_TITLE_TO_BADGES_GAP = 10;
+const HEADER_BADGES_TO_BODY_GAP = 24;
+// Native ~264:367 leader-card ratio (uncropped, objectFit "contain" as a
+// fallback for any leader art that isn't exactly that ratio) — matches the
+// page's leader image, which stopped cropping to a fixed box.
+const HEADER_LEADER_IMAGE_WIDTH = 140;
+const HEADER_LEADER_IMAGE_HEIGHT = 195;
+const HEADER_LEADER_NAME_HEIGHT = 34;
+const HEADER_LEADER_NAME_GAP = 10;
+const HEADER_BODY_ROW_HEIGHT =
+  HEADER_LEADER_IMAGE_HEIGHT +
+  HEADER_LEADER_NAME_GAP +
+  HEADER_LEADER_NAME_HEIGHT;
+const HEADER_BOTTOM_PADDING = 24;
+const HEADER_HEIGHT =
+  HEADER_TITLE_ROW_HEIGHT +
+  HEADER_TITLE_TO_BADGES_GAP +
+  HEADER_BADGE_ROW_HEIGHT +
+  HEADER_BADGES_TO_BODY_GAP +
+  HEADER_BODY_ROW_HEIGHT +
+  HEADER_BOTTOM_PADDING;
 const HEADER_TO_ROUNDS_GAP = 16;
 const COLUMN_HEADER_HEIGHT = 44;
 const ROUND_ROW_HEIGHT = 152;
@@ -32,10 +75,14 @@ const COLUMN_GAP = 32;
 // image doesn't grow excessively tall.
 const TWO_COLUMN_THRESHOLD = 5;
 
-// Rows no longer wash the whole card in green/red — the badges below carry
-// the win/loss signal, matching RoundList's table (a full-row tint read as
-// "weird"/noisy there once badges took over that job).
+// Bye rows stay neutral (RoundList's bye rows have no persistent tint
+// either, only a hover state, which a static image can't show). Win/loss
+// rows get the same faint tint as RoundList's resting (non-hover) rows —
+// bg-emerald-500/5 and bg-red-500/5 — so the image's row hues match what
+// the app actually shows, not the flat neutral this used to render.
 const ROW_BG = "#f8fafc"; // Tailwind slate-50
+const ROW_BG_WON = "rgba(16, 185, 129, 0.05)"; // emerald-500 @ 5%
+const ROW_BG_LOST = "rgba(239, 68, 68, 0.05)"; // red-500 @ 5%
 
 // Same badge palette as RoundList's table: solid circle + letter, not color
 // alone, so each column stays legible and distinct from the others.
@@ -43,9 +90,19 @@ const BADGE_WON = { bg: "#10b981", color: "#ffffff" }; // emerald-500
 const BADGE_LOST = { bg: "#ef4444", color: "#ffffff" }; // red-500
 const BADGE_COIN_WON = { bg: "#f59e0b", color: "#ffffff" }; // amber-500
 const BADGE_COIN_LOST = { bg: "#e2e8f0", color: "#64748b" }; // slate-200/500
-const BADGE_START = { bg: "#0ea5e9", color: "#ffffff" }; // sky-500
+// Start's real values (1st/2nd) use the same slate-400/white as Bye badges
+// — that's what RoundList.tsx actually renders (bg-slate-400 text-white
+// for both), not the sky-500 this used to show.
+const BADGE_START = { bg: "#94a3b8", color: "#ffffff" }; // slate-400
 const BADGE_BYE = { bg: "#94a3b8", color: "#ffffff" }; // slate-400
 const BADGE_NA = { bg: "#f1f5f9", color: "#94a3b8" }; // slate-100/400
+
+// Record card's mini streak — same colors as the page's, most recent
+// rounds only (oldest to newest, left to right).
+const MAX_STREAK_ROUNDS = 10;
+const STREAK_DOT_DIAMETER = 14;
+const STREAK_DOT_GAP = 6;
+const STREAK_BYE_COLOR = "#cbd5e1"; // slate-300
 
 // Single-column round row layout.
 const ROUND_NUMBER_WIDTH = 40;
@@ -75,15 +132,6 @@ const COMPACT_ROUND_COLOR_BAR_WIDTH = 6;
 const COMPACT_ROUND_NAME_COLUMN_WIDTH = 120;
 const COMPACT_ROUND_NUMBER_FONT_SIZE = 16;
 const COMPACT_COLUMN_LABEL_FONT_SIZE = 14;
-
-// Win-rate meter used in the header — mirrors the tournament detail page's
-// amber progress bar + won/lost record line (StatMeter-style). Uses solid
-// color dots instead of emoji: emoji glyphs Satori can't resolve locally
-// fall back to a network font fetch that can hang or fail (see the badge
-// text below), so new elements here stay emoji-free on principle.
-const METER_TRACK = "#fef3c7"; // amber-100
-const METER_FILL = "#f59e0b"; // amber-500
-const METER_VALUE_COLOR = "#d97706"; // amber-600
 
 function BadgeValue({
   value,
@@ -233,6 +281,7 @@ function RoundRow({
   const coinFlipText = isBye ? "-" : round.wonCoinFlip ? "B" : "X";
   const startBadge = isBye ? BADGE_NA : BADGE_START;
   const startText = isBye ? "-" : round.startingPosition === "1st" ? "1" : "2";
+  const rowBackground = isBye ? ROW_BG : round.won ? ROW_BG_WON : ROW_BG_LOST;
 
   return (
     <div
@@ -240,7 +289,7 @@ function RoundRow({
         display: "flex",
         alignItems: "center",
         height: `${rowHeight}px`,
-        backgroundColor: ROW_BG,
+        backgroundColor: rowBackground,
         borderRadius: "16px",
         padding: `0 ${paddingX}px`,
         gap: `${gap}px`,
@@ -349,19 +398,30 @@ export async function GET(
       return new Response("Tournament not found", { status: 404 });
     }
 
-    const [leaders, stats] = await Promise.all([
+    const [leaders, stats, meta] = await Promise.all([
       getLeaders(),
       getTournamentStats(id),
+      tournament.metaId
+        ? getMetaById(tournament.metaId)
+        : Promise.resolve(undefined),
     ]);
 
     const leadersById = Object.fromEntries(leaders.map((l) => [l.id, l]));
     const playedLeader = tournament.playedLeaderId
       ? leadersById[tournament.playedLeaderId]
       : undefined;
+    const playedLeaderColors = Array.isArray(playedLeader?.colors)
+      ? playedLeader.colors.flat().filter(Boolean)
+      : [];
 
     const placeholderUrl = new URL("/placeholder.png", request.url).toString();
 
     const hasRounds = tournament.rounds.length > 0;
+    const streakRounds = tournament.rounds.slice(-MAX_STREAK_ROUNDS);
+    const coinFlipWinRate =
+      stats.totalRounds > 0
+        ? Math.round((stats.coinFlipWins / stats.totalRounds) * 100)
+        : 0;
     const useTwoColumns = tournament.rounds.length > TWO_COLUMN_THRESHOLD;
     const itemsPerColumn = useTwoColumns
       ? Math.ceil(tournament.rounds.length / 2)
@@ -406,157 +466,303 @@ export async function GET(
             flexDirection: "column",
             height: `${HEADER_HEIGHT}px`,
             borderBottom: "2px solid #e2e8f0",
-            paddingBottom: "24px",
+            paddingBottom: `${HEADER_BOTTOM_PADDING}px`,
           }}
         >
-          <div style={{ display: "flex", gap: "24px" }}>
-            <img
-              src={playedLeader ? playedLeader.imageUrl : placeholderUrl}
-              alt={playedLeader ? playedLeader.name : "No leader set"}
-              width={112}
-              height={156}
-              style={{ borderRadius: "12px", objectFit: "cover" }}
-            />
-            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+          {/* Title + date, same line, mirrors the page's h1+date row. */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: "16px",
+              height: `${HEADER_TITLE_ROW_HEIGHT}px`,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flex: 1,
+                fontSize: 40,
+                fontWeight: 700,
+                color: "#0f172a",
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {tournament.name}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                fontSize: 22,
+                color: "#64748b",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {formatDate(tournament.date)}
+            </div>
+          </div>
+
+          {/* Meta + tournament type pills, mirrors the page's row directly
+              below the title. */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              height: `${HEADER_BADGE_ROW_HEIGHT}px`,
+              marginTop: `${HEADER_TITLE_TO_BADGES_GAP}px`,
+            }}
+          >
+            {meta ? (
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "16px",
+                  borderRadius: "9999px",
+                  border: "1px solid #e2e8f0",
+                  backgroundColor: "#ffffff",
+                  padding: "6px 16px",
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: "#475569",
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    fontSize: 40,
-                    fontWeight: 700,
-                    color: "#0f172a",
-                  }}
-                >
-                  {tournament.name}
-                </div>
-                <div style={{ display: "flex", fontSize: 32 }}>
-                  {getTournamentTypeIcon(tournament.tournamentType)}
-                </div>
+                {meta.extensions.join(" / ")}
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  fontSize: 26,
-                  color: "#64748b",
-                  marginTop: "4px",
-                }}
-              >
-                {playedLeader ? playedLeader.name : "No leader set"}
+            ) : null}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                borderRadius: "9999px",
+                border: "1px solid #e2e8f0",
+                backgroundColor: "#ffffff",
+                padding: "6px 16px",
+                fontSize: 18,
+                fontWeight: 600,
+                color: "#475569",
+              }}
+            >
+              <div style={{ display: "flex", fontSize: 18 }}>
+                {getTournamentTypeIcon(tournament.tournamentType)}
               </div>
+              <div style={{ display: "flex" }}>{tournament.tournamentType}</div>
+            </div>
+          </div>
+
+          {/* Played leader (image + color bar, name below) paired with the
+              Record card — mirrors the page's leader/record row exactly,
+              including the mini streak and coin-flip win rate. */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "stretch",
+              gap: "24px",
+              marginTop: `${HEADER_BADGES_TO_BODY_GAP}px`,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: `${HEADER_LEADER_NAME_GAP}px`,
+              }}
+            >
               <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "10px",
-                  marginTop: "auto",
-                }}
+                style={{ display: "flex", alignItems: "stretch", gap: "10px" }}
               >
-                <div
+                <img
+                  src={playedLeader ? playedLeader.imageUrl : placeholderUrl}
+                  alt={playedLeader ? playedLeader.name : "No leader set"}
+                  width={HEADER_LEADER_IMAGE_WIDTH}
+                  height={HEADER_LEADER_IMAGE_HEIGHT}
                   style={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    justifyContent: "space-between",
+                    borderRadius: "10px",
+                    objectFit: "contain",
+                    backgroundColor: "#f8fafc",
                   }}
-                >
+                />
+                {playedLeaderColors.length > 0 ? (
                   <div
                     style={{
                       display: "flex",
-                      fontSize: 20,
-                      fontWeight: 700,
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
-                      color: "#64748b",
-                    }}
-                  >
-                    Win Rate
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      fontSize: 34,
-                      fontWeight: 700,
-                      color: METER_VALUE_COLOR,
-                    }}
-                  >
-                    {stats.winRate}%
-                  </div>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    width: "100%",
-                    height: "14px",
-                    borderRadius: "9999px",
-                    backgroundColor: METER_TRACK,
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      width: `${Math.min(100, Math.max(0, Number(stats.winRate)))}%`,
-                      height: "100%",
+                      flexDirection: "column",
+                      width: "8px",
                       borderRadius: "9999px",
-                      backgroundColor: METER_FILL,
+                      overflow: "hidden",
                     }}
-                  />
-                </div>
+                  >
+                    {playedLeaderColors.slice(0, 2).map((color) => (
+                      <div
+                        key={color}
+                        style={{
+                          display: "flex",
+                          flex: 1,
+                          backgroundColor: colorToHex(color),
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  width: `${HEADER_LEADER_IMAGE_WIDTH}px`,
+                  justifyContent: "center",
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: "#334155",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {playedLeader
+                  ? getShortLeaderName(playedLeader.name)
+                  : "No leader set"}
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flex: 1,
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "16px",
+                border: "1px solid #e2e8f0",
+                backgroundColor: ROW_BG,
+                padding: "20px 28px",
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: 18,
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "#64748b",
+                }}
+              >
+                Record
+              </div>
+              {hasRounds ? (
+                // A real div, not a Fragment — Satori doesn't lay Fragment
+                // children out as flex items of the column parent the way
+                // a browser would, so the score/streak/coin-flip rows
+                // collapsed onto one horizontal line without this wrapper.
                 <div
                   style={{
                     display: "flex",
-                    gap: "20px",
-                    fontSize: 22,
-                    color: "#64748b",
+                    flexDirection: "column",
+                    alignItems: "center",
                   }}
                 >
                   <div
                     style={{
                       display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
+                      alignItems: "baseline",
+                      gap: "10px",
+                      fontSize: 44,
+                      fontWeight: 700,
+                      color: "#0f172a",
+                      marginTop: "6px",
                     }}
                   >
+                    <div style={{ display: "flex" }}>{stats.wins}</div>
                     <div
                       style={{
                         display: "flex",
-                        width: "14px",
-                        height: "14px",
-                        borderRadius: "9999px",
-                        backgroundColor: BADGE_WON.bg,
+                        fontSize: 20,
+                        color: "#94a3b8",
                       }}
-                    />
-                    <div style={{ display: "flex" }}>{stats.wins} won</div>
+                    >
+                      W
+                    </div>
+                    <div style={{ display: "flex", color: "#cbd5e1" }}>-</div>
+                    <div style={{ display: "flex" }}>{stats.losses}</div>
+                    <div
+                      style={{
+                        display: "flex",
+                        fontSize: 20,
+                        color: "#94a3b8",
+                      }}
+                    >
+                      L
+                    </div>
                   </div>
                   <div
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "8px",
+                      gap: `${STREAK_DOT_GAP}px`,
+                      marginTop: "10px",
                     }}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        width: "14px",
-                        height: "14px",
-                        borderRadius: "9999px",
-                        backgroundColor: BADGE_LOST.bg,
-                      }}
-                    />
-                    <div style={{ display: "flex" }}>{stats.losses} lost</div>
+                    {tournament.rounds.length > streakRounds.length ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          fontSize: 16,
+                          color: "#94a3b8",
+                        }}
+                      >
+                        ...
+                      </div>
+                    ) : null}
+                    {streakRounds.map((round) => {
+                      const isByeRound =
+                        round.opponentLeaderId === BYE_LEADER_ID;
+                      const dotColor = isByeRound
+                        ? STREAK_BYE_COLOR
+                        : round.won
+                          ? BADGE_WON.bg
+                          : BADGE_LOST.bg;
+                      return (
+                        <div
+                          key={round.id}
+                          style={{
+                            display: "flex",
+                            width: `${STREAK_DOT_DIAMETER}px`,
+                            height: `${STREAK_DOT_DIAMETER}px`,
+                            borderRadius: "9999px",
+                            backgroundColor: dotColor,
+                          }}
+                        />
+                      );
+                    })}
                   </div>
-                  <div style={{ display: "flex" }}>
-                    {stats.totalRounds} round
-                    {stats.totalRounds === 1 ? "" : "s"}
+                  <div
+                    style={{
+                      display: "flex",
+                      fontSize: 16,
+                      color: "#94a3b8",
+                      marginTop: "8px",
+                    }}
+                  >
+                    Coin flip {coinFlipWinRate}% won
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    fontSize: 20,
+                    color: "#94a3b8",
+                    marginTop: "6px",
+                  }}
+                >
+                  No rounds yet
+                </div>
+              )}
             </div>
           </div>
         </div>
