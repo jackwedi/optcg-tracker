@@ -227,7 +227,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                 ? "–"
                 : currentWonCoinFlip
                   ? "B"
-                  : "×";
+                  : "✕";
               const coinFlipBadgeClass = isByeRound
                 ? "bg-slate-100 text-slate-400"
                 : currentWonCoinFlip
