@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Leader } from "@/models/leader";
 import LeaderThumbnail from "@/components/LeaderThumbnail";
-import { LeaderColorDots } from "@/components/LeaderColorDots";
+import { colorToHex, LeaderColorDots } from "@/components/LeaderColorDots";
 import { SpinnerIcon } from "@/components/SpinnerIcon";
 import { getShortLeaderName } from "@/lib/utils";
 
@@ -202,6 +202,9 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
               const opponentName = isByeRound
                 ? "BYE"
                 : (opponentLeader?.name ?? currentOpponentLeaderId);
+              const opponentColors = Array.isArray(opponentLeader?.colors)
+                ? opponentLeader.colors.flat().filter(Boolean)
+                : [];
               // Sports form-guide pattern (ESPN, league standings, chess
               // ratings): a small solid badge carries the win/loss signal at
               // the data point itself, rather than washing the whole row in
@@ -277,21 +280,35 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                         }
                         className="h-8 w-6 shrink-0 rounded object-cover sm:h-10 sm:w-8"
                       />
-                      <div className="min-w-0">
-                        <div className="flex min-w-0 items-center gap-1.5">
-                          {!isByeRound && opponentLeader ? (
-                            <LeaderColorDots colors={opponentLeader.colors} />
-                          ) : null}
-                          <span
-                            className="truncate font-medium text-gray-900"
-                            title={opponentName}
-                          >
-                            {getShortLeaderName(opponentName)}
-                          </span>
+                      {opponentColors.length > 0 ? (
+                        <div
+                          className="flex h-8 w-1 shrink-0 flex-col overflow-hidden rounded-full sm:h-10"
+                          aria-hidden="true"
+                        >
+                          {opponentColors.slice(0, 2).map((color, i) => (
+                            <span
+                              key={color + i}
+                              className="flex-1"
+                              style={{ backgroundColor: colorToHex(color) }}
+                            />
+                          ))}
                         </div>
+                      ) : null}
+                      <div className="min-w-0">
+                        <span
+                          className="block truncate font-medium text-gray-900"
+                          title={opponentName}
+                        >
+                          {getShortLeaderName(opponentName)}
+                        </span>
                         {!isByeRound ? (
-                          <p className="hidden truncate text-xs text-gray-500 sm:block">
-                            {currentOpponentLeaderId}
+                          <p className="truncate text-xs text-gray-500">
+                            <span className="sm:hidden">
+                              {currentOpponentLeaderId.split("-")[0]}
+                            </span>
+                            <span className="hidden sm:inline">
+                              {currentOpponentLeaderId}
+                            </span>
                           </p>
                         ) : null}
                       </div>
