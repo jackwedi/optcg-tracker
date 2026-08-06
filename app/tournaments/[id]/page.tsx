@@ -48,26 +48,13 @@ export default async function TournamentDetailPage({ params }: Props) {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="mb-6">
         <Link
           href="/tournaments"
           className="text-blue-600 hover:underline inline-block"
         >
           ← Back to Tournaments
         </Link>
-        <div className="flex items-center gap-2">
-          <ShareTournamentButton
-            tournamentId={id}
-            tournamentName={tournament.name}
-          />
-          <TournamentTypeEditor
-            tournamentId={id}
-            name={tournament.name}
-            date={tournament.date}
-            tournamentType={tournament.tournamentType}
-          />
-          <DeleteTournamentButton tournamentId={id} />
-        </div>
       </div>
 
       <div className="mx-auto mb-8 flex max-w-2xl flex-row divide-x divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -88,12 +75,27 @@ export default async function TournamentDetailPage({ params }: Props) {
           )}
         </div>
 
-        {/* 2. All the data — name, played leader, date/meta. Action
-            buttons live in the top bar now, not here, so the title
-            always gets the full column width instead of truncating
-            after a word or two. */}
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-2.5 sm:gap-1.5 sm:p-4">
-          <h1 className="truncate text-base font-bold sm:text-2xl">
+        {/* 2. All the data — name, played leader, date/meta. Share/edit
+            are tournament-level actions, not leader data, so pairing
+            them with the leader name read as "unnatural". They sit in
+            the top-right corner instead (the standard spot for card
+            actions), positioned absolute so they don't consume flex
+            width from the title — the title just reserves matching
+            padding so text never runs underneath them. */}
+        <div className="relative flex min-w-0 flex-1 flex-col justify-center gap-1 p-2.5 sm:gap-1.5 sm:p-4">
+          <div className="absolute right-2.5 top-2.5 flex items-center gap-1.5 sm:right-4 sm:top-4">
+            <ShareTournamentButton
+              tournamentId={id}
+              tournamentName={tournament.name}
+            />
+            <TournamentTypeEditor
+              tournamentId={id}
+              name={tournament.name}
+              date={tournament.date}
+              tournamentType={tournament.tournamentType}
+            />
+          </div>
+          <h1 className="truncate pr-20 text-base font-bold sm:pr-24 sm:text-2xl">
             {tournament.name}
           </h1>
           <span className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-slate-700 sm:text-sm">
@@ -147,6 +149,13 @@ export default async function TournamentDetailPage({ params }: Props) {
 
         <div className="w-full">
           <RoundForm tournamentId={id} />
+        </div>
+
+        {/* Destructive action, deliberately at the bottom — out of the
+            way of everything else on the page, requiring a scroll to
+            reach rather than sitting next to routine actions up top. */}
+        <div className="flex justify-end border-t border-slate-200 pt-6">
+          <DeleteTournamentButton tournamentId={id} />
         </div>
       </div>
     </main>
