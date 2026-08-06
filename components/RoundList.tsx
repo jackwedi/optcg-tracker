@@ -226,19 +226,22 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
               const coinFlipBadgeIcon = isByeRound
                 ? "–"
                 : currentWonCoinFlip
-                  ? "🪙"
+                  ? "B"
                   : "×";
               const coinFlipBadgeClass = isByeRound
                 ? "bg-slate-100 text-slate-400"
                 : currentWonCoinFlip
-                  ? "bg-amber-400 text-white"
+                  ? "bg-amber-500 text-white"
                   : "bg-slate-200 text-slate-500";
               const startLabel = isByeRound ? "N/A" : currentStartingPosition;
-              const startIcon = isByeRound
-                ? "➖"
+              const startBadgeText = isByeRound
+                ? "–"
                 : currentStartingPosition === "1st"
-                  ? "🥇"
-                  : "🥈";
+                  ? "1"
+                  : "2";
+              const startBadgeClass = isByeRound
+                ? "bg-slate-100 text-slate-400"
+                : "bg-sky-500 text-white";
 
               return (
                 <tr
@@ -307,10 +310,15 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                     <span className="sr-only">{coinFlipLabel}</span>
                   </td>
                   <td
-                    className="whitespace-nowrap px-2 py-2 text-center text-base sm:px-4 sm:py-3"
+                    className="whitespace-nowrap px-2 py-2 text-center sm:px-4 sm:py-3"
                     title={startLabel}
                   >
-                    <span aria-hidden="true">{startIcon}</span>
+                    <span
+                      aria-hidden="true"
+                      className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${startBadgeClass}`}
+                    >
+                      {startBadgeText}
+                    </span>
                     <span className="sr-only">{startLabel}</span>
                   </td>
                   <td

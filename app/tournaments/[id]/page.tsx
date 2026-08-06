@@ -127,53 +127,37 @@ export default async function TournamentDetailPage({ params }: Props) {
           </div>
 
           {stats ? (
-            <>
-              <div className="flex flex-wrap gap-1.5 sm:hidden">
-                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-blue-700">
-                  <span className="font-bold">{stats.totalRounds}</span>
-                  Rounds
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-medium text-green-700">
-                  <span className="font-bold">{stats.wins}</span>
-                  Wins
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-medium text-red-700">
-                  <span className="font-bold">{stats.losses}</span>
-                  Losses
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700">
-                  <span className="font-bold">{stats.winRate}%</span>
+            <div className="mt-3 border-t border-slate-100 pt-4 sm:mt-4">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                   Win Rate
+                </p>
+                <p className="text-2xl font-bold text-amber-600 sm:text-3xl">
+                  {stats.winRate}%
+                </p>
+              </div>
+              <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-amber-100">
+                <div
+                  className="h-full rounded-full bg-amber-500 transition-[width] duration-300"
+                  style={{
+                    width: `${Math.min(100, Math.max(0, Number(stats.winRate)))}%`,
+                  }}
+                />
+              </div>
+              <p className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 sm:text-sm">
+                <span className="inline-flex items-center gap-1">
+                  <span aria-hidden="true">🏆</span>
+                  {stats.wins} won
                 </span>
-              </div>
-
-              <div className="hidden sm:grid sm:grid-cols-2 sm:gap-3">
-                <div className="rounded-lg bg-blue-50 p-4">
-                  <p className="text-gray-600 text-sm">Total Rounds</p>
-                  <p className="text-3xl font-bold text-slate-900">
-                    {stats.totalRounds}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-green-50 p-4">
-                  <p className="text-gray-600 text-sm">Wins</p>
-                  <p className="text-3xl font-bold text-green-600">
-                    {stats.wins}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-red-50 p-4">
-                  <p className="text-gray-600 text-sm">Losses</p>
-                  <p className="text-3xl font-bold text-red-600">
-                    {stats.losses}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-amber-50 p-4">
-                  <p className="text-gray-600 text-sm">Win Rate</p>
-                  <p className="text-3xl font-bold text-amber-600">
-                    {stats.winRate}%
-                  </p>
-                </div>
-              </div>
-            </>
+                <span className="inline-flex items-center gap-1">
+                  <span aria-hidden="true">☠️</span>
+                  {stats.losses} lost
+                </span>
+                <span>
+                  {stats.totalRounds} round{stats.totalRounds === 1 ? "" : "s"}
+                </span>
+              </p>
+            </div>
           ) : null}
         </div>
       </div>
