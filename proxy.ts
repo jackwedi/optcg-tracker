@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasAdminRoleFromUnknown } from "@/lib/roles";
 
-const PUBLIC_PATHS = ["/login", "/favicon.ico"];
+const PUBLIC_PATHS = ["/login", "/favicon.ico", "/auth/callback"];
 
 function isPublicPath(pathname: string): boolean {
   return (
