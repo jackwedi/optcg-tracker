@@ -14,6 +14,26 @@ const STEPS = [
   { step: 3, label: "Round Details" },
 ] as const;
 
+// Same badge shape/colors as RoundList's table (W/L/B, B/✕, 1/2) — button
+// icons reuse those instead of unrelated emoji, so the form and the table
+// read as one consistent system.
+function RoundBadgeIcon({
+  text,
+  className,
+}: {
+  text: string;
+  className: string;
+}) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${className}`}
+    >
+      {text}
+    </span>
+  );
+}
+
 interface RoundFormProps {
   tournamentId: string;
   onRoundAdded?: () => void;
@@ -192,7 +212,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
       {open ? (
         <form
           onSubmit={handleSubmit}
-          className="mt-4 space-y-6 border-t border-slate-200 pt-4"
+          className="mt-4 space-y-4 border-t border-slate-200 pt-4"
         >
           <div className="mx-auto flex w-fit items-start">
             {STEPS.map((s, index) => (
@@ -229,55 +249,52 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
           </div>
 
           {step === 1 ? (
-            <div key="round-step-1" className="space-y-6">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="text-sm font-semibold text-slate-800">
-                      Round Type
-                    </div>
-                    <p className="mt-1 text-xs text-slate-500">
-                      Enable BYE when no battle was played.
-                    </p>
+            <div key="round-step-1" className="space-y-4">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <div>
+                  <div className="text-sm font-semibold text-slate-800">
+                    Round Type
                   </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsBye((value) => {
-                          const next = !value;
-                          if (next) {
-                            setSelectedOpponentLeaderId(undefined);
-                            setWon(true);
-                          }
-                          return next;
-                        });
-                      }}
-                      className={`relative inline-flex h-12 w-28 shrink-0 rounded-full p-1 transition-colors duration-200 ${
-                        isBye ? "bg-emerald-600" : "bg-slate-400"
-                      }`}
-                    >
-                      <span
-                        className={`absolute inset-y-0 left-0 flex w-1/2 items-center justify-center text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-white transition-opacity duration-200 ${
-                          isBye ? "opacity-100" : "opacity-0"
-                        }`}
-                      >
-                        BYE
-                      </span>
-                      <span
-                        className={`absolute inset-y-0 right-0 flex w-1/2 items-center justify-center text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-white transition-opacity duration-200 ${
-                          isBye ? "opacity-0" : "opacity-100"
-                        }`}
-                      >
-                        Off
-                      </span>
-                      <span
-                        className={`absolute left-1 top-1 h-10 w-10 rounded-full bg-white shadow transition-transform duration-200 ease-out ${
-                          isBye ? "translate-x-14" : "translate-x-0"
-                        }`}
-                      />
-                    </button>
-                  </div>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Swiss is the default — use BYE when no battle was played.
+                  </p>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsBye(false)}
+                    className={`rounded-md border px-2 py-2.5 text-sm font-medium transition ${
+                      !isBye
+                        ? "border-blue-400 bg-blue-50 text-blue-700"
+                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    Swiss
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsBye(true);
+                      setSelectedOpponentLeaderId(undefined);
+                      setWon(true);
+                    }}
+                    className={`rounded-md border px-2 py-2.5 text-sm font-medium transition ${
+                      isBye
+                        ? "border-blue-400 bg-blue-50 text-blue-700"
+                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    BYE
+                  </button>
+                  <button
+                    type="button"
+                    disabled
+                    title="Top Cut tracking is coming soon"
+                    aria-disabled="true"
+                    className="rounded-md border border-slate-200 bg-slate-100 px-2 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed"
+                  >
+                    Top Cut
+                  </button>
                 </div>
               </div>
 
@@ -294,7 +311,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
               </button>
             </div>
           ) : step === 2 ? (
-            <div key="round-step-2" className="space-y-6">
+            <div key="round-step-2" className="space-y-4">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div>
                   <div className="text-sm font-semibold text-slate-800">
@@ -433,142 +450,131 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
               </div>
             </div>
           ) : (
-            <div key="round-step-3" className="space-y-6">
+            <div key="round-step-3" className="space-y-4">
               {!isBye ? (
-                <div className="space-y-3">
-                  <div>
-                    <div className="text-sm font-semibold text-slate-800">
-                      Round Details
-                    </div>
-                    <p className="text-xs text-slate-500">
-                      Record result, coin flip, and turn order.
-                    </p>
+                <div className="space-y-2">
+                  <div className="text-sm font-semibold text-slate-800">
+                    Round Details
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <div className="text-sm font-medium text-slate-700">
-                            Round Result
-                          </div>
-                          <p className="mt-1 text-xs text-slate-500">
-                            Toggle to record win or loss.
-                          </p>
-                        </div>
+                  <div className="divide-y divide-slate-200 md:grid md:grid-cols-3 md:divide-x md:divide-y-0">
+                    <div className="pb-3 md:px-3 md:pb-0 md:first:pl-0 md:last:pr-0">
+                      <div className="text-sm font-medium text-slate-700">
+                        Coin Flip
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setWon((value) => !value)}
-                          className={`relative inline-flex h-12 w-28 shrink-0 rounded-full p-1 transition-colors duration-200 ${
-                            won ? "bg-emerald-600" : "bg-rose-500"
+                          onClick={() => setWonCoinFlip(false)}
+                          className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
+                            !wonCoinFlip
+                              ? "border-blue-400 bg-blue-50 text-blue-700"
+                              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                           }`}
                         >
-                          <span
-                            className={`absolute inset-y-0 left-0 flex w-1/2 items-center justify-center text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-white transition-opacity duration-200 ${
-                              won ? "opacity-100" : "opacity-0"
-                            }`}
-                          >
-                            Won
-                          </span>
-                          <span
-                            className={`absolute inset-y-0 right-0 flex w-1/2 items-center justify-center text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-white transition-opacity duration-200 ${
-                              won ? "opacity-0" : "opacity-100"
-                            }`}
-                          >
-                            Lost
-                          </span>
-                          <span
-                            className={`absolute left-1 top-1 h-10 w-10 rounded-full bg-white shadow transition-transform duration-200 ease-out ${
-                              won ? "translate-x-14" : "translate-x-0"
-                            }`}
+                          <RoundBadgeIcon
+                            text="✕"
+                            className="bg-slate-200 text-slate-500"
                           />
+                          Lost
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWonCoinFlip(true)}
+                          className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
+                            wonCoinFlip
+                              ? "border-blue-400 bg-blue-50 text-blue-700"
+                              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                          }`}
+                        >
+                          <RoundBadgeIcon
+                            text="B"
+                            className="bg-amber-500 text-white"
+                          />
+                          Won
                         </button>
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <div className="text-sm font-medium text-slate-700">
-                            Coin Flip
-                          </div>
-                          <p className="mt-1 text-xs text-slate-500">
-                            Toggle to record the coin flip result.
-                          </p>
-                        </div>
+                    <div className="py-3 md:px-3 md:py-0 md:first:pl-0 md:last:pr-0">
+                      <div className="text-sm font-medium text-slate-700">
+                        Turn Order
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setWonCoinFlip((value) => !value)}
-                          className={`relative inline-flex h-12 w-28 shrink-0 rounded-full p-1 transition-colors duration-200 ${
-                            wonCoinFlip ? "bg-blue-600" : "bg-rose-500"
+                          onClick={() => setIsFirst(true)}
+                          className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
+                            isFirst
+                              ? "border-blue-400 bg-blue-50 text-blue-700"
+                              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                           }`}
                         >
-                          <span
-                            className={`absolute inset-y-0 left-0 flex w-1/2 items-center justify-center text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-white transition-opacity duration-200 ${
-                              wonCoinFlip ? "opacity-100" : "opacity-0"
-                            }`}
-                          >
-                            Won
-                          </span>
-                          <span
-                            className={`absolute inset-y-0 right-0 flex w-1/2 items-center justify-center text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-white transition-opacity duration-200 ${
-                              wonCoinFlip ? "opacity-0" : "opacity-100"
-                            }`}
-                          >
-                            Lost
-                          </span>
-                          <span
-                            className={`absolute left-1 top-1 h-10 w-10 rounded-full bg-white shadow transition-transform duration-200 ease-out ${
-                              wonCoinFlip ? "translate-x-14" : "translate-x-0"
-                            }`}
+                          <RoundBadgeIcon
+                            text="1"
+                            className="bg-slate-400 text-white"
                           />
+                          1st
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsFirst(false)}
+                          className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
+                            !isFirst
+                              ? "border-blue-400 bg-blue-50 text-blue-700"
+                              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                          }`}
+                        >
+                          <RoundBadgeIcon
+                            text="2"
+                            className="bg-slate-400 text-white"
+                          />
+                          2nd
                         </button>
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <div className="text-sm font-medium text-slate-700">
-                            Turn Order
-                          </div>
-                          <p className="mt-1 text-xs text-slate-500">
-                            Choose whether you played first or second.
-                          </p>
-                        </div>
+                    <div className="pt-3 md:px-3 md:pt-0 md:first:pl-0 md:last:pr-0">
+                      <div className="text-sm font-medium text-slate-700">
+                        Round Result
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setIsFirst((value) => !value)}
-                          className={`relative inline-flex h-12 w-28 shrink-0 rounded-full p-1 transition-colors duration-200 ${
-                            isFirst ? "bg-amber-500" : "bg-sky-500"
+                          onClick={() => setWon(false)}
+                          className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
+                            !won
+                              ? "border-blue-400 bg-blue-50 text-blue-700"
+                              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                           }`}
                         >
-                          <span
-                            className={`absolute inset-y-0 left-0 flex w-1/2 items-center justify-center text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-white transition-opacity duration-200 ${
-                              isFirst ? "opacity-100" : "opacity-0"
-                            }`}
-                          >
-                            1st
-                          </span>
-                          <span
-                            className={`absolute inset-y-0 right-0 flex w-1/2 items-center justify-center text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-white transition-opacity duration-200 ${
-                              isFirst ? "opacity-0" : "opacity-100"
-                            }`}
-                          >
-                            2nd
-                          </span>
-                          <span
-                            className={`absolute left-1 top-1 h-10 w-10 rounded-full bg-white shadow transition-transform duration-200 ease-out ${
-                              isFirst ? "translate-x-14" : "translate-x-0"
-                            }`}
+                          <RoundBadgeIcon
+                            text="L"
+                            className="bg-red-500 text-white"
                           />
+                          Lost
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWon(true)}
+                          className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
+                            won
+                              ? "border-blue-400 bg-blue-50 text-blue-700"
+                              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                          }`}
+                        >
+                          <RoundBadgeIcon
+                            text="W"
+                            className="bg-emerald-500 text-white"
+                          />
+                          Won
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
                   <div className="text-sm font-semibold text-emerald-800">
                     BYE Round Summary
                   </div>
