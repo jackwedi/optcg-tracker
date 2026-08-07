@@ -21,8 +21,8 @@ const COIN_FLIP_FILTERS: CoinFlipFilter[] = ["All", "Won", "Lost"];
 type PerformanceTab = "overview" | "leaders" | "tournaments";
 const PERFORMANCE_TABS: { key: PerformanceTab; label: string }[] = [
   { key: "overview", label: "Overview" },
-  { key: "leaders", label: "Leaders" },
   { key: "tournaments", label: "Tournaments" },
+  { key: "leaders", label: "Leaders" },
 ];
 
 interface PerformanceOverviewProps {
@@ -119,8 +119,7 @@ export function PerformanceOverview({
       wins,
       coinFlipWins,
       winRate: totalRounds > 0 ? (wins / totalRounds) * 100 : 0,
-      coinFlipWinRate:
-        totalRounds > 0 ? (coinFlipWins / totalRounds) * 100 : 0,
+      coinFlipWinRate: totalRounds > 0 ? (coinFlipWins / totalRounds) * 100 : 0,
     };
   }, [filteredTournaments]);
 
