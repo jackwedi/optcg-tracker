@@ -18,14 +18,14 @@ export function CreateTournamentCard() {
       >
         <div className="flex items-center gap-4">
           <span
-            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-300 text-2xl shadow-sm"
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-2xl shadow-sm"
             aria-hidden="true"
           >
-            🏆
+            ⚔️
           </span>
           <div>
             <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-              Create Tournament
+              Log Tournament
             </h2>
             <p className="mt-0.5 text-sm text-slate-600">
               Log a new tournament and start tracking your performance.

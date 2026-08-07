@@ -28,7 +28,7 @@ export default async function TournamentsPage() {
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">No tournaments yet.</p>
           <Link href="/" className="text-blue-600 hover:underline">
-            Create your first tournament
+            Log your first tournament
           </Link>
         </div>
       )}
