@@ -3,8 +3,17 @@
 import { useState } from "react";
 import { TournamentForm } from "@/components/TournamentForm";
 
-export function CreateTournamentCard() {
-  const [open, setOpen] = useState(true);
+interface CreateTournamentCardProps {
+  // Folded by default when there's already an ongoing tournament (today's
+  // tournament banner is showing) — that's the more relevant action then,
+  // so this card shouldn't compete for attention wide open.
+  defaultOpen?: boolean;
+}
+
+export function CreateTournamentCard({
+  defaultOpen = true,
+}: CreateTournamentCardProps) {
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <div className="mb-8 overflow-hidden rounded-2xl border-2 border-blue-100 bg-gradient-to-br from-blue-50 via-white to-white shadow-md">

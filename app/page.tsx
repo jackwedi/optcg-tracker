@@ -26,7 +26,7 @@ export default async function Home() {
         ) : null}
 
         <div className="w-full">
-          <CreateTournamentCard />
+          <CreateTournamentCard defaultOpen={!todaysTournament} />
         </div>
 
         <div className="w-full">
