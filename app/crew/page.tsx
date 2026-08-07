@@ -1,6 +1,7 @@
 import {
   AuthPanel,
   CreateOrJoinCrewCard,
+  CrewInviteCode,
   CrewLeaderboardTable,
   CrewRankProgress,
   LeaveCrewButton,
@@ -37,20 +38,17 @@ export default async function CrewPage() {
     return (
       <main className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-3xl space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <h1 className="text-3xl font-bold text-slate-900">
-              {crew.name}
-            </h1>
-            <LeaveCrewButton />
-          </div>
-          <p className="text-sm text-slate-500">
-            Share this code so friends can join:{" "}
-            <span className="font-mono font-semibold tracking-widest text-slate-900">
-              {crew.id}
-            </span>
-          </p>
+          <h1 className="text-3xl font-bold text-slate-900">{crew.name}</h1>
+          <CrewInviteCode code={crew.id} />
           <CrewRankProgress totalWins={leaderboard?.totalWins ?? 0} />
           <CrewLeaderboardTable entries={leaderboard?.entries ?? []} />
+
+          {/* Destructive/exit action, deliberately at the bottom — out of
+              the way of routine info, matching the tournament detail
+              page's delete-button placement. */}
+          <div className="flex justify-end border-t border-slate-200 pt-6">
+            <LeaveCrewButton />
+          </div>
         </div>
       </main>
     );

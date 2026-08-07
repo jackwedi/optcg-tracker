@@ -26,6 +26,7 @@ export { CreateTournamentCard } from "./CreateTournamentCard";
 export { TodayTournamentBanner } from "./TodayTournamentBanner";
 export { RecentTournaments } from "./RecentTournaments";
 export { CreateOrJoinCrewCard } from "./CreateOrJoinCrewCard";
+export { CrewInviteCode } from "./CrewInviteCode";
 export { CrewLeaderboardTable } from "./CrewLeaderboardTable";
 export { CrewRankProgress } from "./CrewRankProgress";
 export { LeaveCrewButton } from "./LeaveCrewButton";
