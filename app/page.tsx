@@ -5,10 +5,15 @@ import {
   TournamentListCard,
 } from "@/components";
 import { getTournaments } from "@/lib/db";
+import { getLeaders } from "@/lib/leaders";
 import { isToday } from "@/lib/utils";
 
 export default async function Home() {
-  const tournaments = await getTournaments();
+  const [tournaments, leaders] = await Promise.all([
+    getTournaments(),
+    getLeaders(),
+  ]);
+  const leadersById = Object.fromEntries(leaders.map((l) => [l.id, l]));
   const todaysTournament = tournaments.find((t) => isToday(t.date));
 
   return (
@@ -29,7 +34,10 @@ export default async function Home() {
         </div>
 
         <div className="w-full">
-          <TournamentListCard tournaments={tournaments} />
+          <TournamentListCard
+            tournaments={tournaments}
+            leadersById={leadersById}
+          />
         </div>
       </div>
     </main>
