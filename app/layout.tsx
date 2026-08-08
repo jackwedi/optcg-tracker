@@ -45,7 +45,7 @@ export default function RootLayout({
                     href="/tournaments"
                     className="text-gray-600 hover:text-gray-900"
                   >
-                    📈 Performance
+                    📈 Stats
                   </Link>
 
                   <Link
