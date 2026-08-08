@@ -1,0 +1,217 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  TOURNAMENT_TYPES,
+  type TournamentType,
+} from "@/models/tournament";
+import { SpinnerIcon } from "@/components/SpinnerIcon";
+
+function EditIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      stroke="none"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="5" cy="12" r="1.75" />
+      <circle cx="12" cy="12" r="1.75" />
+      <circle cx="19" cy="12" r="1.75" />
+    </svg>
+  );
+}
+
+interface EditTournamentButtonProps {
+  tournamentId: string;
+  name: string;
+  date: string;
+  tournamentType: TournamentType;
+}
+
+export function EditTournamentButton({
+  tournamentId,
+  name,
+  date,
+  tournamentType,
+}: EditTournamentButtonProps) {
+  const [editing, setEditing] = useState(false);
+  const [editedName, setEditedName] = useState(name);
+  const [editedDate, setEditedDate] = useState(date);
+  const [selectedType, setSelectedType] =
+    useState<TournamentType>(tournamentType);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const openEditor = () => {
+    setEditedName(name);
+    setEditedDate(date);
+    setSelectedType(tournamentType);
+    setError("");
+    setEditing(true);
+  };
+
+  const handleCancel = () => {
+    setEditing(false);
+    setError("");
+  };
+
+  const handleSave = async () => {
+    if (!editedName.trim()) {
+      setError("Tournament name is required.");
+      return;
+    }
+    if (!editedDate) {
+      setError("Date is required.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+
+    try {
+      const res = await fetch(`/api/tournaments/${tournamentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editedName.trim(),
+          date: editedDate,
+          tournamentType: selectedType,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update tournament");
+
+      setEditing(false);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={openEditor}
+        aria-label="Edit tournament"
+        title="Edit tournament"
+        className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 transition hover:bg-slate-100 sm:h-10 sm:w-10"
+      >
+        <EditIcon className="h-4 w-4 text-slate-600 sm:h-5 sm:w-5" />
+      </button>
+
+      {editing ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Edit tournament"
+          onClick={handleCancel}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-xl sm:p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-slate-900">
+                Edit Tournament
+              </h3>
+              <button
+                type="button"
+                onClick={handleCancel}
+                aria-label="Close"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <label className="block text-sm text-slate-700">
+                <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                  Name
+                </span>
+                <input
+                  type="text"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  disabled={saving}
+                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </label>
+
+              <label className="block text-sm text-slate-700">
+                <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                  Date
+                </span>
+                <input
+                  type="date"
+                  value={editedDate}
+                  onChange={(e) => setEditedDate(e.target.value)}
+                  disabled={saving}
+                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </label>
+
+              <label className="block text-sm text-slate-700">
+                <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                  Type
+                </span>
+                <select
+                  value={selectedType}
+                  onChange={(e) =>
+                    setSelectedType(e.target.value as TournamentType)
+                  }
+                  disabled={saving}
+                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  {TOURNAMENT_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            {error ? (
+              <p className="mt-2 text-xs text-rose-600">{error}</p>
+            ) : null}
+
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={saving}
+                className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving}
+                className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {saving ? (
+                  <>
+                    <SpinnerIcon className="h-3.5 w-3.5" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+}

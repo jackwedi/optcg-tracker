@@ -1,6 +1,6 @@
 export { TournamentForm } from "./TournamentForm";
 export { PerformanceOverview } from "./PerformanceOverview";
-export { TournamentTypeEditor } from "./TournamentTypeEditor";
+export { EditTournamentButton } from "./EditTournamentButton";
 export { WinRateProgressionChart } from "./WinRateProgressionChart";
 export { LeaderMatchups } from "./LeaderMatchups";
 export { StatMeter, StatMeterContent } from "./StatMeter";

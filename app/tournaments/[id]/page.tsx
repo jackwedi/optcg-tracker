@@ -1,6 +1,7 @@
 import { getTournamentById, getTournamentStats } from "@/lib/db";
 import { getLeaderById, BYE_LEADER_ID } from "@/lib/leaders";
 import { getMetaById } from "@/lib/meta";
+import { getTournamentTypeIcon } from "@/models/tournament";
 import LeaderThumbnail from "@/components/LeaderThumbnail";
 import { colorToHex } from "@/components/LeaderColorDots";
 import Link from "next/link";
@@ -8,7 +9,7 @@ import { RoundForm } from "@/components/RoundForm";
 import { RoundList } from "@/components/RoundList";
 import { DeleteTournamentButton } from "@/components/DeleteTournamentButton";
 import { ShareTournamentButton } from "@/components/ShareTournamentButton";
-import { TournamentTypeEditor } from "@/components/TournamentTypeEditor";
+import { EditTournamentButton } from "@/components/EditTournamentButton";
 import { getShortLeaderName } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
@@ -75,6 +76,12 @@ export default async function TournamentDetailPage({ params }: Props) {
           <span className="hidden sm:inline">Back to Tournaments</span>
         </Link>
         <div className="flex shrink-0 items-center gap-1.5">
+          <EditTournamentButton
+            tournamentId={id}
+            name={tournament.name}
+            date={tournament.date}
+            tournamentType={tournament.tournamentType}
+          />
           <ShareTournamentButton
             tournamentId={id}
             tournamentName={tournament.name}
@@ -97,12 +104,12 @@ export default async function TournamentDetailPage({ params }: Props) {
               {meta.extensions.join(" / ")}
             </span>
           ) : null}
-          <TournamentTypeEditor
-            tournamentId={id}
-            name={tournament.name}
-            date={tournament.date}
-            tournamentType={tournament.tournamentType}
-          />
+          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 sm:text-xs">
+            <span role="img" aria-hidden="true">
+              {getTournamentTypeIcon(tournament.tournamentType)}
+            </span>
+            <span>{tournament.tournamentType}</span>
+          </span>
         </div>
 
         {/* Played leader (image + color bar, name below, same idea as an
