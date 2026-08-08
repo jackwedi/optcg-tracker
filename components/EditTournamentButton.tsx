@@ -43,6 +43,7 @@ export function EditTournamentButton({
   const [selectedType, setSelectedType] =
     useState<TournamentType>(tournamentType);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -57,6 +58,28 @@ export function EditTournamentButton({
   const handleCancel = () => {
     setEditing(false);
     setError("");
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this tournament?")) return;
+
+    setDeleting(true);
+    setError("");
+
+    try {
+      const res = await fetch(`/api/tournaments/${tournamentId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Failed to delete tournament");
+
+      router.push("/");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to delete tournament",
+      );
+      setDeleting(false);
+    }
   };
 
   const handleSave = async () => {
@@ -125,8 +148,9 @@ export function EditTournamentButton({
               <button
                 type="button"
                 onClick={handleCancel}
+                disabled={saving || deleting}
                 aria-label="Close"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
               >
                 ✕
               </button>
@@ -141,7 +165,7 @@ export function EditTournamentButton({
                   type="text"
                   value={editedName}
                   onChange={(e) => setEditedName(e.target.value)}
-                  disabled={saving}
+                  disabled={saving || deleting}
                   className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
               </label>
@@ -154,7 +178,7 @@ export function EditTournamentButton({
                   type="date"
                   value={editedDate}
                   onChange={(e) => setEditedDate(e.target.value)}
-                  disabled={saving}
+                  disabled={saving || deleting}
                   className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
               </label>
@@ -168,7 +192,7 @@ export function EditTournamentButton({
                   onChange={(e) =>
                     setSelectedType(e.target.value as TournamentType)
                   }
-                  disabled={saving}
+                  disabled={saving || deleting}
                   className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 >
                   {TOURNAMENT_TYPES.map((type) => (
@@ -186,30 +210,41 @@ export function EditTournamentButton({
               </p>
             ) : null}
 
-            <div className="mt-4 flex justify-end gap-2">
+            <div className="mt-5 flex items-center justify-between gap-2 border-t border-slate-200 pt-4 dark:border-slate-700">
               <button
                 type="button"
-                onClick={handleCancel}
-                disabled={saving}
-                className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                onClick={handleDelete}
+                disabled={saving || deleting}
+                className="rounded-md border border-red-200 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-800 dark:bg-slate-800 dark:text-red-400 dark:hover:bg-red-500/10"
               >
-                Cancel
+                {deleting ? "Deleting..." : "Delete Tournament"}
               </button>
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-sky-800 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
-              >
-                {saving ? (
-                  <>
-                    <SpinnerIcon className="h-3.5 w-3.5" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save"
-                )}
-              </button>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  disabled={saving || deleting}
+                  className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving || deleting}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-sky-800 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
+                >
+                  {saving ? (
+                    <>
+                      <SpinnerIcon className="h-3.5 w-3.5" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

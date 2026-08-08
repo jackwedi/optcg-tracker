@@ -7,7 +7,6 @@ import { colorToHex } from "@/components/LeaderColorDots";
 import Link from "next/link";
 import { RoundForm } from "@/components/RoundForm";
 import { RoundList } from "@/components/RoundList";
-import { DeleteTournamentButton } from "@/components/DeleteTournamentButton";
 import { ShareTournamentButton } from "@/components/ShareTournamentButton";
 import { EditTournamentButton } from "@/components/EditTournamentButton";
 import { getShortLeaderName } from "@/lib/utils";
@@ -215,13 +214,6 @@ export default async function TournamentDetailPage({ params }: Props) {
 
         <div className="w-full">
           <RoundForm tournamentId={id} />
-        </div>
-
-        {/* Destructive action, deliberately at the bottom — out of the
-            way of everything else on the page, requiring a scroll to
-            reach rather than sitting next to routine actions up top. */}
-        <div className="flex justify-end border-t border-slate-200 pt-4 dark:border-slate-700">
-          <DeleteTournamentButton tournamentId={id} />
         </div>
       </div>
     </main>
