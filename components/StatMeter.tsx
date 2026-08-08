@@ -1,4 +1,4 @@
-interface StatMeterProps {
+interface StatMeterContentProps {
   label: string;
   value: number;
   detail: string;
@@ -7,18 +7,21 @@ interface StatMeterProps {
   valueClassName: string;
 }
 
-export function StatMeter({
+// The label/value/bar/detail block on its own, no card chrome — reused by
+// StatMeter (standalone card, below) and by grouped cards that need two
+// or more meters sharing a single outer border, e.g. StartingPositionStats.
+export function StatMeterContent({
   label,
   value,
   detail,
   trackClassName,
   fillClassName,
   valueClassName,
-}: StatMeterProps) {
+}: StatMeterContentProps) {
   const clamped = Math.min(100, Math.max(0, value));
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div>
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-sm font-medium text-slate-600">{label}</p>
         <p className={`text-2xl font-semibold ${valueClassName}`}>
@@ -34,6 +37,14 @@ export function StatMeter({
         />
       </div>
       <p className="mt-2 text-xs text-slate-500">{detail}</p>
+    </div>
+  );
+}
+
+export function StatMeter(props: StatMeterContentProps) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <StatMeterContent {...props} />
     </div>
   );
 }

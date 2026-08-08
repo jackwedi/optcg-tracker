@@ -8,8 +8,10 @@ import type { ExtensionMeta } from "@/models/meta";
 import { TournamentTable } from "@/components/TournamentTable";
 import { LeaderColorDots } from "@/components/LeaderColorDots";
 import { StatMeter } from "@/components/StatMeter";
+import { StartingPositionStats } from "@/components/StartingPositionStats";
 import { WinRateProgressionChart } from "@/components/WinRateProgressionChart";
 import { PlayedLeaderRepartition } from "@/components/PlayedLeaderRepartition";
+import { BYE_LEADER_ID } from "@/lib/leaders";
 
 const ALL_LEADERS = "All";
 const ALL_TYPES = "All";
@@ -120,6 +122,39 @@ export function PerformanceOverview({
       coinFlipWins,
       winRate: totalRounds > 0 ? (wins / totalRounds) * 100 : 0,
       coinFlipWinRate: totalRounds > 0 ? (coinFlipWins / totalRounds) * 100 : 0,
+    };
+  }, [filteredTournaments]);
+
+  // Excludes BYE rounds — those always store "1st" as a data-modeling
+  // default (no real going-first decision was made), so counting them
+  // would skew the going-1st win rate artificially high.
+  const startingPositionStats = useMemo(() => {
+    let firstRounds = 0;
+    let firstWins = 0;
+    let secondRounds = 0;
+    let secondWins = 0;
+
+    for (const tournament of filteredTournaments) {
+      for (const round of tournament.rounds) {
+        if (round.opponentLeaderId === BYE_LEADER_ID) continue;
+
+        if (round.startingPosition === "1st") {
+          firstRounds += 1;
+          if (round.won) firstWins += 1;
+        } else {
+          secondRounds += 1;
+          if (round.won) secondWins += 1;
+        }
+      }
+    }
+
+    return {
+      firstRounds,
+      firstWins,
+      firstWinRate: firstRounds > 0 ? (firstWins / firstRounds) * 100 : 0,
+      secondRounds,
+      secondWins,
+      secondWinRate: secondRounds > 0 ? (secondWins / secondRounds) * 100 : 0,
     };
   }, [filteredTournaments]);
 
@@ -318,6 +353,17 @@ export function PerformanceOverview({
               trackClassName="bg-amber-100"
               fillClassName="bg-amber-500"
               valueClassName="text-amber-600"
+            />
+          </div>
+
+          <div className="mb-6">
+            <StartingPositionStats
+              firstWinRate={startingPositionStats.firstWinRate}
+              firstWins={startingPositionStats.firstWins}
+              firstRounds={startingPositionStats.firstRounds}
+              secondWinRate={startingPositionStats.secondWinRate}
+              secondWins={startingPositionStats.secondWins}
+              secondRounds={startingPositionStats.secondRounds}
             />
           </div>
 
