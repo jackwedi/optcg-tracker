@@ -1,22 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { Tournament } from "@/models/tournament";
 import { TOURNAMENT_TYPES } from "@/models/tournament";
 import type { Leader } from "@/models/leader";
 import type { ExtensionMeta } from "@/models/meta";
-import { LeaderColorDots } from "@/components/LeaderColorDots";
+import LeaderThumbnail from "@/components/LeaderThumbnail";
+import { colorToHex } from "@/components/LeaderColorDots";
 import { StatMeter } from "@/components/StatMeter";
 import { StartingPositionStats } from "@/components/StartingPositionStats";
 import { WinRateProgressionChart } from "@/components/WinRateProgressionChart";
 import { LeaderMatchups } from "@/components/LeaderMatchups";
 import { BYE_LEADER_ID } from "@/lib/leaders";
+import { getShortLeaderName } from "@/lib/utils";
 
 const ALL_LEADERS = "All";
 const ALL_TYPES = "All";
-
-type CoinFlipFilter = "All" | "Won" | "Lost";
-const COIN_FLIP_FILTERS: CoinFlipFilter[] = ["All", "Won", "Lost"];
 
 type PerformanceTab = "overview" | "matchups";
 const PERFORMANCE_TABS: { key: PerformanceTab; label: string }[] = [
@@ -40,10 +39,26 @@ export function PerformanceOverview({
   metas,
 }: PerformanceOverviewProps) {
   const [activeTab, setActiveTab] = useState<PerformanceTab>("overview");
-  const [leaderFilter, setLeaderFilter] = useState(ALL_LEADERS);
+  // Leader and Meta are the filters people reach for most, so they default
+  // to whatever's most current instead of "All" — the most recent
+  // tournament (tournaments is already sorted newest-first) that actually
+  // set one. Falls back to "All" if nothing qualifies (e.g. no tournament
+  // has a leader/meta set yet).
+  const [leaderFilter, setLeaderFilter] = useState<string>(() => {
+    const lastLeaderId = tournaments.find(
+      (t) => t.playedLeaderId,
+    )?.playedLeaderId;
+    return lastLeaderId && leadersById[lastLeaderId]
+      ? lastLeaderId
+      : ALL_LEADERS;
+  });
   const [typeFilter, setTypeFilter] = useState(ALL_TYPES);
-  const [coinFlipFilter, setCoinFlipFilter] = useState<CoinFlipFilter>("All");
-  const [metaFilter, setMetaFilter] = useState<string[]>([]);
+  const [metaFilter, setMetaFilter] = useState<string[]>(() => {
+    const lastMetaId = tournaments.find((t) => t.metaId)?.metaId;
+    return lastMetaId && metas.some((m) => m.id === lastMetaId)
+      ? [lastMetaId]
+      : [];
+  });
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
   const usedLeaders = useMemo(() => {
@@ -65,16 +80,96 @@ export function PerformanceOverview({
     return metas.filter((meta) => usedIds.has(meta.id));
   }, [tournaments, metas]);
 
-  const toggleMeta = (metaId: string) => {
-    setMetaFilter((current) =>
-      current.includes(metaId)
-        ? current.filter((id) => id !== metaId)
-        : [...current, metaId],
+  // Scoped to whichever meta chip(s) are active — "most played" ranking
+  // for the leader list below is relative to the current meta, not the
+  // account's whole history, since a leader's usage is expected to shift
+  // meta to meta.
+  const getMetaScopedTournaments = useCallback(
+    (metaIds: string[]) =>
+      metaIds.length === 0
+        ? tournaments
+        : tournaments.filter((t) => t.metaId && metaIds.includes(t.metaId)),
+    [tournaments],
+  );
+
+  const metaScopedTournaments = useMemo(
+    () => getMetaScopedTournaments(metaFilter),
+    [metaFilter, getMetaScopedTournaments],
+  );
+
+  const leaderPlayCountInMeta = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const tournament of metaScopedTournaments) {
+      if (!tournament.playedLeaderId) continue;
+      counts.set(
+        tournament.playedLeaderId,
+        (counts.get(tournament.playedLeaderId) ?? 0) + 1,
+      );
+    }
+    return counts;
+  }, [metaScopedTournaments]);
+
+  // Only leaders actually played within the current meta scope appear in
+  // the filter at all — otherwise a leader with zero plays there could
+  // still show up as a dead-end selection. Sorted by plays within the
+  // current meta scope (ties broken alphabetically) so whoever's used
+  // most sits first. toggleMeta already resets the leader filter away
+  // from a leader that no longer qualifies when meta changes, so the
+  // active selection is always present in this list.
+  const metaLeaders = useMemo(() => {
+    return usedLeaders
+      .filter((leader) => (leaderPlayCountInMeta.get(leader.id) ?? 0) > 0)
+      .sort((a, b) => {
+        const diff =
+          (leaderPlayCountInMeta.get(b.id) ?? 0) -
+          (leaderPlayCountInMeta.get(a.id) ?? 0);
+        return diff !== 0 ? diff : a.name.localeCompare(b.name);
+      });
+  }, [usedLeaders, leaderPlayCountInMeta]);
+
+  // getShortLeaderName collapses to just the last capitalized word, so two
+  // different printings of the same character (different set/card id, e.g.
+  // alt art) can land on an identical short name. When that happens for the
+  // leaders actually shown, prefix the chip with the card's set code (the
+  // part of the id before the first "-") so the chips stay distinguishable.
+  const duplicateShortNames = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const leader of metaLeaders) {
+      const shortName = getShortLeaderName(leader.name);
+      counts.set(shortName, (counts.get(shortName) ?? 0) + 1);
+    }
+    return new Set(
+      Array.from(counts.entries())
+        .filter(([, count]) => count > 1)
+        .map(([shortName]) => shortName),
     );
+  }, [metaLeaders]);
+
+  const toggleMeta = (metaId: string) => {
+    setMetaFilter((current) => {
+      const next = current.includes(metaId)
+        ? current.filter((id) => id !== metaId)
+        : [...current, metaId];
+
+      // A leader that was never played in the meta(s) you just switched to
+      // is a dead-end filter combination (it'd always show zero results),
+      // so drop it back to "All Leaders" instead of leaving it selected
+      // and invisible.
+      if (leaderFilter !== ALL_LEADERS) {
+        const stillPlayed = getMetaScopedTournaments(next).some(
+          (t) => t.playedLeaderId === leaderFilter,
+        );
+        if (!stillPlayed) {
+          setLeaderFilter(ALL_LEADERS);
+        }
+      }
+
+      return next;
+    });
   };
 
   const filteredTournaments = useMemo(() => {
-    const base = tournaments.filter((t) => {
+    return tournaments.filter((t) => {
       if (leaderFilter !== ALL_LEADERS && t.playedLeaderId !== leaderFilter) {
         return false;
       }
@@ -89,18 +184,7 @@ export function PerformanceOverview({
       }
       return true;
     });
-
-    if (coinFlipFilter === "All") return base;
-
-    return base
-      .map((t) => ({
-        ...t,
-        rounds: t.rounds.filter((r) =>
-          coinFlipFilter === "Won" ? r.wonCoinFlip : !r.wonCoinFlip,
-        ),
-      }))
-      .filter((t) => t.rounds.length > 0);
-  }, [tournaments, leaderFilter, typeFilter, metaFilter, coinFlipFilter]);
+  }, [tournaments, leaderFilter, typeFilter, metaFilter]);
 
   const aggregateStats = useMemo(() => {
     let totalRounds = 0;
@@ -155,42 +239,113 @@ export function PerformanceOverview({
     };
   }, [filteredTournaments]);
 
-  const moreFiltersActiveCount =
-    (typeFilter !== ALL_TYPES ? 1 : 0) +
-    (coinFlipFilter !== "All" ? 1 : 0) +
-    (leaderFilter !== ALL_LEADERS ? 1 : 0);
+  const moreFiltersActiveCount = typeFilter !== ALL_TYPES ? 1 : 0;
 
   return (
     <div>
-      {usedMetas.length > 0 ? (
-        <div className="mb-4 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setMetaFilter([])}
-            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-              metaFilter.length === 0
-                ? "border-slate-900 bg-slate-900 text-white"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            All Metas
-          </button>
-          {usedMetas.map((meta) => (
-            <button
-              key={meta.id}
-              type="button"
-              onClick={() => toggleMeta(meta.id)}
-              className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                metaFilter.includes(meta.id)
-                  ? "border-slate-900 bg-slate-900 text-white"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              {meta.extensions.join(" / ")}
-            </button>
-          ))}
-        </div>
-      ) : null}
+      {/* Leader and Meta are what people filter by most, so both stay
+          visible by default (pre-set to the most recent tournament's
+          values) instead of living behind "More Filters" — each gets its
+          own labeled group rather than an unlabeled wall of chips, the
+          usual pattern for multi-facet filters. */}
+      <div className="mb-4 space-y-3">
+        {usedMetas.length > 0 ? (
+          <div>
+            <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              Meta
+            </span>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setMetaFilter([])}
+                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                  metaFilter.length === 0
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                All Metas
+              </button>
+              {usedMetas.map((meta) => (
+                <button
+                  key={meta.id}
+                  type="button"
+                  onClick={() => toggleMeta(meta.id)}
+                  className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                    metaFilter.includes(meta.id)
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  {meta.extensions.join(" / ")}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {usedLeaders.length > 0 ? (
+          <div>
+            <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              Leader
+            </span>
+            <div className="flex flex-wrap items-start gap-2">
+              {metaLeaders.map((leader) => {
+                const leaderColors = Array.isArray(leader.colors)
+                  ? leader.colors.flat().filter(Boolean)
+                  : [];
+                const shortName = getShortLeaderName(leader.name);
+                const hasDuplicateName = duplicateShortNames.has(shortName);
+                return (
+                  <button
+                    key={leader.id}
+                    type="button"
+                    onClick={() => setLeaderFilter(leader.id)}
+                    title={leader.name}
+                    aria-label={leader.name}
+                    aria-pressed={leaderFilter === leader.id}
+                    className={`flex shrink-0 flex-col items-center gap-1 rounded-lg border-2 p-1 transition ${
+                      leaderFilter === leader.id
+                        ? "border-slate-900"
+                        : "border-transparent opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1">
+                      <LeaderThumbnail
+                        src={leader.imageUrl}
+                        alt={leader.name}
+                        className="h-16 w-12 shrink-0 rounded object-cover"
+                      />
+                      {leaderColors.length > 0 ? (
+                        <div
+                          className="flex h-16 w-1.5 shrink-0 flex-col overflow-hidden rounded-full"
+                          aria-hidden="true"
+                        >
+                          {leaderColors.slice(0, 2).map((color, i) => (
+                            <span
+                              key={color + i}
+                              className="flex-1"
+                              style={{ backgroundColor: colorToHex(color) }}
+                            />
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                    <span className="max-w-[4.5rem] truncate text-xs font-medium text-slate-700">
+                      {hasDuplicateName ? (
+                        <span className="mr-0.5 text-[10px] font-normal text-slate-400">
+                          {leader.id.split("-")[0]}
+                        </span>
+                      ) : null}
+                      {shortName}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+      </div>
 
       <button
         type="button"
@@ -222,85 +377,59 @@ export function PerformanceOverview({
 
       {showMoreFilters ? (
         <div className="mb-6 space-y-4">
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setTypeFilter(ALL_TYPES)}
-              className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                typeFilter === ALL_TYPES
-                  ? "border-slate-900 bg-slate-900 text-white"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              All Types
-            </button>
-            {TOURNAMENT_TYPES.map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setTypeFilter(type)}
-                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                  typeFilter === type
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {COIN_FLIP_FILTERS.map((filter) => (
-              <button
-                key={filter}
-                type="button"
-                onClick={() => setCoinFlipFilter(filter)}
-                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                  coinFlipFilter === filter
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                {filter === "All"
-                  ? "All Coin Flips"
-                  : filter === "Won"
-                    ? "Won Coin Flip"
-                    : "Lost Coin Flip"}
-              </button>
-            ))}
-          </div>
-
           {usedLeaders.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setLeaderFilter(ALL_LEADERS)}
-                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                  leaderFilter === ALL_LEADERS
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                All Leaders
-              </button>
-              {usedLeaders.map((leader) => (
+            <div>
+              <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                Leader
+              </span>
+              <div className="flex flex-wrap gap-2">
                 <button
-                  key={leader.id}
                   type="button"
-                  onClick={() => setLeaderFilter(leader.id)}
-                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                    leaderFilter === leader.id
+                  onClick={() => setLeaderFilter(ALL_LEADERS)}
+                  className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                    leaderFilter === ALL_LEADERS
                       ? "border-slate-900 bg-slate-900 text-white"
                       : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                   }`}
                 >
-                  <LeaderColorDots colors={leader.colors} />
-                  {leader.name}
+                  All Leaders
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <div>
+            <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              Type
+            </span>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setTypeFilter(ALL_TYPES)}
+                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                  typeFilter === ALL_TYPES
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                All Types
+              </button>
+              {TOURNAMENT_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setTypeFilter(type)}
+                  className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                    typeFilter === type
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  {type}
                 </button>
               ))}
             </div>
-          ) : null}
+          </div>
         </div>
       ) : null}
 
