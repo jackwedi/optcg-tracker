@@ -11,7 +11,7 @@ interface CreateTournamentCardProps {
 }
 
 export function CreateTournamentCard({
-  defaultOpen = true,
+  defaultOpen = false,
 }: CreateTournamentCardProps) {
   const [open, setOpen] = useState(defaultOpen);
 
@@ -33,8 +33,8 @@ export function CreateTournamentCard({
             ⚔️
           </span>
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-              Log Tournament
+            <h2 className="text-xl font-bold text-slate-900 sm:text-3xl">
+              New Tournament
             </h2>
             <p className="mt-0.5 text-sm text-slate-600">
               Log a new tournament and start tracking your performance.

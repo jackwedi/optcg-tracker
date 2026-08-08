@@ -18,6 +18,10 @@ export default async function Home() {
 
   return (
     <main className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold">🏟️ Tournaments</h1>
+      </div>
+
       <div className="space-y-8">
         <div className="w-full">
           <AuthPanel />
@@ -30,7 +34,7 @@ export default async function Home() {
         ) : null}
 
         <div className="w-full">
-          <CreateTournamentCard defaultOpen={!todaysTournament} />
+          <CreateTournamentCard defaultOpen={false} />
         </div>
 
         <div className="w-full">
