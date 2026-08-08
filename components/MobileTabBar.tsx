@@ -14,7 +14,7 @@ export function MobileTabBar() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] dark:border-slate-700 dark:bg-slate-800 sm:hidden"
       aria-label="Primary"
     >
       <div className="flex items-stretch justify-around">
@@ -28,7 +28,9 @@ export function MobileTabBar() {
               href={link.href}
               aria-current={isActive ? "page" : undefined}
               className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium transition ${
-                isActive ? "text-slate-900" : "text-slate-500"
+                isActive
+                  ? "text-slate-900 dark:text-slate-50"
+                  : "text-slate-500 dark:text-slate-400"
               }`}
             >
               <span

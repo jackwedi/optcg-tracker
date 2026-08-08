@@ -251,7 +251,7 @@ export function PerformanceOverview({
       <div className="mb-4 space-y-3">
         {usedMetas.length > 0 ? (
           <div>
-            <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+            <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
               Meta
             </span>
             <div className="flex flex-wrap gap-2">
@@ -260,8 +260,8 @@ export function PerformanceOverview({
                 onClick={() => setMetaFilter([])}
                 className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                   metaFilter.length === 0
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                 }`}
               >
                 All Metas
@@ -273,8 +273,8 @@ export function PerformanceOverview({
                   onClick={() => toggleMeta(meta.id)}
                   className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                     metaFilter.includes(meta.id)
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                      ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   }`}
                 >
                   {meta.extensions.join(" / ")}
@@ -286,7 +286,7 @@ export function PerformanceOverview({
 
         {usedLeaders.length > 0 ? (
           <div>
-            <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+            <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
               Leader
             </span>
             <div className="flex flex-wrap items-start gap-2">
@@ -306,7 +306,7 @@ export function PerformanceOverview({
                     aria-pressed={leaderFilter === leader.id}
                     className={`flex shrink-0 flex-col items-center gap-1 rounded-lg border-2 p-1 transition ${
                       leaderFilter === leader.id
-                        ? "border-slate-900"
+                        ? "border-slate-900 dark:border-slate-100"
                         : "border-transparent opacity-60 hover:opacity-100"
                     }`}
                   >
@@ -331,9 +331,9 @@ export function PerformanceOverview({
                         </div>
                       ) : null}
                     </div>
-                    <span className="max-w-[4.5rem] truncate text-xs font-medium text-slate-700">
+                    <span className="max-w-[4.5rem] truncate text-xs font-medium text-slate-700 dark:text-slate-300">
                       {hasDuplicateName ? (
-                        <span className="mr-0.5 text-[10px] font-normal text-slate-400">
+                        <span className="mr-0.5 text-[10px] font-normal text-slate-400 dark:text-slate-500">
                           {leader.id.split("-")[0]}
                         </span>
                       ) : null}
@@ -350,12 +350,12 @@ export function PerformanceOverview({
       <button
         type="button"
         onClick={() => setShowMoreFilters((value) => !value)}
-        className="mb-4 flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        className="mb-4 flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
         aria-expanded={showMoreFilters}
       >
         More Filters
         {moreFiltersActiveCount > 0 ? (
-          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-900 px-1 text-[11px] font-semibold text-white">
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-900 px-1 text-[11px] font-semibold text-white dark:bg-slate-100 dark:text-slate-900">
             {moreFiltersActiveCount}
           </span>
         ) : null}
@@ -379,7 +379,7 @@ export function PerformanceOverview({
         <div className="mb-6 space-y-4">
           {usedLeaders.length > 0 ? (
             <div>
-              <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                 Leader
               </span>
               <div className="flex flex-wrap gap-2">
@@ -388,8 +388,8 @@ export function PerformanceOverview({
                   onClick={() => setLeaderFilter(ALL_LEADERS)}
                   className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                     leaderFilter === ALL_LEADERS
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                      ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   }`}
                 >
                   All Leaders
@@ -399,7 +399,7 @@ export function PerformanceOverview({
           ) : null}
 
           <div>
-            <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+            <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
               Type
             </span>
             <div className="flex flex-wrap gap-2">
@@ -408,8 +408,8 @@ export function PerformanceOverview({
                 onClick={() => setTypeFilter(ALL_TYPES)}
                 className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                   typeFilter === ALL_TYPES
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                 }`}
               >
                 All Types
@@ -421,8 +421,8 @@ export function PerformanceOverview({
                   onClick={() => setTypeFilter(type)}
                   className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                     typeFilter === type
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                      ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   }`}
                 >
                   {type}
@@ -434,7 +434,7 @@ export function PerformanceOverview({
       ) : null}
 
       <div
-        className="mb-6 flex rounded-full border border-slate-200 bg-slate-100 p-1"
+        className="mb-6 flex rounded-full border border-slate-200 bg-slate-100 p-1 dark:border-slate-700 dark:bg-slate-900"
         role="tablist"
       >
         {PERFORMANCE_TABS.map((tab) => (
@@ -446,8 +446,8 @@ export function PerformanceOverview({
             onClick={() => setActiveTab(tab.key)}
             className={`flex-1 rounded-full px-4 py-1.5 text-sm font-medium transition ${
               activeTab === tab.key
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
+                : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50"
             }`}
           >
             {tab.label}
@@ -462,17 +462,17 @@ export function PerformanceOverview({
               label="Win Rate"
               value={aggregateStats.winRate}
               detail={`${aggregateStats.wins} / ${aggregateStats.totalRounds} rounds won`}
-              trackClassName="bg-emerald-100"
+              trackClassName="bg-emerald-100 dark:bg-emerald-500/10"
               fillClassName="bg-emerald-500"
-              valueClassName="text-emerald-600"
+              valueClassName="text-emerald-600 dark:text-emerald-400"
             />
             <StatMeter
               label="Coin Flip"
               value={aggregateStats.coinFlipWinRate}
               detail={`${aggregateStats.coinFlipWins} / ${aggregateStats.totalRounds} coin flips won`}
-              trackClassName="bg-amber-100"
+              trackClassName="bg-amber-100 dark:bg-amber-500/10"
               fillClassName="bg-amber-500"
-              valueClassName="text-amber-600"
+              valueClassName="text-amber-600 dark:text-amber-400"
             />
           </div>
 

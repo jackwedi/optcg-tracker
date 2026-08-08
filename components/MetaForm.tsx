@@ -104,7 +104,7 @@ export function MetaForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 bg-gray-50 p-4 rounded-md"
+      className="space-y-4 bg-gray-50 p-4 rounded-md dark:bg-slate-800"
     >
       <h3 className="text-lg font-semibold">
         {isEditing ? `Edit ${meta!.extensions.join(", ")}` : "Add Extension"}
@@ -142,7 +142,9 @@ export function MetaForm({
         </div>
       </div>
 
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && (
+        <p className="text-red-600 text-sm dark:text-red-400">{error}</p>
+      )}
 
       <div className="flex gap-2">
         <button
@@ -158,7 +160,7 @@ export function MetaForm({
               type="button"
               onClick={onCancel}
               disabled={loading || deleting}
-              className="py-2 px-4 rounded-md border border-gray-300 disabled:opacity-60"
+              className="py-2 px-4 rounded-md border border-gray-300 disabled:opacity-60 dark:border-slate-600"
             >
               Cancel
             </button>

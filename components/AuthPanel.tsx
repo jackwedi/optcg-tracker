@@ -106,7 +106,11 @@ export function AuthPanel() {
   };
 
   if (loading) {
-    return <div className="text-sm text-slate-500">Loading account…</div>;
+    return (
+      <div className="text-sm text-slate-500 dark:text-slate-400">
+        Loading account…
+      </div>
+    );
   }
 
   if (userEmail) {
@@ -114,22 +118,22 @@ export function AuthPanel() {
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-800/70">
       <button
         type="button"
         onClick={handleGoogleSignIn}
-        className="flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        className="flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
       >
         <GoogleIcon className="h-4 w-4" />
         Continue with Google
       </button>
 
       <div className="my-4 flex items-center gap-3">
-        <div className="h-px flex-1 bg-slate-200" />
-        <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
+        <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+        <span className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
           or
         </span>
-        <div className="h-px flex-1 bg-slate-200" />
+        <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -139,8 +143,8 @@ export function AuthPanel() {
             onClick={() => setMode("sign-in")}
             className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
               mode === "sign-in"
-                ? "bg-black text-white"
-                : "bg-white text-slate-700 hover:bg-slate-100"
+                ? "bg-black text-white dark:bg-slate-100 dark:text-slate-900"
+                : "bg-white text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             }`}
           >
             Sign in
@@ -150,8 +154,8 @@ export function AuthPanel() {
             onClick={() => setMode("sign-up")}
             className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
               mode === "sign-up"
-                ? "bg-black text-white"
-                : "bg-white text-slate-700 hover:bg-slate-100"
+                ? "bg-black text-white dark:bg-slate-100 dark:text-slate-900"
+                : "bg-white text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             }`}
           >
             Sign up
@@ -164,7 +168,7 @@ export function AuthPanel() {
           onChange={(event) => setEmail(event.target.value)}
           placeholder="Email"
           required
-          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-sky-500/30"
         />
 
         <input
@@ -174,7 +178,7 @@ export function AuthPanel() {
           placeholder="Password"
           required
           minLength={6}
-          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-sky-500/30"
         />
 
         {mode === "sign-up" ? (
@@ -184,22 +188,26 @@ export function AuthPanel() {
             onChange={(event) => setDisplayName(event.target.value)}
             placeholder="Pseudo"
             required
-            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-sky-500/30"
           />
         ) : null}
 
         <button
           type="submit"
-          className="w-full rounded-md bg-black px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+          className="w-full rounded-md bg-black px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
         >
           {mode === "sign-in" ? "Sign in" : "Create account"}
         </button>
 
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Email/password is enabled for this deck profile.
         </p>
       </form>
-      {message ? <p className="pt-2 text-sm text-red-600">{message}</p> : null}
+      {message ? (
+        <p className="pt-2 text-sm text-red-600 dark:text-red-400">
+          {message}
+        </p>
+      ) : null}
     </div>
   );
 }

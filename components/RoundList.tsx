@@ -138,8 +138,10 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
 
   if (rounds.length === 0) {
     return (
-      <div className="text-center py-8 bg-gray-50 rounded-md">
-        <p className="text-gray-500">No rounds recorded yet.</p>
+      <div className="text-center py-8 bg-gray-50 rounded-md dark:bg-slate-800">
+        <p className="text-gray-500 dark:text-slate-400">
+          No rounds recorded yet.
+        </p>
       </div>
     );
   }
@@ -153,10 +155,10 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
 
   return (
     <>
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-700">
         <table className="w-full table-fixed border-collapse text-left text-sm sm:table-auto">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 text-[11px] uppercase tracking-wide text-gray-500 sm:text-xs">
+            <tr className="border-b border-gray-200 bg-gray-50 text-[11px] uppercase tracking-wide text-gray-500 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 sm:text-xs">
               <th className="w-6 px-1 py-2 font-semibold sm:w-auto sm:px-4 sm:py-3">
                 #
               </th>
@@ -175,7 +177,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
             {rounds.map((round, index) => {
               const isEditing = editingRoundId === round.id && draft !== null;
               const isByeRound = isEditing
@@ -215,7 +217,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                   : "Lost";
               const resultBadgeText = isByeRound ? "B" : currentWon ? "W" : "L";
               const resultBadgeClass = isByeRound
-                ? "bg-slate-400"
+                ? "bg-slate-400 dark:bg-slate-500"
                 : currentWon
                   ? "bg-emerald-500"
                   : "bg-red-500";
@@ -230,10 +232,10 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                   ? "B"
                   : "✕";
               const coinFlipBadgeClass = isByeRound
-                ? "bg-slate-100 text-slate-400"
+                ? "bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500"
                 : currentWonCoinFlip
                   ? "bg-amber-500 text-white"
-                  : "bg-slate-200 text-slate-500";
+                  : "bg-slate-200 text-slate-500 dark:bg-slate-600 dark:text-slate-400";
               const startLabel = isByeRound ? "N/A" : currentStartingPosition;
               const startBadgeText = isByeRound
                 ? "–"
@@ -241,8 +243,8 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                   ? "1"
                   : "2";
               const startBadgeClass = isByeRound
-                ? "bg-slate-100 text-slate-400"
-                : "bg-slate-400 text-white";
+                ? "bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500"
+                : "bg-slate-400 text-white dark:bg-slate-500";
 
               return (
                 <tr
@@ -265,13 +267,13 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                   }}
                   className={`cursor-pointer transition ${
                     isByeRound
-                      ? "hover:bg-gray-50"
+                      ? "hover:bg-gray-50 dark:hover:bg-slate-700"
                       : currentWon
-                        ? "bg-emerald-500/5 hover:bg-emerald-500/10"
-                        : "bg-red-500/5 hover:bg-red-500/10"
+                        ? "bg-emerald-500/5 hover:bg-emerald-500/10 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/15"
+                        : "bg-red-500/5 hover:bg-red-500/10 dark:bg-red-500/10 dark:hover:bg-red-500/15"
                   }`}
                 >
-                  <td className="px-2 py-2 text-gray-500 sm:px-4 sm:py-3">
+                  <td className="px-2 py-2 text-gray-500 dark:text-slate-400 sm:px-4 sm:py-3">
                     {index + 1}
                   </td>
                   <td className="px-2 py-2 sm:px-4 sm:py-3">
@@ -300,13 +302,13 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       ) : null}
                       <div className="min-w-0">
                         <span
-                          className="block truncate font-medium text-gray-900"
+                          className="block truncate font-medium text-gray-900 dark:text-slate-50"
                           title={opponentName}
                         >
                           {getShortLeaderName(opponentName)}
                         </span>
                         {!isByeRound ? (
-                          <p className="truncate text-xs text-gray-500">
+                          <p className="truncate text-xs text-gray-500 dark:text-slate-400">
                             <span className="sm:hidden">
                               {currentOpponentLeaderId.split("-")[0]}
                             </span>
@@ -370,29 +372,29 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
           onClick={cancelEditingRound}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl sm:p-6"
+            className="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl dark:bg-slate-800 sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-900">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-slate-50">
                 Edit Round
               </h3>
               <button
                 type="button"
                 onClick={cancelEditingRound}
                 aria-label="Close"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
               >
                 ✕
               </button>
             </div>
 
             <div className="space-y-3">
-              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                <span className="block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-700">
+                <span className="block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                   Opponent
                 </span>
-                <span className="flex items-center gap-1.5 text-sm font-medium text-slate-900">
+                <span className="flex items-center gap-1.5 text-sm font-medium text-slate-900 dark:text-slate-50">
                   {draft.isBye ? (
                     "BYE"
                   ) : (
@@ -409,8 +411,8 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
               </div>
 
               {!draft.isBye ? (
-                <label className="block text-sm text-slate-700">
-                  <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                     Start
                   </span>
                   <select
@@ -421,7 +423,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                         startingPosition: event.target.value as "1st" | "2nd",
                       })
                     }
-                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="1st">1st</option>
                     <option value="2nd">2nd</option>
@@ -430,8 +432,8 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
               ) : null}
 
               <div className="grid gap-3 md:grid-cols-2">
-                <label className="text-sm text-slate-700">
-                  <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                <label className="text-sm text-slate-700 dark:text-slate-300">
+                  <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                     Result
                   </span>
                   <select
@@ -443,15 +445,15 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       })
                     }
                     disabled={draft.isBye}
-                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-100"
+                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:disabled:bg-slate-700"
                   >
                     <option value="won">Won</option>
                     <option value="lost">Lost</option>
                   </select>
                 </label>
 
-                <label className="text-sm text-slate-700">
-                  <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                <label className="text-sm text-slate-700 dark:text-slate-300">
+                  <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                     Coin Flip
                   </span>
                   <select
@@ -463,7 +465,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       })
                     }
                     disabled={draft.isBye}
-                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-100"
+                    className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:disabled:bg-slate-700"
                   >
                     <option value="won">Won</option>
                     <option value="lost">Lost</option>
@@ -472,12 +474,12 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
               </div>
 
               {errorMessage ? (
-                <p className="text-sm font-medium text-rose-600">
+                <p className="text-sm font-medium text-rose-600 dark:text-rose-400">
                   {errorMessage}
                 </p>
               ) : null}
 
-              <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-3">
+              <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-3 dark:border-slate-700">
                 <button
                   type="button"
                   onClick={() => handleDeleteRound(editingRoundId)}
@@ -485,7 +487,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                     loading === editingRoundId ||
                     savingRoundId === editingRoundId
                   }
-                  className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-800 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
                 >
                   {loading === editingRoundId ? (
                     <SpinnerIcon className="h-4 w-4" />
@@ -498,7 +500,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                     type="button"
                     onClick={cancelEditingRound}
                     disabled={savingRoundId === editingRoundId}
-                    className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     Cancel
                   </button>
@@ -506,7 +508,7 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                     type="button"
                     onClick={() => handleUpdateRound(editingRoundId)}
                     disabled={savingRoundId === editingRoundId}
-                    className="rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-sky-800 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
                   >
                     {savingRoundId === editingRoundId ? "Saving..." : "Save"}
                   </button>

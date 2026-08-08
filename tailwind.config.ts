@@ -8,7 +8,7 @@ const config: Config = {
   theme: {
     extend: {},
   },
-  plugins: [], // Disable dark mode completely
+  plugins: [],
 };
 
 export default config;

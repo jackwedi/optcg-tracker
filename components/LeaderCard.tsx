@@ -57,7 +57,7 @@ export function LeaderCard({
 
   return (
     <>
-      <div className="relative flex items-stretch gap-4 p-4 pr-[10%] border rounded-lg bg-white shadow-sm">
+      <div className="relative flex items-stretch gap-4 p-4 pr-[10%] border border-slate-200 rounded-lg bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -74,8 +74,12 @@ export function LeaderCard({
 
         <div className="flex-1 flex flex-col justify-between min-w-0 py-0.5">
           <div className="min-w-0">
-            <h3 className="font-semibold text-lg truncate">{leader.name}</h3>
-            <p className="text-sm text-gray-500">{leader.id}</p>
+            <h3 className="font-semibold text-lg truncate dark:text-slate-50">
+              {leader.name}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-slate-400">
+              {leader.id}
+            </p>
           </div>
           {onSelect && (
             <div className="mt-2 flex justify-end">
@@ -86,8 +90,8 @@ export function LeaderCard({
                 title={selected ? selectedLabel : actionLabel}
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition ${
                   selected
-                    ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
-                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
                 }`}
               >
                 <span className="text-xl font-semibold leading-none">⋯</span>
@@ -133,14 +137,14 @@ export function LeaderCard({
                 <button
                   aria-label="Close"
                   onClick={() => setOpen(false)}
-                  className="absolute right-2 top-2 z-10 rounded bg-white/80 p-1 text-sm"
+                  className="absolute right-2 top-2 z-10 rounded bg-white/80 p-1 text-sm dark:bg-slate-800/80 dark:text-slate-100"
                 >
                   ✕
                 </button>
                 <img
                   src={modalSrc}
                   alt={leader.name}
-                  className="max-h-[90vh] max-w-[90vw] object-contain bg-white p-2"
+                  className="max-h-[90vh] max-w-[90vw] object-contain bg-white p-2 dark:bg-slate-800"
                   onClick={(e) => e.stopPropagation()}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src =

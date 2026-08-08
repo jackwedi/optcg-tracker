@@ -1,8 +1,33 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Bridge tokens for the two chart components that draw raw SVG with
+     inline fill/stroke props instead of Tailwind classes — those can't
+     take a `dark:` variant at all, so they read these vars instead. */
+  --chart-grid: #e2e8f0; /* slate-200 */
+  --chart-axis: #64748b; /* slate-500 */
+  --chart-value-ink: #0f172a; /* slate-900 */
+  --chart-surface: #ffffff; /* matches card bg */
+  --donut-track-emerald: #d1fae5; /* emerald-100 */
+  --donut-track-amber: #fef3c7; /* amber-100 */
+
+  color-scheme: light;
+}
+
+:root.dark {
+  --chart-grid: #334155; /* slate-700 */
+  --chart-axis: #94a3b8; /* slate-400 */
+  --chart-value-ink: #f8fafc; /* slate-50 */
+  --chart-surface: #1e293b; /* slate-800, matches dark card bg */
+  --donut-track-emerald: rgb(16 185 129 / 0.18);
+  --donut-track-amber: rgb(245 158 11 / 0.18);
+
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -19,8 +44,11 @@
 
 html,
 body {
-  background-color: #f9fafb;
-  color: #171717;
+  /* background-color/color intentionally omitted here — this rule sits
+     outside any @layer, so per CSS cascade-layer rules it would always
+     beat Tailwind's (layered) utility classes, including `dark:` ones.
+     Background/text color are owned by the Tailwind classes on <body>
+     in layout.tsx instead. */
   font-family: Arial, Helvetica, sans-serif;
 }
 

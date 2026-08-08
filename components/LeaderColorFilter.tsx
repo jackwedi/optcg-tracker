@@ -76,10 +76,10 @@ export function LeaderColorFilter({
             style={{ backgroundColor: hex }}
             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition ${
               isSelected
-                ? "border-slate-900 ring-2 ring-slate-900 ring-offset-1"
+                ? "border-slate-900 ring-2 ring-slate-900 ring-offset-1 dark:border-slate-100 dark:ring-slate-100 dark:ring-offset-slate-900"
                 : isDisabled
-                  ? "cursor-not-allowed border-black/10 opacity-40"
-                  : "border-black/10 hover:opacity-90"
+                  ? "cursor-not-allowed border-black/10 opacity-40 dark:border-white/10"
+                  : "border-black/10 hover:opacity-90 dark:border-white/10"
             }`}
           >
             {isSelected ? <CheckIcon color={getContrastText(hex)} /> : null}

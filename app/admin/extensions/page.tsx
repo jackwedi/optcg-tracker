@@ -8,7 +8,7 @@ export default async function AdminExtensionsPage() {
     <main className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Admin — Metas</h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-slate-400">
           Manage OPTCG extension/set release windows.
         </p>
       </div>

@@ -33,12 +33,12 @@ export function TournamentListCard({
   const hasMore = tournaments.length > visibleCount;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <h2 className="mb-4 text-lg font-bold text-slate-900 sm:text-xl">
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-8">
+      <h2 className="mb-4 text-lg font-bold text-slate-900 dark:text-slate-50 sm:text-xl">
         Tournaments
       </h2>
 
-      <ul className="divide-y divide-slate-100">
+      <ul className="divide-y divide-slate-100 dark:divide-slate-700">
         {displayedTournaments.map((tournament) => {
           const wins = tournament.rounds.filter((r) => r.won).length;
           const losses = tournament.rounds.length - wins;
@@ -50,7 +50,7 @@ export function TournamentListCard({
             <li key={tournament.id}>
               <Link
                 href={`/tournaments/${tournament.id}`}
-                className="flex items-center justify-between gap-3 py-3 transition hover:bg-slate-50 sm:px-2"
+                className="flex items-center justify-between gap-3 py-3 transition hover:bg-slate-50 dark:hover:bg-slate-700 sm:px-2"
               >
                 <div className="flex min-w-0 items-center gap-2">
                   {/* Same leader thumbnail + color bar treatment as an
@@ -84,14 +84,14 @@ export function TournamentListCard({
                       >
                         {getTournamentTypeIcon(tournament.tournamentType)}
                       </span>
-                      <p className="truncate text-sm font-semibold text-slate-900">
+                      <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-50">
                         {tournament.name}
                       </p>
-                      <span className="shrink-0 text-[11px] text-slate-400">
+                      <span className="shrink-0 text-[11px] text-slate-400 dark:text-slate-500">
                         {formatDate(tournament.date)}
                       </span>
                     </div>
-                    <p className="truncate text-xs text-slate-500">
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                       {playedLeader
                         ? getShortLeaderName(playedLeader.name)
                         : "No leader set"}
@@ -102,18 +102,20 @@ export function TournamentListCard({
                     Record card, scaled down for a compact list row. */}
                 {tournament.rounds.length > 0 ? (
                   <div className="flex shrink-0 flex-col items-end gap-0.5">
-                    <div className="flex items-baseline gap-1 text-sm font-bold text-slate-900">
+                    <div className="flex items-baseline gap-1 text-sm font-bold text-slate-900 dark:text-slate-50">
                       <span>{wins}</span>
-                      <span className="text-[10px] font-semibold text-slate-400">
+                      <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
                         W
                       </span>
-                      <span className="text-slate-300">–</span>
+                      <span className="text-slate-300 dark:text-slate-600">
+                        –
+                      </span>
                       <span>{losses}</span>
-                      <span className="text-[10px] font-semibold text-slate-400">
+                      <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
                         L
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500">
                       {tournament.rounds.length} rounds
                     </p>
                   </div>
@@ -129,7 +131,7 @@ export function TournamentListCard({
           <button
             type="button"
             onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
-            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             Show More Tournaments
           </button>

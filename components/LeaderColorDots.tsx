@@ -58,7 +58,7 @@ export function LeaderColorDots({
       {flatColors.slice(0, 2).map((color, index) => (
         <span
           key={color + index}
-          className={`shrink-0 rounded border border-black/10 ${dotClassName}`}
+          className={`shrink-0 rounded border border-black/10 dark:border-white/10 ${dotClassName}`}
           style={{ backgroundColor: colorToHex(color) }}
         />
       ))}

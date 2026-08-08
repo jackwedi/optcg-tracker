@@ -68,7 +68,7 @@ export function LeaderSearch({
         <select
           value={idGroup}
           onChange={(e) => setIdGroup(e.target.value)}
-          className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700"
+          className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
         >
           <option value="All">Select Extension</option>
           {idGroupOptions
@@ -95,7 +95,7 @@ export function LeaderSearch({
       </div>
 
       {filtered.length === 0 && (
-        <p className="mt-6 text-gray-500">
+        <p className="mt-6 text-gray-500 dark:text-slate-400">
           No leaders fit the selected filters.
         </p>
       )}

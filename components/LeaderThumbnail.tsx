@@ -39,7 +39,7 @@ export default function LeaderThumbnail({
   }
 
   return (
-    <div className="relative overflow-hidden border border-slate-200/80 bg-white shadow-xl shadow-slate-900/10 transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl">
+    <div className="relative overflow-hidden border border-slate-200/80 bg-white shadow-xl shadow-slate-900/10 transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl dark:border-slate-700/80 dark:bg-slate-800">
       {imageNode}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.35),transparent_40%)]" />
     </div>

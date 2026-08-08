@@ -35,7 +35,7 @@ export function AdminLeaderManager({
     <div className="space-y-8">
       <div>
         <h2 className="mb-1 text-xl font-semibold">All Leaders</h2>
-        <p className="mb-4 text-sm text-gray-600">
+        <p className="mb-4 text-sm text-gray-600 dark:text-slate-400">
           Click a leader to edit its details.
         </p>
         <LeaderSearch

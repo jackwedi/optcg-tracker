@@ -57,7 +57,7 @@ export default async function TournamentDetailPage({ params }: Props) {
       <div className="mb-5 flex items-center justify-between gap-2">
         <Link
           href="/tournaments"
-          className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 sm:h-10 sm:px-4 sm:text-base"
+          className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 sm:h-10 sm:px-4 sm:text-base"
         >
           <svg
             viewBox="0 0 24 24"
@@ -94,17 +94,17 @@ export default async function TournamentDetailPage({ params }: Props) {
           <h1 className="truncate text-base font-bold sm:text-2xl">
             {tournament.name}
           </h1>
-          <span className="shrink-0 text-[11px] text-slate-500 sm:text-sm">
+          <span className="shrink-0 text-[11px] text-slate-500 dark:text-slate-400 sm:text-sm">
             {formatDateServer(tournament.date)}
           </span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
           {meta ? (
-            <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 sm:text-xs">
+            <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 sm:text-xs">
               {meta.extensions.join(" / ")}
             </span>
           ) : null}
-          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 sm:text-xs">
+          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 sm:text-xs">
             <span role="img" aria-hidden="true">
               {getTournamentTypeIcon(tournament.tournamentType)}
             </span>
@@ -139,7 +139,7 @@ export default async function TournamentDetailPage({ params }: Props) {
               ) : null}
             </div>
             <span
-              className="max-w-[68px] truncate text-center text-xs font-semibold text-slate-700 sm:max-w-[84px] sm:text-sm"
+              className="max-w-[68px] truncate text-center text-xs font-semibold text-slate-700 dark:text-slate-300 sm:max-w-[84px] sm:text-sm"
               title={playedLeader?.name}
             >
               {playedLeader
@@ -148,20 +148,22 @@ export default async function TournamentDetailPage({ params }: Props) {
             </span>
           </div>
 
-          <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center sm:px-4 sm:py-2.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 sm:text-xs">
+          <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center dark:border-slate-700 dark:bg-slate-700 sm:px-4 sm:py-2.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 sm:text-xs">
               Record
             </span>
             {stats && stats.totalRounds > 0 ? (
               <>
-                <div className="flex items-baseline justify-center gap-1.5 text-lg font-bold text-slate-900 sm:text-xl">
+                <div className="flex items-baseline justify-center gap-1.5 text-lg font-bold text-slate-900 dark:text-slate-50 sm:text-xl">
                   <span>{stats.wins}</span>
-                  <span className="text-xs font-semibold text-slate-400">
+                  <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
                     W
                   </span>
-                  <span className="mx-0.5 text-slate-300">–</span>
+                  <span className="mx-0.5 text-slate-300 dark:text-slate-600">
+                    –
+                  </span>
                   <span>{stats.losses}</span>
-                  <span className="text-xs font-semibold text-slate-400">
+                  <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
                     L
                   </span>
                 </div>
@@ -170,7 +172,7 @@ export default async function TournamentDetailPage({ params }: Props) {
                     result badges. */}
                 <div className="flex items-center justify-center gap-1">
                   {tournament.rounds.length > streakRounds.length ? (
-                    <span className="text-[9px] leading-none text-slate-400">
+                    <span className="text-[9px] leading-none text-slate-400 dark:text-slate-500">
                       …
                     </span>
                   ) : null}
@@ -181,7 +183,7 @@ export default async function TournamentDetailPage({ params }: Props) {
                         key={round.id}
                         className={`h-1.5 w-1.5 rounded-full ${
                           isBye
-                            ? "bg-slate-300"
+                            ? "bg-slate-300 dark:bg-slate-600"
                             : round.won
                               ? "bg-emerald-500"
                               : "bg-red-500"
@@ -191,14 +193,14 @@ export default async function TournamentDetailPage({ params }: Props) {
                     );
                   })}
                 </div>
-                <span className="text-[9px] text-slate-400 sm:text-[10px]">
+                <span className="text-[9px] text-slate-400 dark:text-slate-500 sm:text-[10px]">
                   Coin flip{" "}
                   {Math.round((stats.coinFlipWins / stats.totalRounds) * 100)}%
                   won
                 </span>
               </>
             ) : (
-              <div className="text-xs text-slate-400 sm:text-sm">
+              <div className="text-xs text-slate-400 dark:text-slate-500 sm:text-sm">
                 No rounds yet
               </div>
             )}
@@ -218,7 +220,7 @@ export default async function TournamentDetailPage({ params }: Props) {
         {/* Destructive action, deliberately at the bottom — out of the
             way of everything else on the page, requiring a scroll to
             reach rather than sitting next to routine actions up top. */}
-        <div className="flex justify-end border-t border-slate-200 pt-4">
+        <div className="flex justify-end border-t border-slate-200 pt-4 dark:border-slate-700">
           <DeleteTournamentButton tournamentId={id} />
         </div>
       </div>

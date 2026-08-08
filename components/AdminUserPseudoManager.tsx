@@ -165,29 +165,35 @@ export function AdminUserPseudoManager() {
   };
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
       <form onSubmit={handleSearch} className="mb-4 flex gap-2">
         <input
           type="text"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search by email or pseudo"
-          className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+          className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-sky-500/30"
         />
         <button
           type="submit"
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
         >
           Search
         </button>
       </form>
 
       {loading ? (
-        <p className="text-sm text-slate-500">Loading users...</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Loading users...
+        </p>
       ) : null}
-      {error ? <p className="mb-3 text-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <p className="mb-3 text-sm text-red-600 dark:text-red-400">{error}</p>
+      ) : null}
       {message ? (
-        <p className="mb-3 text-sm text-slate-600">{message}</p>
+        <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
+          {message}
+        </p>
       ) : null}
 
       {!loading ? (
@@ -195,13 +201,13 @@ export function AdminUserPseudoManager() {
           {users.map((user) => (
             <div
               key={user.id}
-              className="rounded-lg border border-slate-200 bg-slate-50 p-3"
+              className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-700"
             >
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm font-medium text-slate-800">
+                <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
                   {user.email}
                 </p>
-                <span className="rounded-md bg-white px-2 py-1 text-xs font-medium text-slate-500">
+                <span className="rounded-md bg-white px-2 py-1 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                   {user.role}
                 </span>
               </div>
@@ -217,7 +223,7 @@ export function AdminUserPseudoManager() {
                     }))
                   }
                   maxLength={40}
-                  className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:focus:ring-sky-500/30"
                 />
                 <button
                   type="button"
@@ -230,23 +236,25 @@ export function AdminUserPseudoManager() {
                 <button
                   type="button"
                   onClick={() => handleToggleStats(user.id)}
-                  className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                  className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                 >
                   {expandedUserId === user.id ? "Hide stats" : "View stats"}
                 </button>
               </div>
 
               {expandedUserId === user.id ? (
-                <div className="mt-3 border-t border-slate-200 pt-3">
+                <div className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-600">
                   {statsLoadingUserId === user.id ? (
-                    <p className="text-sm text-slate-500">Loading stats...</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      Loading stats...
+                    </p>
                   ) : statsError[user.id] ? (
-                    <p className="text-sm text-red-600">
+                    <p className="text-sm text-red-600 dark:text-red-400">
                       {statsError[user.id]}
                     </p>
                   ) : statsByUserId[user.id] ? (
                     <>
-                      <p className="mb-3 text-xs text-slate-500">
+                      <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
                         {statsByUserId[user.id].totalTournaments} tournament
                         {statsByUserId[user.id].totalTournaments === 1
                           ? ""
@@ -258,17 +266,17 @@ export function AdminUserPseudoManager() {
                           label="Win Rate"
                           value={statsByUserId[user.id].winRate}
                           detail={`${statsByUserId[user.id].wins} / ${statsByUserId[user.id].totalRounds} rounds won`}
-                          trackClassName="bg-emerald-100"
+                          trackClassName="bg-emerald-100 dark:bg-emerald-500/10"
                           fillClassName="bg-emerald-500"
-                          valueClassName="text-emerald-600"
+                          valueClassName="text-emerald-600 dark:text-emerald-400"
                         />
                         <StatMeter
                           label="Coin Flip Win Rate"
                           value={statsByUserId[user.id].coinFlipWinRate}
                           detail={`${statsByUserId[user.id].coinFlipWins} / ${statsByUserId[user.id].totalRounds} coin flips won`}
-                          trackClassName="bg-amber-100"
+                          trackClassName="bg-amber-100 dark:bg-amber-500/10"
                           fillClassName="bg-amber-500"
-                          valueClassName="text-amber-600"
+                          valueClassName="text-amber-600 dark:text-amber-400"
                         />
                       </div>
                     </>
@@ -279,7 +287,9 @@ export function AdminUserPseudoManager() {
           ))}
 
           {users.length === 0 ? (
-            <p className="text-sm text-slate-500">No users found.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              No users found.
+            </p>
           ) : null}
         </div>
       ) : null}

@@ -1,4 +1,5 @@
 export { TournamentForm } from "./TournamentForm";
+export { ThemeToggle } from "./ThemeToggle";
 export { PerformanceOverview } from "./PerformanceOverview";
 export { EditTournamentButton } from "./EditTournamentButton";
 export { WinRateProgressionChart } from "./WinRateProgressionChart";

@@ -20,8 +20,10 @@ export default async function CrewPage() {
     return (
       <main className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-2xl space-y-6">
-          <h1 className="text-3xl font-bold text-slate-900">Crew</h1>
-          <p className="text-slate-600">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+          Crew
+        </h1>
+          <p className="text-slate-600 dark:text-slate-300">
             Sign in and play 10 rounds to unlock Crews.
           </p>
           <AuthPanel />
@@ -38,7 +40,9 @@ export default async function CrewPage() {
     return (
       <main className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-3xl space-y-6">
-          <h1 className="text-3xl font-bold text-slate-900">{crew.name}</h1>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+            {crew.name}
+          </h1>
           <CrewInviteCode code={crew.id} />
           <CrewRankProgress totalWins={leaderboard?.totalWins ?? 0} />
           <CrewLeaderboardTable entries={leaderboard?.entries ?? []} />
@@ -46,7 +50,7 @@ export default async function CrewPage() {
           {/* Destructive/exit action, deliberately at the bottom — out of
               the way of routine info, matching the tournament detail
               page's delete-button placement. */}
-          <div className="flex justify-end border-t border-slate-200 pt-6">
+          <div className="flex justify-end border-t border-slate-200 pt-6 dark:border-slate-700">
             <LeaveCrewButton />
           </div>
         </div>
@@ -59,21 +63,23 @@ export default async function CrewPage() {
   return (
     <main className="container mx-auto px-4 py-12">
       <div className="mx-auto max-w-2xl space-y-6">
-        <h1 className="text-3xl font-bold text-slate-900">Crew</h1>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+          Crew
+        </h1>
 
         {eligibility.eligible ? (
           <CreateOrJoinCrewCard />
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div className="flex items-baseline justify-between gap-2">
-              <p className="text-sm font-medium text-slate-600">
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
                 Crew Progress
               </p>
-              <p className="text-2xl font-semibold text-sky-700">
+              <p className="text-2xl font-semibold text-sky-700 dark:text-sky-400">
                 {eligibility.totalRounds}/{eligibility.roundsRequired}
               </p>
             </div>
-            <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+            <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-900/60">
               <div
                 className="h-full rounded-full bg-sky-500 transition-[width] duration-300"
                 style={{
@@ -81,7 +87,7 @@ export default async function CrewPage() {
                 }}
               />
             </div>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
               Play{" "}
               {Math.max(
                 0,

@@ -165,16 +165,16 @@ export function TournamentForm() {
                 className={`h-3 w-3 shrink-0 rounded-full border-2 transition ${
                   step >= s.step
                     ? "border-blue-600 bg-blue-600"
-                    : "border-slate-300 bg-white"
+                    : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-800"
                 }`}
               />
               <span
                 className={`whitespace-nowrap text-[11px] font-medium ${
                   step === s.step
-                    ? "text-blue-600"
+                    ? "text-blue-600 dark:text-blue-400"
                     : step > s.step
-                      ? "text-slate-600"
-                      : "text-slate-400"
+                      ? "text-slate-600 dark:text-slate-300"
+                      : "text-slate-400 dark:text-slate-500"
                 }`}
               >
                 {s.label}
@@ -183,7 +183,7 @@ export function TournamentForm() {
             {index < STEPS.length - 1 ? (
               <span
                 className={`mx-2 mt-1.5 h-0.5 w-6 shrink-0 rounded-full transition ${
-                  step > s.step ? "bg-blue-600" : "bg-slate-200"
+                  step > s.step ? "bg-blue-600" : "bg-slate-200 dark:bg-slate-700"
                 }`}
               />
             ) : null}
@@ -197,7 +197,7 @@ export function TournamentForm() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-semibold text-slate-700"
+                className="block text-sm font-semibold text-slate-700 dark:text-slate-300"
               >
                 Tournament Name
               </label>
@@ -207,7 +207,7 @@ export function TournamentForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
+                className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 placeholder="e.g., Regional Championship"
               />
             </div>
@@ -215,7 +215,7 @@ export function TournamentForm() {
             <div>
               <label
                 htmlFor="date"
-                className="block text-sm font-semibold text-slate-700"
+                className="block text-sm font-semibold text-slate-700 dark:text-slate-300"
               >
                 Date
               </label>
@@ -225,12 +225,14 @@ export function TournamentForm() {
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
+                className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               />
             </div>
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && (
+            <p className="text-red-600 text-sm dark:text-red-400">{error}</p>
+          )}
 
           <button
             type="button"
@@ -243,7 +245,7 @@ export function TournamentForm() {
       ) : step === 2 ? (
         <div key="step-2" className="space-y-6">
           <div>
-            <span className="block text-sm font-semibold text-slate-700">
+            <span className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               Tournament Type
             </span>
             <div className="mt-1 grid grid-cols-3 gap-2">
@@ -254,8 +256,8 @@ export function TournamentForm() {
                   onClick={() => setSelectedTournamentType(type)}
                   className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-4 text-sm font-medium transition ${
                     selectedTournamentType === type
-                      ? "border-blue-400 bg-blue-50 text-blue-700"
-                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                      ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   }`}
                 >
                   <span className="text-2xl" role="img" aria-hidden="true">
@@ -267,13 +269,15 @@ export function TournamentForm() {
             </div>
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && (
+            <p className="text-red-600 text-sm dark:text-red-400">{error}</p>
+          )}
 
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => goToStep(1)}
-              className="flex-1 rounded-md border border-gray-300 py-2 px-4 text-slate-700"
+              className="flex-1 rounded-md border border-gray-300 py-2 px-4 text-slate-700 dark:border-slate-600 dark:text-slate-300"
             >
               Back
             </button>
@@ -288,18 +292,18 @@ export function TournamentForm() {
         </div>
       ) : (
         <div key="step-3" className="space-y-6">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-700">
             <div>
-              <div className="text-sm font-semibold text-slate-800">
+              <div className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                 Played Leader
               </div>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 Pick the leader you&apos;ll be playing for this tournament.
               </p>
             </div>
 
             <div className="mt-4">
-              <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                 Color
               </label>
               <LeaderColorFilter
@@ -311,7 +315,7 @@ export function TournamentForm() {
 
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                   Extension
                 </label>
                 {idGroupOptions.length > 0 && idGroupOptions.length < 5 ? (
@@ -321,8 +325,8 @@ export function TournamentForm() {
                       onClick={() => setIdGroupFilter("All")}
                       className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                         effectiveIdGroupFilter === "All"
-                          ? "border-blue-400 bg-blue-50 text-blue-700"
-                          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                          ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                       }`}
                     >
                       All
@@ -334,8 +338,8 @@ export function TournamentForm() {
                         onClick={() => setIdGroupFilter(group)}
                         className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                           effectiveIdGroupFilter === group
-                            ? "border-blue-400 bg-blue-50 text-blue-700"
-                            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                            ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                         }`}
                       >
                         {group}
@@ -346,7 +350,7 @@ export function TournamentForm() {
                   <select
                     value={effectiveIdGroupFilter}
                     onChange={(e) => setIdGroupFilter(e.target.value)}
-                    className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="All">Select Extension</option>
                     {idGroupOptions.map((group) => (
@@ -359,7 +363,7 @@ export function TournamentForm() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                   Played Leader
                 </label>
                 {filteredLeaders.length > 0 && filteredLeaders.length < 5 ? (
@@ -371,8 +375,8 @@ export function TournamentForm() {
                         onClick={() => setPlayedLeaderId(l.id)}
                         className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                           effectivePlayedLeaderId === l.id
-                            ? "border-blue-400 bg-blue-50 text-blue-700"
-                            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                            ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                         }`}
                       >
                         <LeaderColorDots colors={l.colors} />
@@ -386,7 +390,7 @@ export function TournamentForm() {
                     onChange={(e) =>
                       setPlayedLeaderId(e.target.value || undefined)
                     }
-                    className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="">-- Select leader --</option>
                     {filteredLeaders.map((l) => (
@@ -410,11 +414,11 @@ export function TournamentForm() {
                   ? sel.imageUrl
                   : `/${sel.imageUrl}`.replace(/^\//, "/");
                 return (
-                  <div className="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3">
+                  <div className="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-600 dark:bg-slate-800">
                     <img
                       src={previewSrc}
                       alt={sel.name}
-                      className="h-14 w-14 border bg-white object-contain"
+                      className="h-14 w-14 border bg-white object-contain dark:bg-slate-700"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).src =
                           "/placeholder.png";
@@ -422,28 +426,32 @@ export function TournamentForm() {
                     />
                     <div>
                       <div className="text-lg font-medium">{sel.name}</div>
-                      <div className="text-sm text-gray-500">{sel.id}</div>
+                      <div className="text-sm text-gray-500 dark:text-slate-400">
+                        {sel.id}
+                      </div>
                     </div>
                   </div>
                 );
               })()}
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && (
+            <p className="text-red-600 text-sm dark:text-red-400">{error}</p>
+          )}
 
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => goToStep(2)}
               disabled={loading}
-              className="flex-1 rounded-md border border-gray-300 py-2 px-4 text-slate-700 disabled:opacity-60"
+              className="flex-1 rounded-md border border-gray-300 py-2 px-4 text-slate-700 disabled:opacity-60 dark:border-slate-600 dark:text-slate-300"
             >
               Back
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-slate-600"
             >
               {loading ? "Creating..." : "Create Tournament"}
             </button>

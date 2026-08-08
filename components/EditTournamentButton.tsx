@@ -101,9 +101,9 @@ export function EditTournamentButton({
         onClick={openEditor}
         aria-label="Edit tournament"
         title="Edit tournament"
-        className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 transition hover:bg-slate-100 sm:h-10 sm:w-10"
+        className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 sm:h-10 sm:w-10"
       >
-        <EditIcon className="h-4 w-4 text-slate-600 sm:h-5 sm:w-5" />
+        <EditIcon className="h-4 w-4 text-slate-600 dark:text-slate-300 sm:h-5 sm:w-5" />
       </button>
 
       {editing ? (
@@ -115,26 +115,26 @@ export function EditTournamentButton({
           onClick={handleCancel}
         >
           <div
-            className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-xl sm:p-6"
+            className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-xl dark:bg-slate-800 sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-900">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-slate-50">
                 Edit Tournament
               </h3>
               <button
                 type="button"
                 onClick={handleCancel}
                 aria-label="Close"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
               >
                 ✕
               </button>
             </div>
 
             <div className="space-y-4">
-              <label className="block text-sm text-slate-700">
-                <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              <label className="block text-sm text-slate-700 dark:text-slate-300">
+                <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                   Name
                 </span>
                 <input
@@ -142,12 +142,12 @@ export function EditTournamentButton({
                   value={editedName}
                   onChange={(e) => setEditedName(e.target.value)}
                   disabled={saving}
-                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
               </label>
 
-              <label className="block text-sm text-slate-700">
-                <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              <label className="block text-sm text-slate-700 dark:text-slate-300">
+                <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                   Date
                 </span>
                 <input
@@ -155,12 +155,12 @@ export function EditTournamentButton({
                   value={editedDate}
                   onChange={(e) => setEditedDate(e.target.value)}
                   disabled={saving}
-                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
               </label>
 
-              <label className="block text-sm text-slate-700">
-                <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              <label className="block text-sm text-slate-700 dark:text-slate-300">
+                <span className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                   Type
                 </span>
                 <select
@@ -169,7 +169,7 @@ export function EditTournamentButton({
                     setSelectedType(e.target.value as TournamentType)
                   }
                   disabled={saving}
-                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 >
                   {TOURNAMENT_TYPES.map((type) => (
                     <option key={type} value={type}>
@@ -181,7 +181,9 @@ export function EditTournamentButton({
             </div>
 
             {error ? (
-              <p className="mt-2 text-xs text-rose-600">{error}</p>
+              <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">
+                {error}
+              </p>
             ) : null}
 
             <div className="mt-4 flex justify-end gap-2">
@@ -189,7 +191,7 @@ export function EditTournamentButton({
                 type="button"
                 onClick={handleCancel}
                 disabled={saving}
-                className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 Cancel
               </button>
@@ -197,7 +199,7 @@ export function EditTournamentButton({
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-sky-800 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
               >
                 {saving ? (
                   <>

@@ -93,12 +93,12 @@ function DonutStat({
           />
         </svg>
         <span
-          className={`absolute inset-0 flex items-center justify-center font-bold text-slate-900 ${fontSize}`}
+          className={`absolute inset-0 flex items-center justify-center font-bold text-slate-900 dark:text-slate-50 ${fontSize}`}
         >
           {Math.round(clamped)}%
         </span>
       </div>
-      <span className="text-[9px] font-medium uppercase tracking-wide text-slate-400">
+      <span className="text-[9px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
         {label}
       </span>
     </div>
@@ -193,16 +193,18 @@ export function LeaderMatchups({
   const selectedMatchup = matchups.find((m) => m.key === selectedKey) ?? null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6">
       <div className="mb-4">
-        <h3 className="text-base font-semibold text-slate-900">Matchups</h3>
-        <p className="text-sm text-slate-500">
+        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-50">
+          Matchups
+        </h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Win rate against every leader you&apos;ve faced — tap a row for more
           detail
         </p>
       </div>
 
-      <ul className="divide-y divide-slate-100">
+      <ul className="divide-y divide-slate-100 dark:divide-slate-700">
         {displayedMatchups.map((matchup) => (
           <li key={matchup.key} className="py-2.5 first:pt-0 last:pb-0">
             <button
@@ -211,10 +213,10 @@ export function LeaderMatchups({
               className="flex w-full items-center gap-3 text-left"
             >
               <div className="flex w-8 shrink-0 flex-col items-center text-center">
-                <span className="text-sm font-bold text-slate-700">
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
                   {matchup.timesFaced}
                 </span>
-                <span className="text-[9px] uppercase tracking-wide text-slate-400">
+                <span className="text-[9px] uppercase tracking-wide text-slate-400 dark:text-slate-500">
                   faced
                 </span>
               </div>
@@ -242,11 +244,11 @@ export function LeaderMatchups({
                   </div>
                 ) : null}
                 <span
-                  className="truncate text-sm font-medium text-slate-900"
+                  className="truncate text-sm font-medium text-slate-900 dark:text-slate-50"
                   title={matchup.fullName}
                 >
                   {matchup.shortId ? (
-                    <span className="mr-1 text-xs font-normal text-slate-400">
+                    <span className="mr-1 text-xs font-normal text-slate-400 dark:text-slate-500">
                       {matchup.shortId}
                     </span>
                   ) : null}
@@ -257,7 +259,7 @@ export function LeaderMatchups({
               <DonutStat
                 value={matchup.winRate}
                 color="#10b981"
-                trackColor="#d1fae5"
+                trackColor="var(--donut-track-emerald)"
                 label="Win"
               />
             </button>
@@ -272,7 +274,7 @@ export function LeaderMatchups({
             onClick={() =>
               setVisibleCount((count) => count + MATCHUPS_PAGE_SIZE)
             }
-            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             Show More Matchups
           </button>
@@ -288,7 +290,7 @@ export function LeaderMatchups({
           onClick={() => setSelectedKey(null)}
         >
           <div
-            className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-xl sm:p-6"
+            className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-xl dark:bg-slate-800 sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-5 flex items-center justify-between gap-2">
@@ -314,12 +316,12 @@ export function LeaderMatchups({
                 ) : null}
                 <div className="min-w-0">
                   <h3
-                    className="truncate text-base font-semibold text-slate-900"
+                    className="truncate text-base font-semibold text-slate-900 dark:text-slate-50"
                     title={selectedMatchup.fullName}
                   >
                     {selectedMatchup.name}
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {selectedMatchup.timesFaced} rounds faced
                   </p>
                 </div>
@@ -328,7 +330,7 @@ export function LeaderMatchups({
                 type="button"
                 onClick={() => setSelectedKey(null)}
                 aria-label="Close"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
               >
                 ✕
               </button>
@@ -338,7 +340,7 @@ export function LeaderMatchups({
               <DonutStat
                 value={selectedMatchup.coinFlipRate}
                 color="#f59e0b"
-                trackColor="#fef3c7"
+                trackColor="var(--donut-track-amber)"
                 label="Coin Flip"
                 size={MODAL_DONUT_SIZE}
                 strokeWidth={MODAL_DONUT_STROKE_WIDTH}
@@ -346,7 +348,7 @@ export function LeaderMatchups({
               <DonutStat
                 value={selectedMatchup.winRate}
                 color="#10b981"
-                trackColor="#d1fae5"
+                trackColor="var(--donut-track-emerald)"
                 label="Win Rate"
                 size={MODAL_DONUT_SIZE}
                 strokeWidth={MODAL_DONUT_STROKE_WIDTH}

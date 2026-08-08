@@ -103,7 +103,7 @@ export function LeaderForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 bg-gray-50 p-4 rounded-md"
+      className="space-y-4 bg-gray-50 p-4 rounded-md dark:bg-slate-800"
     >
       <h3 className="text-lg font-semibold">
         {isEditing ? `Edit ${leader!.name}` : "Add Leader"}
@@ -112,7 +112,7 @@ export function LeaderForm({
       <div>
         <label className="block text-sm font-medium">ID</label>
         <input
-          className="mt-1 block w-full disabled:bg-gray-100 disabled:text-gray-500"
+          className="mt-1 block w-full disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-slate-700 dark:disabled:text-slate-400"
           required
           disabled={isEditing}
           value={id}
@@ -167,7 +167,9 @@ export function LeaderForm({
         />
       </div>
 
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && (
+        <p className="text-red-600 text-sm dark:text-red-400">{error}</p>
+      )}
 
       <div className="flex gap-2">
         <button
@@ -183,7 +185,7 @@ export function LeaderForm({
               type="button"
               onClick={onCancel}
               disabled={loading || deleting}
-              className="py-2 px-4 rounded-md border border-gray-300 disabled:opacity-60"
+              className="py-2 px-4 rounded-md border border-gray-300 disabled:opacity-60 dark:border-slate-600"
             >
               Cancel
             </button>

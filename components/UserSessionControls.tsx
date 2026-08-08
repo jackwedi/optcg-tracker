@@ -105,9 +105,9 @@ export function UserSessionControls() {
       {isAdmin ? (
         <Link
           href="/admin/players"
-          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100 md:text-sm"
+          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 md:text-sm"
         >
-          Backoffice
+          BO
         </Link>
       ) : null}
       <button
@@ -116,7 +116,7 @@ export function UserSessionControls() {
         disabled={signingOut}
         aria-label="Sign out"
         title="Sign out"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 md:h-9 md:w-9"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 md:h-9 md:w-9"
       >
         {signingOut ? (
           <SpinnerIcon className="h-4 w-4" />

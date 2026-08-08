@@ -25,7 +25,9 @@ export function StatMeterContent({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-sm font-medium text-slate-600">{label}</p>
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+          {label}
+        </p>
         <p className={`text-2xl font-semibold ${valueClassName}`}>
           {value.toFixed(1)}%
         </p>
@@ -38,14 +40,16 @@ export function StatMeterContent({
           style={{ width: `${clamped}%` }}
         />
       </div>
-      <p className="mt-2 text-xs text-slate-500">{detail}</p>
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+        {detail}
+      </p>
     </div>
   );
 }
 
 export function StatMeter(props: StatMeterContentProps) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
       <StatMeterContent {...props} />
     </div>
   );

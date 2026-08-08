@@ -85,15 +85,17 @@ export function ShareTournamentButton({
         disabled={loading}
         aria-label={loading ? "Generating share image" : "Share tournament"}
         title={loading ? "Generating share image" : "Share tournament"}
-        className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 sm:h-10 sm:w-10"
+        className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 sm:h-10 sm:w-10"
       >
         {loading ? (
-          <SpinnerIcon className="h-4 w-4 text-slate-500 sm:h-5 sm:w-5" />
+          <SpinnerIcon className="h-4 w-4 text-slate-500 dark:text-slate-400 sm:h-5 sm:w-5" />
         ) : (
-          <ShareIcon className="h-4 w-4 text-slate-600 sm:h-5 sm:w-5" />
+          <ShareIcon className="h-4 w-4 text-slate-600 dark:text-slate-300 sm:h-5 sm:w-5" />
         )}
       </button>
-      {error && <p className="text-xs text-rose-600">{error}</p>}
+      {error && (
+        <p className="text-xs text-rose-600 dark:text-rose-400">{error}</p>
+      )}
     </div>
   );
 }
