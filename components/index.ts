@@ -8,6 +8,7 @@ export { WinRateProgressionChart } from "./WinRateProgressionChart";
 export { PlayedLeaderRepartition } from "./PlayedLeaderRepartition";
 export { StatMeter, StatMeterContent } from "./StatMeter";
 export { StartingPositionStats } from "./StartingPositionStats";
+export { RoundBadgeIcon } from "./RoundBadgeIcon";
 export { SpinnerIcon } from "./SpinnerIcon";
 export { RoundForm } from "./RoundForm";
 export { RoundList } from "./RoundList";

@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
+
 interface StatMeterContentProps {
-  label: string;
+  label: ReactNode;
   value: number;
   detail: string;
   trackClassName: string;

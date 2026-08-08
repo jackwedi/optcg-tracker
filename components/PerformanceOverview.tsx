@@ -328,7 +328,7 @@ export function PerformanceOverview({
 
       {activeTab === "overview" ? (
         <>
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="mb-6 grid grid-cols-2 gap-4">
             <StatMeter
               label="Win Rate"
               value={aggregateStats.winRate}
@@ -338,7 +338,7 @@ export function PerformanceOverview({
               valueClassName="text-emerald-600"
             />
             <StatMeter
-              label="Coin Flip Win Rate"
+              label="Coin Flip"
               value={aggregateStats.coinFlipWinRate}
               detail={`${aggregateStats.coinFlipWins} / ${aggregateStats.totalRounds} coin flips won`}
               trackClassName="bg-amber-100"

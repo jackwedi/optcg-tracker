@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Leader } from "@/models/leader";
 import { LeaderColorFilter } from "@/components/LeaderColorFilter";
 import { LeaderColorDots } from "@/components/LeaderColorDots";
+import { RoundBadgeIcon } from "@/components/RoundBadgeIcon";
 
 const BYE_LEADER_ID = "BYE";
 
@@ -13,26 +14,6 @@ const STEPS = [
   { step: 2, label: "Opponent Leader" },
   { step: 3, label: "Round Details" },
 ] as const;
-
-// Same badge shape/colors as RoundList's table (W/L/B, B/✕, 1/2) — button
-// icons reuse those instead of unrelated emoji, so the form and the table
-// read as one consistent system.
-function RoundBadgeIcon({
-  text,
-  className,
-}: {
-  text: string;
-  className: string;
-}) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${className}`}
-    >
-      {text}
-    </span>
-  );
-}
 
 interface RoundFormProps {
   tournamentId: string;
