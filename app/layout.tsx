@@ -41,6 +41,10 @@ export default function RootLayout({
               </h1>
               <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 md:gap-6">
                 <div className="hidden items-center gap-x-4 sm:flex md:gap-x-6">
+                  <Link href="/" className="text-gray-600 hover:text-gray-900">
+                    🏠 Tournaments
+                  </Link>
+
                   <Link
                     href="/tournaments"
                     className="text-gray-600 hover:text-gray-900"

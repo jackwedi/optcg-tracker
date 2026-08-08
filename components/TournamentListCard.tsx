@@ -1,32 +1,38 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { getTournamentTypeIcon, type Tournament } from "@/models/tournament";
 import { formatDate } from "@/lib/utils";
 
-interface RecentTournamentsProps {
+const PAGE_SIZE = 5;
+
+interface TournamentListCardProps {
   tournaments: Tournament[];
 }
 
-export function RecentTournaments({ tournaments }: RecentTournamentsProps) {
+// The full tournament list, most recent first — this used to be a 5-item
+// preview ("Recent Tournaments") pointing at a separate full list on the
+// Stats page's Tournaments tab. That tab is gone now; this is the one and
+// only place the raw list lives, paginated the same way the tab was.
+export function TournamentListCard({ tournaments }: TournamentListCardProps) {
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
   if (tournaments.length === 0) {
     return null;
   }
 
+  const displayedTournaments = tournaments.slice(0, visibleCount);
+  const hasMore = tournaments.length > visibleCount;
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="text-lg font-bold text-slate-900 sm:text-xl">
-          Recent Tournaments
-        </h2>
-        <Link
-          href="/tournaments"
-          className="text-sm font-medium text-blue-600 hover:underline"
-        >
-          See all →
-        </Link>
-      </div>
+      <h2 className="mb-4 text-lg font-bold text-slate-900 sm:text-xl">
+        Tournaments
+      </h2>
 
       <ul className="divide-y divide-slate-100">
-        {tournaments.map((tournament) => {
+        {displayedTournaments.map((tournament) => {
           const wins = tournament.rounds.filter((r) => r.won).length;
           const losses = tournament.rounds.length - wins;
 
@@ -76,6 +82,18 @@ export function RecentTournaments({ tournaments }: RecentTournamentsProps) {
           );
         })}
       </ul>
+
+      {hasMore ? (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            Show More Tournaments
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

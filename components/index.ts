@@ -25,7 +25,7 @@ export { LeaderSearch } from "./LeaderSearch";
 export { AuthPanel } from "./AuthPanel";
 export { CreateTournamentCard } from "./CreateTournamentCard";
 export { TodayTournamentBanner } from "./TodayTournamentBanner";
-export { RecentTournaments } from "./RecentTournaments";
+export { TournamentListCard } from "./TournamentListCard";
 export { CreateOrJoinCrewCard } from "./CreateOrJoinCrewCard";
 export { CrewInviteCode } from "./CrewInviteCode";
 export { CrewLeaderboardTable } from "./CrewLeaderboardTable";

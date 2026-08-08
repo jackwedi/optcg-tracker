@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TAB_LINKS = [
-  { href: "/", label: "Home", icon: "🏠", exact: true },
+  { href: "/", label: "Tournaments", icon: "🏠", exact: true },
   { href: "/tournaments", label: "Stats", icon: "📈", exact: false },
   { href: "/crew", label: "Crew", icon: "🏴‍☠️", exact: false },
 ];

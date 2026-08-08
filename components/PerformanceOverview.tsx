@@ -5,7 +5,6 @@ import type { Tournament } from "@/models/tournament";
 import { TOURNAMENT_TYPES } from "@/models/tournament";
 import type { Leader } from "@/models/leader";
 import type { ExtensionMeta } from "@/models/meta";
-import { TournamentTable } from "@/components/TournamentTable";
 import { LeaderColorDots } from "@/components/LeaderColorDots";
 import { StatMeter } from "@/components/StatMeter";
 import { StartingPositionStats } from "@/components/StartingPositionStats";
@@ -15,15 +14,13 @@ import { BYE_LEADER_ID } from "@/lib/leaders";
 
 const ALL_LEADERS = "All";
 const ALL_TYPES = "All";
-const TOURNAMENTS_PAGE_SIZE = 5;
 
 type CoinFlipFilter = "All" | "Won" | "Lost";
 const COIN_FLIP_FILTERS: CoinFlipFilter[] = ["All", "Won", "Lost"];
 
-type PerformanceTab = "overview" | "leaders" | "tournaments";
+type PerformanceTab = "overview" | "leaders";
 const PERFORMANCE_TABS: { key: PerformanceTab; label: string }[] = [
   { key: "overview", label: "Overview" },
-  { key: "tournaments", label: "Tournaments" },
   { key: "leaders", label: "Leaders" },
 ];
 
@@ -34,8 +31,9 @@ interface PerformanceOverviewProps {
 }
 
 // All filters here (Meta/Type/Coin Flip/Leader) drive every widget on the
-// page — the chart, the leader repartition, the stat meters, and the table —
-// so the whole page always reflects one consistent, filtered view.
+// page — the chart, the leader repartition, and the stat meters — so the
+// whole page always reflects one consistent, filtered view. The raw
+// tournament list itself lives on the home page now, not here.
 export function PerformanceOverview({
   tournaments,
   leadersById,
@@ -47,7 +45,6 @@ export function PerformanceOverview({
   const [coinFlipFilter, setCoinFlipFilter] = useState<CoinFlipFilter>("All");
   const [metaFilter, setMetaFilter] = useState<string[]>([]);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(TOURNAMENTS_PAGE_SIZE);
 
   const usedLeaders = useMemo(() => {
     const seen = new Map<string, Leader>();
@@ -162,12 +159,6 @@ export function PerformanceOverview({
     (typeFilter !== ALL_TYPES ? 1 : 0) +
     (coinFlipFilter !== "All" ? 1 : 0) +
     (leaderFilter !== ALL_LEADERS ? 1 : 0);
-
-  // Table only shows the most recent slice; every other widget still
-  // aggregates the full filtered set regardless of how many rows are
-  // currently revealed.
-  const displayedTournaments = filteredTournaments.slice(0, visibleCount);
-  const hasMoreTournaments = filteredTournaments.length > visibleCount;
 
   return (
     <div>
@@ -376,28 +367,6 @@ export function PerformanceOverview({
           tournaments={filteredTournaments}
           leadersById={leadersById}
         />
-      ) : null}
-
-      {activeTab === "tournaments" ? (
-        <div>
-          <TournamentTable
-            tournaments={displayedTournaments}
-            leadersById={leadersById}
-          />
-          {hasMoreTournaments ? (
-            <div className="mt-4 flex justify-center">
-              <button
-                type="button"
-                onClick={() =>
-                  setVisibleCount((count) => count + TOURNAMENTS_PAGE_SIZE)
-                }
-                className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-              >
-                Show More Tournaments
-              </button>
-            </div>
-          ) : null}
-        </div>
       ) : null}
     </div>
   );
