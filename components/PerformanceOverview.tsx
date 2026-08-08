@@ -9,7 +9,7 @@ import { LeaderColorDots } from "@/components/LeaderColorDots";
 import { StatMeter } from "@/components/StatMeter";
 import { StartingPositionStats } from "@/components/StartingPositionStats";
 import { WinRateProgressionChart } from "@/components/WinRateProgressionChart";
-import { PlayedLeaderRepartition } from "@/components/PlayedLeaderRepartition";
+import { LeaderMatchups } from "@/components/LeaderMatchups";
 import { BYE_LEADER_ID } from "@/lib/leaders";
 
 const ALL_LEADERS = "All";
@@ -18,10 +18,10 @@ const ALL_TYPES = "All";
 type CoinFlipFilter = "All" | "Won" | "Lost";
 const COIN_FLIP_FILTERS: CoinFlipFilter[] = ["All", "Won", "Lost"];
 
-type PerformanceTab = "overview" | "leaders";
+type PerformanceTab = "overview" | "matchups";
 const PERFORMANCE_TABS: { key: PerformanceTab; label: string }[] = [
   { key: "overview", label: "Overview" },
-  { key: "leaders", label: "Leaders" },
+  { key: "matchups", label: "Matchup" },
 ];
 
 interface PerformanceOverviewProps {
@@ -362,8 +362,8 @@ export function PerformanceOverview({
         </>
       ) : null}
 
-      {activeTab === "leaders" ? (
-        <PlayedLeaderRepartition
+      {activeTab === "matchups" ? (
+        <LeaderMatchups
           tournaments={filteredTournaments}
           leadersById={leadersById}
         />

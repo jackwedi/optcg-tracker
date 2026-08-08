@@ -1,11 +1,8 @@
 export { TournamentForm } from "./TournamentForm";
-export { TournamentList } from "./TournamentList";
-export { TournamentTable } from "./TournamentTable";
 export { PerformanceOverview } from "./PerformanceOverview";
 export { TournamentTypeEditor } from "./TournamentTypeEditor";
-export { TournamentStatsByType } from "./TournamentStatsByType";
 export { WinRateProgressionChart } from "./WinRateProgressionChart";
-export { PlayedLeaderRepartition } from "./PlayedLeaderRepartition";
+export { LeaderMatchups } from "./LeaderMatchups";
 export { StatMeter, StatMeterContent } from "./StatMeter";
 export { StartingPositionStats } from "./StartingPositionStats";
 export { RoundBadgeIcon } from "./RoundBadgeIcon";
