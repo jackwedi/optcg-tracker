@@ -173,9 +173,6 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
               <th className="w-10 px-1 py-2 text-center font-semibold sm:w-auto sm:px-4 sm:py-3">
                 Result
               </th>
-              <th className="w-6 px-1 py-2 sm:w-auto sm:px-2 sm:py-3">
-                <span className="sr-only">Edit</span>
-              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -356,20 +353,6 @@ export function RoundList({ rounds, tournamentId }: RoundListProps) {
                       {resultBadgeText}
                     </span>
                     <span className="sr-only">{resultLabel}</span>
-                  </td>
-                  <td className="px-1 py-2 text-gray-400 sm:px-2 sm:py-3">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-4 w-4 shrink-0"
-                      aria-hidden="true"
-                    >
-                      <path d="M9 6l6 6-6 6" />
-                    </svg>
                   </td>
                 </tr>
               );
