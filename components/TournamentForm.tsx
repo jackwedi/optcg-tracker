@@ -9,8 +9,8 @@ import {
   TOURNAMENT_TYPES,
   type TournamentType,
 } from "@/models/tournament";
-import { LeaderColorFilter } from "@/components/LeaderColorFilter";
-import { LeaderColorDots } from "@/components/LeaderColorDots";
+import { LeaderSelectField } from "@/components/LeaderSelectField";
+import { useLeaderSelection } from "@/components/useLeaderSelection";
 
 const STEPS = [
   { step: 1, label: "Name & Date" },
@@ -33,11 +33,7 @@ export function TournamentForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [leaders, setLeaders] = useState<Leader[]>([]);
-  const [idGroupFilter, setIdGroupFilter] = useState("All");
-  const [colorFilter, setColorFilter] = useState<string[]>([]);
-  const [playedLeaderId, setPlayedLeaderId] = useState<string | undefined>(
-    undefined,
-  );
+  const leaderSelection = useLeaderSelection(leaders);
   const [selectedTournamentType, setSelectedTournamentType] =
     useState<TournamentType>(DEFAULT_TOURNAMENT_TYPE);
   const router = useRouter();
@@ -54,52 +50,6 @@ export function TournamentForm() {
       mounted = false;
     };
   }, []);
-
-  const colorFilteredLeaders = leaders.filter((l) => {
-    const leaderColors = Array.isArray(l.colors) ? l.colors.flat() : [];
-    return (
-      colorFilter.length === 0 ||
-      colorFilter.every((c) => leaderColors.includes(c))
-    );
-  });
-
-  const idGroupOptions = Array.from(
-    new Set(
-      colorFilteredLeaders
-        .map((l) => l.id.split("-")[0] || "")
-        .filter(Boolean)
-        .map((p) => (p.startsWith("ST") ? "ST" : p)),
-    ),
-  ).sort();
-
-  const colorOptions = Array.from(
-    new Set(
-      leaders
-        .flatMap((l) => (Array.isArray(l.colors) ? l.colors.flat() : []))
-        .filter(Boolean),
-    ),
-  ).sort();
-
-  // When narrowed to a single choice, treat it as selected without requiring
-  // an explicit click — derived during render (not an effect) so it never
-  // trails a render behind.
-  const effectiveIdGroupFilter =
-    idGroupOptions.length === 1 ? idGroupOptions[0] : idGroupFilter;
-
-  const filteredLeaders = leaders.filter((l) => {
-    let prefix = l.id.split("-")[0] || "";
-    if (prefix.startsWith("ST")) prefix = "ST";
-    const matchesId =
-      effectiveIdGroupFilter === "All" || prefix === effectiveIdGroupFilter;
-    const leaderColors = Array.isArray(l.colors) ? l.colors.flat() : [];
-    const matchesColor =
-      colorFilter.length === 0 ||
-      colorFilter.every((c) => leaderColors.includes(c));
-    return matchesId && matchesColor;
-  });
-
-  const effectivePlayedLeaderId =
-    filteredLeaders.length === 1 ? filteredLeaders[0].id : playedLeaderId;
 
   const goToStep = (target: 1 | 2 | 3) => {
     setError("");
@@ -132,7 +82,7 @@ export function TournamentForm() {
         body: JSON.stringify({
           name,
           date,
-          playedLeaderId: effectivePlayedLeaderId,
+          playedLeaderId: leaderSelection.effectiveLeaderId,
           tournamentType: selectedTournamentType,
         }),
       });
@@ -145,7 +95,7 @@ export function TournamentForm() {
       setName("");
       setDate(getTodayDateString());
       setSelectedTournamentType(DEFAULT_TOURNAMENT_TYPE);
-      setPlayedLeaderId(undefined);
+      leaderSelection.setSelectedLeaderId(undefined);
       setStep(1);
       router.push(`/tournaments/${tournament.id}`);
     } catch (err) {
@@ -164,14 +114,14 @@ export function TournamentForm() {
               <span
                 className={`h-3 w-3 shrink-0 rounded-full border-2 transition ${
                   step >= s.step
-                    ? "border-blue-600 bg-blue-600"
+                    ? "border-orange-600 bg-orange-600"
                     : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-800"
                 }`}
               />
               <span
                 className={`whitespace-nowrap text-[11px] font-medium ${
                   step === s.step
-                    ? "text-blue-600 dark:text-blue-400"
+                    ? "text-orange-600 dark:text-orange-400"
                     : step > s.step
                       ? "text-slate-600 dark:text-slate-300"
                       : "text-slate-400 dark:text-slate-500"
@@ -183,7 +133,7 @@ export function TournamentForm() {
             {index < STEPS.length - 1 ? (
               <span
                 className={`mx-2 mt-1.5 h-0.5 w-6 shrink-0 rounded-full transition ${
-                  step > s.step ? "bg-blue-600" : "bg-slate-200 dark:bg-slate-700"
+                  step > s.step ? "bg-orange-600" : "bg-slate-200 dark:bg-slate-700"
                 }`}
               />
             ) : null}
@@ -207,7 +157,7 @@ export function TournamentForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 text-base dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 placeholder="e.g., Regional Championship"
               />
             </div>
@@ -225,7 +175,7 @@ export function TournamentForm() {
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 text-base dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               />
             </div>
           </div>
@@ -237,7 +187,7 @@ export function TournamentForm() {
           <button
             type="button"
             onClick={handleNextFromDetails}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+            className="w-full rounded-2xl border-2 border-orange-500 bg-white px-4 py-3 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50 dark:border-orange-500 dark:bg-slate-800 dark:text-orange-300 dark:hover:bg-orange-500/10"
           >
             Next
           </button>
@@ -256,7 +206,7 @@ export function TournamentForm() {
                   onClick={() => setSelectedTournamentType(type)}
                   className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-4 text-sm font-medium transition ${
                     selectedTournamentType === type
-                      ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                      ? "border-orange-400 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-500/10 dark:text-orange-300"
                       : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   }`}
                 >
@@ -277,14 +227,14 @@ export function TournamentForm() {
             <button
               type="button"
               onClick={() => goToStep(1)}
-              className="flex-1 rounded-md border border-gray-300 py-2 px-4 text-slate-700 dark:border-slate-600 dark:text-slate-300"
+              className="flex-1 rounded-2xl border border-slate-300 bg-white py-3 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               Back
             </button>
             <button
               type="button"
               onClick={() => goToStep(3)}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+              className="flex-1 rounded-2xl border-2 border-orange-500 bg-white px-4 py-3 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50 dark:border-orange-500 dark:bg-slate-800 dark:text-orange-300 dark:hover:bg-orange-500/10"
             >
               Next
             </button>
@@ -292,148 +242,15 @@ export function TournamentForm() {
         </div>
       ) : (
         <div key="step-3" className="space-y-6">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-700">
-            <div>
-              <div className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                Played Leader
-              </div>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                Pick the leader you&apos;ll be playing for this tournament.
-              </p>
-            </div>
-
-            <div className="mt-4">
-              <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
-                Color
-              </label>
-              <LeaderColorFilter
-                colors={colorOptions}
-                value={colorFilter}
-                onChange={setColorFilter}
-              />
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
-                  Extension
-                </label>
-                {idGroupOptions.length > 0 && idGroupOptions.length < 5 ? (
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setIdGroupFilter("All")}
-                      className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                        effectiveIdGroupFilter === "All"
-                          ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
-                          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      All
-                    </button>
-                    {idGroupOptions.map((group) => (
-                      <button
-                        key={group}
-                        type="button"
-                        onClick={() => setIdGroupFilter(group)}
-                        className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                          effectiveIdGroupFilter === group
-                            ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
-                            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                        }`}
-                      >
-                        {group}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <select
-                    value={effectiveIdGroupFilter}
-                    onChange={(e) => setIdGroupFilter(e.target.value)}
-                    className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-                  >
-                    <option value="All">Select Extension</option>
-                    {idGroupOptions.map((group) => (
-                      <option key={group} value={group}>
-                        {group}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
-                  Played Leader
-                </label>
-                {filteredLeaders.length > 0 && filteredLeaders.length < 5 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {filteredLeaders.map((l) => (
-                      <button
-                        key={l.id}
-                        type="button"
-                        onClick={() => setPlayedLeaderId(l.id)}
-                        className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                          effectivePlayedLeaderId === l.id
-                            ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
-                            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                        }`}
-                      >
-                        <LeaderColorDots colors={l.colors} />
-                        {l.name}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <select
-                    value={effectivePlayedLeaderId ?? ""}
-                    onChange={(e) =>
-                      setPlayedLeaderId(e.target.value || undefined)
-                    }
-                    className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-                  >
-                    <option value="">-- Select leader --</option>
-                    {filteredLeaders.map((l) => (
-                      <option
-                        key={l.id}
-                        value={l.id}
-                      >{`${l.name} (${l.id})`}</option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            </div>
-
-            {effectivePlayedLeaderId &&
-              (() => {
-                const sel = leaders.find(
-                  (x) => x.id === effectivePlayedLeaderId,
-                );
-                if (!sel) return null;
-                const previewSrc = /^https?:\/\//i.test(sel.imageUrl)
-                  ? sel.imageUrl
-                  : `/${sel.imageUrl}`.replace(/^\//, "/");
-                return (
-                  <div className="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-600 dark:bg-slate-800">
-                    <img
-                      src={previewSrc}
-                      alt={sel.name}
-                      className="h-14 w-14 border bg-white object-contain dark:bg-slate-700"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src =
-                          "/placeholder.png";
-                      }}
-                    />
-                    <div>
-                      <div className="text-lg font-medium">{sel.name}</div>
-                      <div className="text-sm text-gray-500 dark:text-slate-400">
-                        {sel.id}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-          </div>
+          <LeaderSelectField
+            title="Played Leader"
+            description="Pick the leader you'll be playing for this tournament."
+            fieldLabel="Played Leader"
+            placeholder="-- Select leader --"
+            leaders={leaders}
+            selection={leaderSelection}
+            showPreview
+          />
 
           {error && (
             <p className="text-red-600 text-sm dark:text-red-400">{error}</p>
@@ -444,14 +261,14 @@ export function TournamentForm() {
               type="button"
               onClick={() => goToStep(2)}
               disabled={loading}
-              className="flex-1 rounded-md border border-gray-300 py-2 px-4 text-slate-700 disabled:opacity-60 dark:border-slate-600 dark:text-slate-300"
+              className="flex-1 rounded-2xl border border-slate-300 bg-white py-3 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               Back
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-slate-600"
+              className="flex-1 rounded-2xl border-2 border-orange-500 bg-white px-4 py-3 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-orange-500 dark:bg-slate-800 dark:text-orange-300 dark:hover:bg-orange-500/10"
             >
               {loading ? "Creating..." : "Create Tournament"}
             </button>

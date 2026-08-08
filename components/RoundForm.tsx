@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Leader } from "@/models/leader";
-import { LeaderColorFilter } from "@/components/LeaderColorFilter";
-import { LeaderColorDots } from "@/components/LeaderColorDots";
+import { LeaderSelectField } from "@/components/LeaderSelectField";
+import { useLeaderSelection } from "@/components/useLeaderSelection";
 import { RoundBadgeIcon } from "@/components/RoundBadgeIcon";
 
 const BYE_LEADER_ID = "BYE";
@@ -23,13 +23,11 @@ interface RoundFormProps {
 export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [selectedOpponentLeaderId, setSelectedOpponentLeaderId] = useState<
-    string | undefined
-  >(undefined);
   const [isBye, setIsBye] = useState(false);
   const [leaders, setLeaders] = useState<Leader[]>([]);
-  const [idGroupFilter, setIdGroupFilter] = useState("All");
-  const [colorFilter, setColorFilter] = useState<string[]>([]);
+  const opponentSelection = useLeaderSelection(leaders, {
+    excludeLeaderId: BYE_LEADER_ID,
+  });
   const [won, setWon] = useState(false);
   const [wonCoinFlip, setWonCoinFlip] = useState(false);
   const [isFirst, setIsFirst] = useState(true);
@@ -50,57 +48,6 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
     };
   }, []);
 
-  const colorFilteredLeaders = leaders.filter((l) => {
-    if (l.id === BYE_LEADER_ID) return false;
-    const leaderColors = Array.isArray(l.colors) ? l.colors.flat() : [];
-    return (
-      colorFilter.length === 0 ||
-      colorFilter.every((c) => leaderColors.includes(c))
-    );
-  });
-
-  const idGroupOptions = Array.from(
-    new Set(
-      colorFilteredLeaders
-        .map((l) => (l.id.split("-")[0] || "").trim())
-        .filter(Boolean)
-        .map((p) => (p.startsWith("ST") ? "ST" : p)),
-    ),
-  ).sort();
-
-  const colorOptions = Array.from(
-    new Set(
-      leaders
-        .filter((l) => l.id !== BYE_LEADER_ID)
-        .flatMap((l) => (Array.isArray(l.colors) ? l.colors.flat() : []))
-        .filter(Boolean),
-    ),
-  ).sort();
-
-  // When narrowed to a single choice, treat it as selected without requiring
-  // an explicit click — derived during render (not an effect) so it never
-  // trails a render behind.
-  const effectiveIdGroupFilter =
-    idGroupOptions.length === 1 ? idGroupOptions[0] : idGroupFilter;
-
-  const filteredLeaders = leaders.filter((l) => {
-    if (l.id === BYE_LEADER_ID) return false;
-    let prefix = l.id.split("-")[0] || "";
-    if (prefix.startsWith("ST")) prefix = "ST";
-    const matchesId =
-      effectiveIdGroupFilter === "All" || prefix === effectiveIdGroupFilter;
-    const leaderColors = Array.isArray(l.colors) ? l.colors.flat() : [];
-    const matchesColor =
-      colorFilter.length === 0 ||
-      colorFilter.every((c) => leaderColors.includes(c));
-    return matchesId && matchesColor;
-  });
-
-  const effectiveOpponentLeaderId =
-    filteredLeaders.length === 1
-      ? filteredLeaders[0].id
-      : selectedOpponentLeaderId;
-
   const goToStep = (target: 1 | 2 | 3) => {
     setError("");
     setStep(target);
@@ -111,7 +58,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
   };
 
   const handleNextFromOpponent = () => {
-    if (!effectiveOpponentLeaderId) {
+    if (!opponentSelection.effectiveLeaderId) {
       setError("Opponent leader is required.");
       return;
     }
@@ -125,7 +72,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isBye && !effectiveOpponentLeaderId) {
+    if (!isBye && !opponentSelection.effectiveLeaderId) {
       setError("Opponent leader is required.");
       return;
     }
@@ -140,7 +87,9 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          opponentLeaderId: isBye ? BYE_LEADER_ID : effectiveOpponentLeaderId,
+          opponentLeaderId: isBye
+            ? BYE_LEADER_ID
+            : opponentSelection.effectiveLeaderId,
           won: isBye ? true : won,
           wonCoinFlip: isBye ? false : wonCoinFlip,
           startingPosition: isBye ? "1st" : isFirst ? "1st" : "2nd",
@@ -152,7 +101,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
         throw new Error("Failed to create round");
       }
 
-      setSelectedOpponentLeaderId(undefined);
+      opponentSelection.setSelectedLeaderId(undefined);
       setIsBye(false);
       setWon(false);
       setWonCoinFlip(false);
@@ -168,7 +117,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
   };
 
   return (
-    <div className="w-full rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+    <div className="w-full rounded-3xl border border-orange-100 bg-white p-6 shadow-sm dark:border-orange-800 dark:bg-slate-800">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
@@ -184,7 +133,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
           </p>
         </div>
         <span
-          className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-lg font-semibold text-sky-700 transition-transform dark:border-sky-800 dark:bg-sky-500/10 dark:text-sky-300 ${
+          className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-orange-200 bg-white text-lg font-semibold text-orange-700 transition-transform dark:border-orange-800 dark:bg-slate-800 dark:text-orange-300 ${
             open ? "rotate-45" : "rotate-0"
           }`}
         >
@@ -195,7 +144,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
       {open ? (
         <form
           onSubmit={handleSubmit}
-          className="mt-4 space-y-4 border-t border-slate-200 pt-4 dark:border-slate-700"
+          className="mt-4 space-y-4 border-t border-orange-100 pt-4 dark:border-orange-800"
         >
           <div className="mx-auto flex w-fit items-start">
             {STEPS.map((s, index) => (
@@ -204,14 +153,14 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                   <span
                     className={`h-3 w-3 shrink-0 rounded-full border-2 transition ${
                       step >= s.step
-                        ? "border-emerald-600 bg-emerald-600"
+                        ? "border-orange-600 bg-orange-600"
                         : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-800"
                     }`}
                   />
                   <span
                     className={`whitespace-nowrap text-[11px] font-medium ${
                       step === s.step
-                        ? "text-emerald-600 dark:text-emerald-400"
+                        ? "text-orange-600 dark:text-orange-400"
                         : step > s.step
                           ? "text-slate-600 dark:text-slate-300"
                           : "text-slate-400 dark:text-slate-500"
@@ -223,9 +172,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                 {index < STEPS.length - 1 ? (
                   <span
                     className={`mx-2 mt-1.5 h-0.5 w-6 shrink-0 rounded-full transition ${
-                      step > s.step
-                        ? "bg-emerald-600"
-                        : "bg-slate-200 dark:bg-slate-700"
+                      step > s.step ? "bg-orange-600" : "bg-slate-200 dark:bg-slate-700"
                     }`}
                   />
                 ) : null}
@@ -250,7 +197,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                     onClick={() => setIsBye(false)}
                     className={`rounded-md border px-2 py-2.5 text-sm font-medium transition ${
                       !isBye
-                        ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                        ? "border-orange-400 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-500/10 dark:text-orange-300"
                         : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                     }`}
                   >
@@ -260,12 +207,12 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                     type="button"
                     onClick={() => {
                       setIsBye(true);
-                      setSelectedOpponentLeaderId(undefined);
+                      opponentSelection.setSelectedLeaderId(undefined);
                       setWon(true);
                     }}
                     className={`rounded-md border px-2 py-2.5 text-sm font-medium transition ${
                       isBye
-                        ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                        ? "border-orange-400 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-500/10 dark:text-orange-300"
                         : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                     }`}
                   >
@@ -292,128 +239,21 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
               <button
                 type="button"
                 onClick={handleNextFromRoundType}
-                className="w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                className="w-full rounded-2xl border-2 border-orange-500 bg-white px-4 py-3 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50 dark:border-orange-500 dark:bg-slate-800 dark:text-orange-300 dark:hover:bg-orange-500/10"
               >
                 Next
               </button>
             </div>
           ) : step === 2 ? (
             <div key="round-step-2" className="space-y-4">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div>
-                  <div className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                    Opponent Leader
-                  </div>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    Pick the leader your opponent played this round.
-                  </p>
-                </div>
-
-                <div className="mt-4">
-                  <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
-                    Color
-                  </label>
-                  <LeaderColorFilter
-                    colors={colorOptions}
-                    value={colorFilter}
-                    onChange={setColorFilter}
-                  />
-                </div>
-
-                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
-                      Extension
-                    </label>
-                    {idGroupOptions.length > 0 && idGroupOptions.length < 5 ? (
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setIdGroupFilter("All")}
-                          className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                            effectiveIdGroupFilter === "All"
-                              ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
-                              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                          }`}
-                        >
-                          All
-                        </button>
-                        {idGroupOptions.map((group) => (
-                          <button
-                            key={group}
-                            type="button"
-                            onClick={() => setIdGroupFilter(group)}
-                            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                              effectiveIdGroupFilter === group
-                                ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
-                                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                            }`}
-                          >
-                            {group}
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <select
-                        value={effectiveIdGroupFilter}
-                        onChange={(e) => setIdGroupFilter(e.target.value)}
-                        className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-                      >
-                        <option value="All">Select Extension</option>
-                        {idGroupOptions.map((group) => (
-                          <option key={group} value={group}>
-                            {group}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="mb-1 block text-xs font-medium uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
-                      Opponent Leader
-                    </label>
-                    {filteredLeaders.length > 0 &&
-                    filteredLeaders.length < 5 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {filteredLeaders.map((leader) => (
-                          <button
-                            key={leader.id}
-                            type="button"
-                            onClick={() =>
-                              setSelectedOpponentLeaderId(leader.id)
-                            }
-                            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                              effectiveOpponentLeaderId === leader.id
-                                ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
-                                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                            }`}
-                          >
-                            <LeaderColorDots colors={leader.colors} />
-                            {leader.name}
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <select
-                        value={effectiveOpponentLeaderId ?? ""}
-                        onChange={(e) => {
-                          const leaderId = e.target.value || undefined;
-                          setSelectedOpponentLeaderId(leaderId);
-                        }}
-                        className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-                      >
-                        <option value="">-- Select opponent leader --</option>
-                        {filteredLeaders.map((leader) => (
-                          <option key={leader.id} value={leader.id}>
-                            {leader.name} ({leader.id})
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <LeaderSelectField
+                title="Opponent Leader"
+                description="Pick the leader your opponent played this round."
+                fieldLabel="Opponent Leader"
+                placeholder="-- Select opponent leader --"
+                leaders={leaders}
+                selection={opponentSelection}
+              />
 
               {error && (
                 <p className="text-sm font-medium text-rose-600 dark:text-rose-400">
@@ -432,7 +272,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                 <button
                   type="button"
                   onClick={handleNextFromOpponent}
-                  className="flex-1 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                  className="flex-1 rounded-2xl border-2 border-orange-500 bg-white px-4 py-3 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50 dark:border-orange-500 dark:bg-slate-800 dark:text-orange-300 dark:hover:bg-orange-500/10"
                 >
                   Next
                 </button>
@@ -457,7 +297,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                           onClick={() => setWonCoinFlip(false)}
                           className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
                             !wonCoinFlip
-                              ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                              ? "border-orange-400 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-500/10 dark:text-orange-300"
                               : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                           }`}
                         >
@@ -472,7 +312,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                           onClick={() => setWonCoinFlip(true)}
                           className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
                             wonCoinFlip
-                              ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                              ? "border-orange-400 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-500/10 dark:text-orange-300"
                               : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                           }`}
                         >
@@ -495,7 +335,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                           onClick={() => setIsFirst(true)}
                           className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
                             isFirst
-                              ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                              ? "border-orange-400 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-500/10 dark:text-orange-300"
                               : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                           }`}
                         >
@@ -510,7 +350,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                           onClick={() => setIsFirst(false)}
                           className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
                             !isFirst
-                              ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                              ? "border-orange-400 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-500/10 dark:text-orange-300"
                               : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                           }`}
                         >
@@ -533,7 +373,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                           onClick={() => setWon(false)}
                           className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
                             !won
-                              ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                              ? "border-orange-400 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-500/10 dark:text-orange-300"
                               : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                           }`}
                         >
@@ -548,7 +388,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                           onClick={() => setWon(true)}
                           className={`flex flex-col items-center justify-center gap-1 rounded-md border px-2 py-2 text-sm font-medium transition ${
                             won
-                              ? "border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                              ? "border-orange-400 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-500/10 dark:text-orange-300"
                               : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                           }`}
                         >
@@ -591,7 +431,7 @@ export function RoundForm({ tournamentId, onRoundAdded }: RoundFormProps) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-400 dark:disabled:bg-slate-600"
+                  className="flex-1 rounded-2xl border-2 border-orange-500 bg-white px-4 py-3 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-orange-500 dark:bg-slate-800 dark:text-orange-300 dark:hover:bg-orange-500/10"
                 >
                   {loading ? "Adding..." : "Add Round"}
                 </button>
